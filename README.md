@@ -3,7 +3,7 @@
 
 ## 一键使用
 ### Windows
-[点此下载](https://github.com/URenko/Accesser/releases/download/v0.4.7/Windows_x64.zip)，解压后运行`start.bat`即可，首次运行可能会申请管理员权限
+[点此进入下载页](https://github.com/URenko/Accesser/releases/latest)，下载Windows_x64.zip，解压后运行`start.bat`即可，首次运行可能会申请管理员权限
 
 ## 依赖
 - Python3.7 (其他版本未测试)
@@ -19,7 +19,10 @@
 - 增加支持的域名：  
 在`domains.txt`中添加新行再加入域名，重新启动程序
 
-## 当前自动导入证书支持
-- [x] Windows
-- [ ] Mac OS
-- [ ] Linux
+## 当前支持
+|                   |Windows|Mac OS|Linux|
+|-------------------|-------|------|-----|
+|基础支持            |  ✔  |  ✔  | ✔ |
+|自动导入证书至系统   |  ✔  |      |     |
+|自动导入证书至Firefox|      |      |     |
+|自动更新HOSTS       |  ✔  |      |     |

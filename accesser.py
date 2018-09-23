@@ -115,6 +115,9 @@ class ProxyHandler(StreamRequestHandler):
         context = ssl.create_default_context()
         context.check_hostname = False
         self.remote_sock = context.wrap_socket(self.remote_sock)
+        cert = self.remote_sock.getpeercert()
+        if check_hostname:
+            ssl.match_hostname(cert, self.host)
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock)
 
@@ -140,27 +143,31 @@ if __name__ == '__main__':
     
     config = configparser.ConfigParser()
     config.read('setting.ini')
+    check_hostname = int(config['setting']['check_hostname'])
     now_dn_st_mtime = os.stat('domains.txt').st_mtime
     domainsupdate = False
     if float(config['internal']['dn_st_mtime']) < now_dn_st_mtime:
-        domainsupdate = True
-        if not win32elevate.areAdminRightsElevated():
-            win32elevate.elevateAdminRun(' '.join(sys.argv), reattachConsole=False)
-            sys.exit(0)
-        logging.info('Updating HOSTS...')
-        with open(r"C:\Windows\System32\drivers\etc\hosts") as f:
-            host_content = f.read()
-        with open('domains.txt') as f:
-            for domain in f:
-                if not re.search(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')', host_content):
-                    host_content += '\n127.0.0.1\t'+domain.strip()
-                host_content = re.sub(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')',r'127.0.0.1\g<oth>',host_content)
-        with open(r"C:\Windows\System32\drivers\etc\hosts", 'w') as f:
-            f.write(host_content)
-        config['internal']['dn_st_mtime'] = str(now_dn_st_mtime)
-        with open('setting.ini', 'w') as f:
-            config.write(f)
-        logging.info('Updating fin')
+        if sys.platform.startswith('win'):
+            domainsupdate = True
+            if not win32elevate.areAdminRightsElevated():
+                win32elevate.elevateAdminRun(' '.join(sys.argv), reattachConsole=False)
+                sys.exit(0)
+            logging.info('Updating HOSTS...')
+            with open(r"C:\Windows\System32\drivers\etc\hosts") as f:
+                host_content = f.read()
+            with open('domains.txt') as f:
+                for domain in f:
+                    if not re.search(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')', host_content):
+                        host_content += '\n127.0.0.1\t'+domain.strip()
+                    host_content = re.sub(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')',r'127.0.0.1\g<oth>',host_content)
+            with open(r"C:\Windows\System32\drivers\etc\hosts", 'w') as f:
+                f.write(host_content)
+            config['internal']['dn_st_mtime'] = str(now_dn_st_mtime)
+            with open('setting.ini', 'w') as f:
+                config.write(f)
+            logging.info('Updating fin')
+        else:
+            logging.warning('other platform support is under development, please update HOSTS manually and then use -r to update server cert.')
     
     if not os.path.exists('CERT'):
         os.mkdir('CERT')
