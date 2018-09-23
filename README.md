@@ -3,7 +3,7 @@
 
 ## 一键使用
 ### Windows
-[点此下载](https://github.com/URenko/Accesser/releases/download/v0.4.7/Windows_x64.exe)，解压后运行`start.bat`即可，首次运行可能会申请管理员权限
+[点此下载](https://github.com/URenko/Accesser/releases/download/v0.4.7/Windows_x64.zip)，解压后运行`start.bat`即可，首次运行可能会申请管理员权限
 
 ## 依赖
 - Python3.7 (其他版本未测试)
