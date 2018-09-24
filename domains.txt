@@ -2,3 +2,4 @@ zh.wikipedia.org
 jp.wikipedia.org
 www.pixiv.net
 pixiv.net
+accounts.pixiv.net

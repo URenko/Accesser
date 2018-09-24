@@ -31,7 +31,6 @@ from socketserver import *
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
 from utils import importca
-from utils import win32elevate
 
 from http import HTTPStatus
 import urllib.error
@@ -128,6 +127,9 @@ if __name__ == '__main__':
     parser.add_argument('-rr', '--root', help='create root cert', action="store_true")
     args = parser.parse_args()
 
+    config = configparser.ConfigParser()
+    config.read('setting.ini')
+    
     if not os.path.exists('hosts'):
         import urllib.request
         logging.info('hosts file not exit, downloading...')
@@ -140,15 +142,16 @@ if __name__ == '__main__':
         logging.info('saved to: '+local_filename)
     hosts = re.findall(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\s+(\S+)', open('hosts').read())
     rhosts = {k:v for v,k in hosts}
+    for domain in config['HOSTS']:
+        rhosts[domain] = config['HOSTS'][domain]
     
-    config = configparser.ConfigParser()
-    config.read('setting.ini')
     check_hostname = int(config['setting']['check_hostname'])
     now_dn_st_mtime = os.stat('domains.txt').st_mtime
     domainsupdate = False
     if float(config['internal']['dn_st_mtime']) < now_dn_st_mtime:
         if sys.platform.startswith('win'):
             domainsupdate = True
+            from utils import win32elevate
             if not win32elevate.areAdminRightsElevated():
                 win32elevate.elevateAdminRun(' '.join(sys.argv), reattachConsole=False)
                 sys.exit(0)
