@@ -188,6 +188,12 @@ if __name__ == '__main__':
         context.load_cert_chain("CERT/server.crt", "CERT/server.key")
     except FileNotFoundError:
         logging.error('cert not exist, please use --rr to create it')
+    if int(config['setting']['http_redirect']):
+        from utils import httpredirect
+        import threading
+        th_httpredirect = threading.Thread(target=httpredirect.main)
+        th_httpredirect.daemon = True
+        th_httpredirect.start()
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
         server.socket = context.wrap_socket(server.socket, server_side=True)
