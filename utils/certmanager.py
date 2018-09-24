@@ -29,7 +29,8 @@ def parse_domain():
             if len(domain) == 2:
                 domains.add("DNS:{}.{}".format(*domain))
             else:
-                domains.add("DNS:*.{}.{}".format(*domain[-2:]))
+                domain[0] = 'DNS:*'
+                domains.add('.'.join(domain))
     return ','.join(domains).encode()
     
 def create_root_ca():

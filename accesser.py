@@ -116,7 +116,10 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock = context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
         if check_hostname:
-            ssl.match_hostname(cert, self.host)
+            hostname = self.host
+            if self.remote_ip in config['alert_hostname']:
+                hostname = config['alert_hostname'][self.remote_ip]
+            ssl.match_hostname(cert, hostname)
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock)
 
