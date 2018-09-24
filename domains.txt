@@ -1,5 +1,5 @@
 zh.wikipedia.org
-jp.wikipedia.org
+ja.wikipedia.org
 www.pixiv.net
 pixiv.net
 accounts.pixiv.net
