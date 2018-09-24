@@ -131,19 +131,15 @@ if __name__ == '__main__':
     config.read('setting.ini')
     
     if not os.path.exists('hosts'):
-        if int(config['setting']['download_hosts']):
-            import urllib.request
-            logging.info('hosts file not exit, downloading...')
-            try:
-                local_filename, headers = urllib.request.urlretrieve(HOSTS_URL1, 'hosts')
-            except urllib.error.URLError as e:
-                logging.warning(e)
-                logging.warning('try another hosts url')
-                local_filename, headers = urllib.request.urlretrieve(HOSTS_URL2, 'hosts')
-            logging.info('saved to: '+local_filename)
-        else:
-            logging.error('No hosts file')
-            sys.exit(2)
+        import urllib.request
+        logging.info('hosts file not exit, downloading...')
+        try:
+            local_filename, headers = urllib.request.urlretrieve(HOSTS_URL1, 'hosts')
+        except urllib.error.URLError as e:
+            logging.warning(e)
+            logging.warning('try another hosts url')
+            local_filename, headers = urllib.request.urlretrieve(HOSTS_URL2, 'hosts')
+        logging.info('saved to: '+local_filename)
     hosts = re.findall(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\s+(\S+)', open('hosts').read())
     rhosts = {k:v for v,k in hosts}
     for domain in config['HOSTS']:
