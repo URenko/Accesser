@@ -35,6 +35,8 @@ def parse_domain():
     return ','.join(domains).encode()
 
 def match_domain(certfile):
+    if not os.path.exists(certfile):
+        return False
     cert = {'subjectAltName': get_cert_domain(certfile)}
     with open('domains.txt') as f:
         for domain in f:
