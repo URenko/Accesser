@@ -149,9 +149,8 @@ if __name__ == '__main__':
         rhosts[domain] = config['HOSTS'][domain]
     
     check_hostname = int(config['setting']['check_hostname'])
-    now_dn_st_mtime = os.stat('domains.txt').st_mtime
     domainsupdate = False
-    if float(config['internal']['dn_st_mtime']) < now_dn_st_mtime:
+    if not cm.match_domain('CERT/server.crt'):
         if sys.platform.startswith('win'):
             domainsupdate = True
             from utils import win32elevate
@@ -168,7 +167,6 @@ if __name__ == '__main__':
                     host_content = re.sub(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')',r'127.0.0.1\g<oth>',host_content)
             with open(r"C:\Windows\System32\drivers\etc\hosts", 'w') as f:
                 f.write(host_content)
-            config['internal']['dn_st_mtime'] = str(now_dn_st_mtime)
             with open('setting.ini', 'w') as f:
                 config.write(f)
             logging.info('Updating fin')

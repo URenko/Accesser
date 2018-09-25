@@ -19,6 +19,7 @@
 import os
 import random
 import sys
+import ssl
 from OpenSSL import crypto
 
 def parse_domain():
@@ -32,6 +33,16 @@ def parse_domain():
                 domain[0] = 'DNS:*'
                 domains.add('.'.join(domain))
     return ','.join(domains).encode()
+
+def match_domain(certfile):
+    cert = {'subjectAltName': get_cert_domain(certfile)}
+    with open('domains.txt') as f:
+        for domain in f:
+            try:
+                ssl.match_hostname(cert, domain.strip())
+            except ssl.CertificateError:
+                return False
+    return True
     
 def create_root_ca():
     pkey = crypto.PKey()
@@ -107,4 +118,30 @@ def create_certificate(certfile, pkeyfile):
         pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         pkeyfile.close()
 
+def _subjectAltNameTuple(extension):
+    names = crypto._ffi.cast(
+        "GENERAL_NAMES*", crypto._lib.X509V3_EXT_d2i(extension._extension)
+    )
 
+    names = crypto._ffi.gc(names, crypto._lib.GENERAL_NAMES_free)
+    parts = ()
+    for i in range(crypto._lib.sk_GENERAL_NAME_num(names)):
+        name = crypto._lib.sk_GENERAL_NAME_value(names, i)
+        try:
+            label = extension._prefixes[name.type]
+        except KeyError:
+            pass
+        else:
+            value = crypto._native(
+                crypto._ffi.buffer(name.d.ia5.data, name.d.ia5.length)[:])
+            parts += ((label, value),)
+    return parts
+
+def get_cert_domain(certfile):
+    domains = []
+    with open(certfile, "rb") as f:
+        cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
+    for i in range(cert.get_extension_count()):
+        extension = cert.get_extension(i)
+        if b"subjectAltName" == extension.get_short_name():
+            return _subjectAltNameTuple(extension)
