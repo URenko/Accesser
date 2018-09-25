@@ -35,10 +35,6 @@ from utils import importca
 from http import HTTPStatus
 import urllib.error
 
-logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
-
 _MAXLINE = 65536
 _MAXHEADERS = 100
 
@@ -132,6 +128,12 @@ if __name__ == '__main__':
 
     config = configparser.ConfigParser()
     config.read('setting.ini')
+
+    loglevel = getattr(logging, config['setting']['loglevel'])
+    logfile = config['setting']['logfile']
+    logging.basicConfig(level=loglevel, filename=logfile,
+                        format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
     
     if not os.path.exists('hosts'):
         import urllib.request
@@ -177,11 +179,11 @@ if __name__ == '__main__':
         os.mkdir('CERT')
     
     if args.root:
-        print("Making root CA")
+        logging.info("Making root CA")
         cm.create_root_ca()
         importca.import_ca("CERT/root.crt")
     if args.renewca or args.root or domainsupdate:
-        print("Making server certificate")
+        logging.info("Making server certificate")
         cm.create_certificate("CERT/server.crt", "CERT/server.key")
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)

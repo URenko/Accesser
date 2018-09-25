@@ -23,12 +23,13 @@ import subprocess
 sys.path.append(os.path.dirname(__file__))
 
 def import_windows_ca(certfile):
+    def logandrun(cmd):
+        return logging.info(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
     try:
         logging.info("Deleting old certificate")
-        subprocess.run("CertUtil -delstore Root Accesser", check=True)
+        logandrun("CertUtil -delstore Root Accesser")
         logging.info("Importing new certificate")
-        print(certfile)
-        subprocess.run("CertUtil -addstore -f Root {}".format(certfile), check=True)
+        logandrun("CertUtil -addstore -f Root {}".format(certfile))
     except subprocess.CalledProcessError:
         logging.error("Import Failed")
 
@@ -79,12 +80,16 @@ def main(certfile):
             logging.warning('other platform support is under development, please import root.crt manually.')
     except Exception:
         traceback.print_exc()
-    input('Enter to continue.')
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.DEBUG,
-                            format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
+    import configparser
+    config = configparser.ConfigParser()
+    config.read('setting.ini')
+    loglevel = getattr(logging, config['setting']['loglevel'])
+    logfile = config['setting']['logfile']
+    logging.basicConfig(level=loglevel, filename=logfile,
+                        format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
     if len(sys.argv) < 2:
         logging.error("Error argument")
         sys.exit(1)
