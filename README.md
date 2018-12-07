@@ -8,6 +8,7 @@
 ## 依赖
 - Python3.7 (其他版本未测试)
 - [pyopenssl](https://pyopenssl.org/)
+- [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
 
 ## 使用
 - 启动服务器  
