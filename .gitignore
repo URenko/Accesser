@@ -106,3 +106,4 @@ venv.bak/
 python/
 CERT/
 hosts
+*.exe

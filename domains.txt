@@ -40,3 +40,4 @@ ls.srvcs.tumblr.com
 px.srvcs.tumblr.com
 96.media.tumblr.com
 97.media.tumblr.com
+www.google.com
