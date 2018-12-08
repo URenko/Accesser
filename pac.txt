@@ -3,13 +3,13 @@ var domains = {
   "pixiv.net": 1,
   "tumblr.com": 1,
   "tumblr.co": 1,
-  "google.com":1
+  "google.com": 1,
+  "recaptcha.net": 1
 };
 
 var shexps = {
   "*://zh.wikipedia.org/*": 1,
-  "*://ja.wikipedia.org/*": 1,
-  "*://www.google.com/recaptcha/*": 1
+  "*://ja.wikipedia.org/*": 1
 };
 
 var proxy = "PROXY 127.0.0.1:7654;";

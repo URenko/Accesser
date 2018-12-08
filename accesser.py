@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+__version__ = '0.5.0'
+
 HOSTS_URL1 = 'https://raw.githubusercontent.com/googlehosts/hosts/master/hosts-files/hosts'
 HOSTS_URL2 = 'https://coding.net/u/scaffrey/p/hosts/git/raw/master/hosts-files/hosts'
 server_address = ('127.0.0.1', 7654)
@@ -24,6 +26,7 @@ import argparse
 import logging
 import configparser
 import os, re, sys
+import zlib
 import socket, ssl
 import select
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
@@ -68,6 +71,7 @@ class ProxyHandler(StreamRequestHandler):
         return True
     
     def parse_host(self, forward=False):
+        content_lenght = None
         try:
             raw_requestline = self.rfile.readline(_MAXLINE + 1)
             if forward:
@@ -78,7 +82,7 @@ class ProxyHandler(StreamRequestHandler):
             if not raw_requestline:
                 return False
             requestline = raw_requestline.strip().decode('iso-8859-1')
-            logging.warning(requestline)
+            logging.info(requestline)
             words = requestline.split()
             if len(words) == 0:
                 return False
@@ -94,14 +98,22 @@ class ProxyHandler(StreamRequestHandler):
                         self.send_pac()
                     else:
                         self.http_redirect(path)
+            elif 'POST' == command:
+                    content_lenght = 0
             while True:
                 raw_requestline = self.rfile.readline(_MAXLINE + 1)
                 if forward:
                     self.raw_request += raw_requestline
+                    if 0 == content_lenght:
+                        key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
+                        if b'Content-Length' == key:
+                            content_lenght = int(value)
                 if len(raw_requestline) > _MAXLINE:
                     return False
                 if raw_requestline in (b'\r\n', b'\n', b''):
                     break
+            if None != content_lenght:
+                self.raw_request += self.rfile.read(content_lenght)
             if not forward:
                 if self.remote_ip:
                     return True
@@ -113,7 +125,9 @@ class ProxyHandler(StreamRequestHandler):
             logging.error("Request timed out: {}".format(e))
             return False
 
-    def forward(self, sock, remote):
+    def forward(self, sock, remote, fix):
+        content_encoding = None
+        left_length = 0
         try:
             fdset = [sock, remote]
             while True:
@@ -123,11 +137,37 @@ class ProxyHandler(StreamRequestHandler):
                     if len(data) <= 0:
                         break
                     remote.sendall(data)
-
                 if remote in r:
                     data = remote.recv(32768)
                     if len(data) <= 0:
                         break
+                    if fix:
+                        if None == content_encoding:
+                            headers,body = data.split(b'\r\n\r\n', maxsplit=1)
+                            headers = headers.decode('iso-8859-1')
+                            match = re.search(r'Content-Encoding: (\S+)\r\n', headers)
+                            if match:
+                                content_encoding = match.group(1)
+                            else:
+                                content_encoding = ''
+                            match = re.search(r'Content-Length: (\d+)\r\n', headers)
+                            if match:
+                                content_length = int(match.group(1))
+                            else:
+                                content_length = 0
+                            left_length = content_length - len(body)
+                        else:
+                            left_length -= len(body)
+                            if left_length <= 0:
+                                content_encoding = None
+                        if 'gzip' == content_encoding:
+                            body = zlib.decompress(body ,15+32)
+                        for old in content_fix[self.host]:
+                            body = body.replace(old.encode('utf8'), content_fix[self.host][old].encode('utf8'))
+                        if None != content_encoding:
+                            headers = re.sub(r'Content-Encoding: (\S+)\r\n', r'', headers)
+                            headers = re.sub(r'Content-Length: (\d+)\r\n', r'Content-Length: '+str(len(body))+r'\r\n', headers)
+                        data = headers.encode('iso-8859-1') + b'\r\n\r\n' + body
                     sock.sendall(data)
         except socket.error as e:
             logging.debug('Forward: %s' % e)
@@ -140,11 +180,7 @@ class ProxyHandler(StreamRequestHandler):
             return
         self.wfile.write(b'HTTP/1.1 200 Connection Established\r\n\r\n')
         self.request = context.wrap_socket(self.request, server_side=True)
-        self.rfile = self.request.makefile('rb', self.rbufsize)
-        if self.wbufsize == 0:
-            self.wfile = _SocketWriter(self.request)
-        else:
-            self.wfile = self.request.makefile('wb', self.wbufsize)
+        self.setup()
         if not self.parse_host(forward=True):
             return
         self.remote_sock = socket.create_connection((self.remote_ip, 443))
@@ -158,10 +194,10 @@ class ProxyHandler(StreamRequestHandler):
                 hostname = config['alert_hostname'][self.remote_ip]
             ssl.match_hostname(cert, hostname)
         self.remote_sock.sendall(self.raw_request)
-        self.forward(self.request, self.remote_sock)
+        self.forward(self.request, self.remote_sock, self.host in content_fix)
 
 if __name__ == '__main__':
-    print("Accesser  Copyright (C) 2018  URenko")
+    print("Accesser v{}  Copyright (C) 2018  URenko".format(__version__))
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--renewca', help='renew cert', action="store_true")
     parser.add_argument('-rr', '--root', help='create root cert', action="store_true")
@@ -169,6 +205,9 @@ if __name__ == '__main__':
 
     config = configparser.ConfigParser(delimiters=('=',))
     config.read('setting.ini')
+    content_fix = configparser.ConfigParser(delimiters=('=',))
+    content_fix.optionxform = lambda option: option
+    content_fix.read('content_fix.ini')
 
     loglevel = getattr(logging, config['setting']['loglevel'])
     logfile = config['setting']['logfile']
