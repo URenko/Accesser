@@ -23,6 +23,9 @@ it will re-launch your script from the very beginning.
 import os
 import sys
 import subprocess
+import locale
+
+sysencoding = locale.getpreferredencoding()
 
 import ctypes
 from ctypes.wintypes import HANDLE, BOOL, DWORD, HWND, HINSTANCE, HKEY
@@ -138,7 +141,7 @@ def elevateAdminRights(waitAndClose=True, reattachConsole=True):
         # this is host process that doesn't have administrative rights
         params = subprocess.list2cmdline(sysargv + [ELEVATE_MARKER])
         executeInfo = ShellExecuteInfo(fMask=SEE_MASK_NOCLOSEPROCESS, hwnd=None, lpVerb=b'runas',
-                                       lpFile=sys.executable.encode('ascii'), lpParameters=params.encode('ascii'),
+                                       lpFile=sys.executable.encode(sysencoding), lpParameters=params.encode(sysencoding),
                                        lpDirectory=None,
                                        nShow=SW_HIDE if reattachConsole else SW_SHOW)
         if reattachConsole and not all(stream.isatty() for stream in (sys.stdin, sys.stdout,
@@ -186,7 +189,7 @@ def elevateAdminRun(args=sysargv, executable=sys.executable,
         args = subprocess.list2cmdline(args)
     executeInfo = ShellExecuteInfo(fMask=SEE_MASK_NOCLOSEPROCESS, hwnd=None,
                                    lpVerb='' if areAdminRightsElevated() else b'runas',
-                                   lpFile=executable.encode('ascii'), lpParameters=args.encode('ascii'),
+                                   lpFile=executable.encode(sysencoding), lpParameters=args.encode(sysencoding),
                                    lpDirectory=None,
                                    nShow=SW_HIDE if reattachConsole else SW_SHOW)
 

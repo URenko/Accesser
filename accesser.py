@@ -16,17 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+__version__ = '0.5.0'
+
 HOSTS_URL1 = 'https://raw.githubusercontent.com/googlehosts/hosts/master/hosts-files/hosts'
 HOSTS_URL2 = 'https://coding.net/u/scaffrey/p/hosts/git/raw/master/hosts-files/hosts'
-server_address = ('127.0.0.1', 443)
+server_address = ('127.0.0.1', 7654)
 
 import argparse
 import logging
 import configparser
 import os, re, sys
+import zlib
 import socket, ssl
 import select
-from socketserver import *
+from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
@@ -36,52 +39,95 @@ from http import HTTPStatus
 import urllib.error
 
 _MAXLINE = 65536
-_MAXHEADERS = 100
-
+PAC_HEADER = 'HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/x-ns-proxy-autoconfig\r\n\r\n'
+REDIRECT_HEADER = 'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{}\r\n\r\n'
 
 class ProxyHandler(StreamRequestHandler):
     raw_request = b''
     remote_ip = None
+    host = None
     
     def send_error(self, code, message=None, explain=None):
         #TODO
         pass
     
-    def parse_host(self):
+    def send_pac(self):
+        with open('pac.txt') as f:
+            body = f.read()
+        self.wfile.write(PAC_HEADER.format(len(body)).encode('iso-8859-1'))
+        self.wfile.write(body.encode())
+    
+    def http_redirect(self, path):
+        if path.startswith('http://'):
+            path = path[7:]
+        for key in config['http_redirect']:
+            if path.startswith(key):
+                path = config['http_redirect'][key] + path[len(key):]
+                break
+        else:
+            return False
+        logging.info('Redirect to '+path)
+        self.wfile.write(REDIRECT_HEADER.format(path).encode('iso-8859-1'))
+        return True
+    
+    def parse_host(self, forward=False):
+        content_lenght = None
         try:
             raw_requestline = self.rfile.readline(_MAXLINE + 1)
-            self.raw_request += raw_requestline
+            if forward:
+                self.raw_request += raw_requestline
             if len(raw_requestline) > _MAXLINE:
                 logging.error(HTTPStatus.REQUEST_URI_TOO_LONG)
                 self.send_error(HTTPStatus.REQUEST_URI_TOO_LONG)
             if not raw_requestline:
                 return False
-            logging.debug(raw_requestline.strip().decode('iso-8859-1'))
-            headers = []
+            requestline = raw_requestline.strip().decode('iso-8859-1')
+            logging.info(requestline)
+            words = requestline.split()
+            if len(words) == 0:
+                return False
+            command, path = words[:2]
+            if not forward:
+                if 'CONNECT' == command:
+                    host, port = path.split(':')
+                    if '443' == port:
+                        self.host = host
+                        self.remote_ip = rhosts[self.host]
+                if 'GET' == command:
+                    if path.startswith('/pac/'):
+                        self.send_pac()
+                    else:
+                        self.http_redirect(path)
+            elif 'POST' == command:
+                    content_lenght = 0
             while True:
                 raw_requestline = self.rfile.readline(_MAXLINE + 1)
-                self.raw_request += raw_requestline
+                if forward:
+                    self.raw_request += raw_requestline
+                    if 0 == content_lenght:
+                        key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
+                        if b'Content-Length' == key:
+                            content_lenght = int(value)
                 if len(raw_requestline) > _MAXLINE:
-                    return False
-                headers.append(raw_requestline)
-                if len(headers) > _MAXHEADERS:
                     return False
                 if raw_requestline in (b'\r\n', b'\n', b''):
                     break
-                header, value = raw_requestline.strip().split(b': ', maxsplit=1)
-                if header == b'Host':
-                    self.host = value.decode('iso-8859-1')
-                    self.remote_ip = rhosts[self.host]
-                    logging.debug('remote: {} {}'.format(self.host, self.remote_ip))
-            if self.remote_ip:
-                return True
+            if None != content_lenght:
+                self.raw_request += self.rfile.read(content_lenght)
+            if not forward:
+                if self.remote_ip:
+                    return True
+                else:
+                    return False
             else:
-                return False
+                return not self.http_redirect(self.host+path)
         except socket.timeout as e:
             logging.error("Request timed out: {}".format(e))
             return False
 
-    def forward(self, sock, remote):
+    def forward(self, sock, remote, fix):
+        content_encoding = None
+        left_length = 0
         try:
             fdset = [sock, remote]
             while True:
@@ -91,14 +137,40 @@ class ProxyHandler(StreamRequestHandler):
                     if len(data) <= 0:
                         break
                     remote.sendall(data)
-
                 if remote in r:
                     data = remote.recv(32768)
                     if len(data) <= 0:
                         break
+                    if fix:
+                        if None == content_encoding:
+                            headers,body = data.split(b'\r\n\r\n', maxsplit=1)
+                            headers = headers.decode('iso-8859-1')
+                            match = re.search(r'Content-Encoding: (\S+)\r\n', headers)
+                            if match:
+                                content_encoding = match.group(1)
+                            else:
+                                content_encoding = ''
+                            match = re.search(r'Content-Length: (\d+)\r\n', headers)
+                            if match:
+                                content_length = int(match.group(1))
+                            else:
+                                content_length = 0
+                            left_length = content_length - len(body)
+                        else:
+                            left_length -= len(body)
+                            if left_length <= 0:
+                                content_encoding = None
+                        if 'gzip' == content_encoding:
+                            body = zlib.decompress(body ,15+32)
+                        for old in content_fix[self.host]:
+                            body = body.replace(old.encode('utf8'), content_fix[self.host][old].encode('utf8'))
+                        if None != content_encoding:
+                            headers = re.sub(r'Content-Encoding: (\S+)\r\n', r'', headers)
+                            headers = re.sub(r'Content-Length: (\d+)\r\n', r'Content-Length: '+str(len(body))+r'\r\n', headers)
+                        data = headers.encode('iso-8859-1') + b'\r\n\r\n' + body
                     sock.sendall(data)
         except socket.error as e:
-            logging.warning('Forward: %s' % e)
+            logging.debug('Forward: %s' % e)
         finally:
             sock.close()
             remote.close()
@@ -106,10 +178,15 @@ class ProxyHandler(StreamRequestHandler):
     def handle(self):
         if not self.parse_host():
             return
+        self.wfile.write(b'HTTP/1.1 200 Connection Established\r\n\r\n')
+        self.request = context.wrap_socket(self.request, server_side=True)
+        self.setup()
+        if not self.parse_host(forward=True):
+            return
         self.remote_sock = socket.create_connection((self.remote_ip, 443))
-        context = ssl.create_default_context()
-        context.check_hostname = False
-        self.remote_sock = context.wrap_socket(self.remote_sock)
+        remote_context = ssl.create_default_context()
+        remote_context.check_hostname = False
+        self.remote_sock = remote_context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
         if check_hostname:
             hostname = self.host
@@ -117,17 +194,20 @@ class ProxyHandler(StreamRequestHandler):
                 hostname = config['alert_hostname'][self.remote_ip]
             ssl.match_hostname(cert, hostname)
         self.remote_sock.sendall(self.raw_request)
-        self.forward(self.request, self.remote_sock)
+        self.forward(self.request, self.remote_sock, self.host in content_fix)
 
 if __name__ == '__main__':
-    print("Accesser  Copyright (C) 2018  URenko")
+    print("Accesser v{}  Copyright (C) 2018  URenko".format(__version__))
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--renewca', help='renew cert', action="store_true")
     parser.add_argument('-rr', '--root', help='create root cert', action="store_true")
     args = parser.parse_args()
 
-    config = configparser.ConfigParser()
+    config = configparser.ConfigParser(delimiters=('=',))
     config.read('setting.ini')
+    content_fix = configparser.ConfigParser(delimiters=('=',))
+    content_fix.optionxform = lambda option: option
+    content_fix.read('content_fix.ini')
 
     loglevel = getattr(logging, config['setting']['loglevel'])
     logfile = config['setting']['logfile']
@@ -151,29 +231,7 @@ if __name__ == '__main__':
         rhosts[domain] = config['HOSTS'][domain]
     
     check_hostname = int(config['setting']['check_hostname'])
-    domainsupdate = False
-    if not cm.match_domain('CERT/server.crt'):
-        if sys.platform.startswith('win'):
-            domainsupdate = True
-            from utils import win32elevate
-            if not win32elevate.areAdminRightsElevated():
-                win32elevate.elevateAdminRun(' '.join(sys.argv), reattachConsole=False)
-                sys.exit(0)
-            logging.info('Updating HOSTS...')
-            with open(r"C:\Windows\System32\drivers\etc\hosts") as f:
-                host_content = f.read()
-            with open('domains.txt') as f:
-                for domain in f:
-                    if not re.search(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')', host_content):
-                        host_content += '\n127.0.0.1\t'+domain.strip()
-                    host_content = re.sub(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})(?P<oth>\s+'+domain.strip()+')',r'127.0.0.1\g<oth>',host_content)
-            with open(r"C:\Windows\System32\drivers\etc\hosts", 'w') as f:
-                f.write(host_content)
-            with open('setting.ini', 'w') as f:
-                config.write(f)
-            logging.info('Updating fin')
-        else:
-            logging.warning('other platform support is under development, please update HOSTS manually and then use -r to update server cert.')
+    domainsupdate = not cm.match_domain('CERT/server.crt')
     
     if not os.path.exists('CERT'):
         os.mkdir('CERT')
@@ -189,17 +247,12 @@ if __name__ == '__main__':
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     try:
         context.load_cert_chain("CERT/server.crt", "CERT/server.key")
+        cert_domains = cm.get_cert_domain("CERT/server.crt")
     except FileNotFoundError:
         logging.error('cert not exist, please use --rr to create it')
-    if int(config['setting']['http_redirect']):
-        from utils import httpredirect
-        import threading
-        th_httpredirect = threading.Thread(target=httpredirect.main)
-        th_httpredirect.daemon = True
-        th_httpredirect.start()
+    
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
-        server.socket = context.wrap_socket(server.socket, server_side=True)
         logging.info("server started at {}:{}".format(*server_address))
         server.serve_forever()
     except socket.error as e:
