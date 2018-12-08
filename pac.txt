@@ -4,12 +4,16 @@ var domains = {
   "tumblr.com": 1,
   "tumblr.co": 1,
   "google.com": 1,
-  "recaptcha.net": 1
+  "recaptcha.net": 1,
+  "instagram.com": 1,
+  "quora.com": 1
 };
 
 var shexps = {
   "*://zh.wikipedia.org/*": 1,
-  "*://ja.wikipedia.org/*": 1
+  "*://ja.wikipedia.org/*": 1,
+  "*://steamcommunity-a.akamaihd.net/*": 1,
+  "*://steamuserimages-a.akamaihd.net/*": 1
 };
 
 var proxy = "PROXY 127.0.0.1:7654;";

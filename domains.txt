@@ -42,3 +42,8 @@ px.srvcs.tumblr.com
 97.media.tumblr.com
 www.google.com
 www.recaptcha.net
+instagram.com
+www.instagram.com
+www.quora.com
+steamcommunity-a.akamaihd.net
+steamuserimages-a.akamaihd.net

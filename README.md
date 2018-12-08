@@ -1,9 +1,11 @@
 # Accesser
-一个解决GFW通过[检测server_name](https://github.com/googlehosts/hosts/issues/87)导致中文维基、Pixiv等站点无法访问的工具
+一个解决GFW通过[检测server_name](https://github.com/googlehosts/hosts/issues/87)导致中文维基、Pixiv等站点无法访问的工具  
+[支持的站点](https://github.com/URenko/Accesser/wiki/目前支持的站点)
 
 ## 一键使用
 ### Windows
-[点此进入下载页](https://github.com/URenko/Accesser/releases/latest)，下载Windows_x64.zip，解压后运行`start.bat`即可，首次运行可能会申请管理员权限
+[点此进入下载页](https://github.com/URenko/Accesser/releases/latest)，下载Windows_x64.zip，解压后运行`start.bat`即可，首次运行可能会申请管理员权限  
+[Firefox设置方法](https://github.com/URenko/Accesser/wiki/Firefox设置方法)
 
 ## 依赖
 - Python3.7 (其他版本未测试)
@@ -28,3 +30,7 @@
 |自动配置pac代理      |  ✔  |      |     |
 |自动导入证书至系统   |  ✔  |      |     |
 |自动导入证书至Firefox|      |      |     |
+
+## TODO
+- [ ] Pixiv注册  
+- [ ] 自动证书配置（不用domains.txt）
