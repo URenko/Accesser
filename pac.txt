@@ -6,7 +6,9 @@ var domains = {
   "google.com": 1,
   "recaptcha.net": 1,
   "instagram.com": 1,
-  "quora.com": 1
+  "quora.com": 1,
+  "reddit.com": 1,
+  "redditmedia.com": 1
 };
 
 var shexps = {

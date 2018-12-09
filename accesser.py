@@ -105,9 +105,12 @@ class ProxyHandler(StreamRequestHandler):
                 if forward:
                     self.raw_request += raw_requestline
                     if 0 == content_lenght:
-                        key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
-                        if b'Content-Length' == key:
-                            content_lenght = int(value)
+                        try:
+                            key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
+                            if b'Content-Length' == key:
+                                content_lenght = int(value)
+                        except ValueError:
+                            pass
                 if len(raw_requestline) > _MAXLINE:
                     return False
                 if raw_requestline in (b'\r\n', b'\n', b''):
