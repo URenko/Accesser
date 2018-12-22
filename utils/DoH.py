@@ -20,7 +20,7 @@ import logging
 import asyncio
 import dns
 import priority
-from dohproxy import client_protocol, constants, utils
+from dohproxy import client_protocol, constants
 
 class Client(client_protocol.StubServerProtocol):
     async def make_request(self, dnsq):
@@ -74,10 +74,18 @@ def build_query(args):
     dnsq.id = 0
     return dnsq
 
-args = utils.client_parser_base().parse_args(None)
-args.domain = 'mozilla.cloudflare-dns.com'
-args.qtype = 'A'
-args.dnssec = True
+class Argument(object):
+    domain = 'mozilla.cloudflare-dns.com'
+    qtype = 'A'
+    dnssec = True
+    insecure = False
+    cafile = None
+    remote_address = None
+    port = 443
+    uri = constants.DOH_URI
+    post = True
+    
+args = Argument()
 DNScache = dict()
 
 def init():
