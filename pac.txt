@@ -4,7 +4,6 @@ var domains = {
   "tumblr.com": 1,
   "tumblr.co": 1,
   "google.com": 1,
-  "recaptcha.net": 1,
   "instagram.com": 1,
   "quora.com": 1,
   "reddit.com": 1,

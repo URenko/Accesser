@@ -193,10 +193,17 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock = remote_context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
         if check_hostname:
-            hostname = self.host
-            if self.remote_ip in config['alert_hostname']:
-                hostname = config['alert_hostname'][self.remote_ip]
-            ssl.match_hostname(cert, hostname)
+            try:
+                ssl.match_hostname(cert, self.host)
+            except ssl.CertificateError as err:
+                certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
+                certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
+                if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
+                    if self.host in config['alert_hostname']:
+                        if not config['alert_hostname'][self.host] in certdns:
+                            raise err
+                    else:
+                        raise err
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in content_fix)
 
