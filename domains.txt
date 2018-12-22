@@ -47,3 +47,11 @@ www.instagram.com
 www.quora.com
 steamcommunity-a.akamaihd.net
 steamuserimages-a.akamaihd.net
+www.reddit.com
+a.thumbs.redditmedia.com
+emoji.redditmedia.com
+apkmirror.com
+*.apkmirror.com
+*.vimeo.com
+*.amazon.co.jp
+onedrive.live.com

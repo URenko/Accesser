@@ -16,10 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.5.0'
+__version__ = '0.5.1'
 
-HOSTS_URL1 = 'https://raw.githubusercontent.com/googlehosts/hosts/master/hosts-files/hosts'
-HOSTS_URL2 = 'https://coding.net/u/scaffrey/p/hosts/git/raw/master/hosts-files/hosts'
 server_address = ('127.0.0.1', 7654)
 
 import argparse
@@ -29,11 +27,14 @@ import os, re, sys
 import zlib
 import socket, ssl
 import select
+import asyncio
+import threading
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
 from utils import importca
+from utils import DoH
 
 from http import HTTPStatus
 import urllib.error
@@ -58,15 +59,18 @@ class ProxyHandler(StreamRequestHandler):
         self.wfile.write(body.encode())
     
     def http_redirect(self, path):
+        ishttp = False
         if path.startswith('http://'):
             path = path[7:]
+            ishttp = True
         for key in config['http_redirect']:
             if path.startswith(key):
                 path = config['http_redirect'][key] + path[len(key):]
                 break
         else:
-            return False
-        logging.info('Redirect to '+path)
+            if not ishttp:
+                return False
+        logger.info('Redirect to '+path)
         self.wfile.write(REDIRECT_HEADER.format(path).encode('iso-8859-1'))
         return True
     
@@ -77,12 +81,12 @@ class ProxyHandler(StreamRequestHandler):
             if forward:
                 self.raw_request += raw_requestline
             if len(raw_requestline) > _MAXLINE:
-                logging.error(HTTPStatus.REQUEST_URI_TOO_LONG)
+                logger.error(HTTPStatus.REQUEST_URI_TOO_LONG)
                 self.send_error(HTTPStatus.REQUEST_URI_TOO_LONG)
             if not raw_requestline:
                 return False
             requestline = raw_requestline.strip().decode('iso-8859-1')
-            logging.info(requestline)
+            logger.info(requestline)
             words = requestline.split()
             if len(words) == 0:
                 return False
@@ -92,7 +96,7 @@ class ProxyHandler(StreamRequestHandler):
                     host, port = path.split(':')
                     if '443' == port:
                         self.host = host
-                        self.remote_ip = rhosts[self.host]
+                        self.remote_ip = DoH.DNSLookup(host)
                 if 'GET' == command:
                     if path.startswith('/pac/'):
                         self.send_pac()
@@ -105,9 +109,12 @@ class ProxyHandler(StreamRequestHandler):
                 if forward:
                     self.raw_request += raw_requestline
                     if 0 == content_lenght:
-                        key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
-                        if b'Content-Length' == key:
-                            content_lenght = int(value)
+                        try:
+                            key,value = raw_requestline.rstrip().split(b': ', maxsplit=1)
+                            if b'Content-Length' == key:
+                                content_lenght = int(value)
+                        except ValueError:
+                            pass
                 if len(raw_requestline) > _MAXLINE:
                     return False
                 if raw_requestline in (b'\r\n', b'\n', b''):
@@ -122,7 +129,7 @@ class ProxyHandler(StreamRequestHandler):
             else:
                 return not self.http_redirect(self.host+path)
         except socket.timeout as e:
-            logging.error("Request timed out: {}".format(e))
+            logger.error("Request timed out: {}".format(e))
             return False
 
     def forward(self, sock, remote, fix):
@@ -170,7 +177,7 @@ class ProxyHandler(StreamRequestHandler):
                         data = headers.encode('iso-8859-1') + b'\r\n\r\n' + body
                     sock.sendall(data)
         except socket.error as e:
-            logging.debug('Forward: %s' % e)
+            logger.debug('Forward: %s' % e)
         finally:
             sock.close()
             remote.close()
@@ -189,10 +196,17 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock = remote_context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
         if check_hostname:
-            hostname = self.host
-            if self.remote_ip in config['alert_hostname']:
-                hostname = config['alert_hostname'][self.remote_ip]
-            ssl.match_hostname(cert, hostname)
+            try:
+                ssl.match_hostname(cert, self.host)
+            except ssl.CertificateError as err:
+                certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
+                certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
+                if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
+                    if self.host in config['alert_hostname']:
+                        if not config['alert_hostname'][self.host] in certdns:
+                            raise err
+                    else:
+                        raise err
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in content_fix)
 
@@ -209,26 +223,14 @@ if __name__ == '__main__':
     content_fix.optionxform = lambda option: option
     content_fix.read('content_fix.ini')
 
-    loglevel = getattr(logging, config['setting']['loglevel'])
-    logfile = config['setting']['logfile']
-    logging.basicConfig(level=loglevel, filename=logfile,
+    logging.basicConfig(filename=config['setting']['logfile'],
                         format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
+    logger = logging.getLogger(__name__)
+    logger.setLevel(config['setting']['loglevel'])
     
-    if not os.path.exists('hosts'):
-        import urllib.request
-        logging.info('hosts file not exit, downloading...')
-        try:
-            local_filename, headers = urllib.request.urlretrieve(HOSTS_URL1, 'hosts')
-        except urllib.error.URLError as e:
-            logging.warning(e)
-            logging.warning('try another hosts url')
-            local_filename, headers = urllib.request.urlretrieve(HOSTS_URL2, 'hosts')
-        logging.info('saved to: '+local_filename)
-    hosts = re.findall(r'(\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3})\s+(\S+)', open('hosts').read())
-    rhosts = {k:v for v,k in hosts}
     for domain in config['HOSTS']:
-        rhosts[domain] = config['HOSTS'][domain]
+        DoH.DNScache[domain] = config['HOSTS'][domain]
     
     check_hostname = int(config['setting']['check_hostname'])
     domainsupdate = not cm.match_domain('CERT/server.crt')
@@ -237,11 +239,11 @@ if __name__ == '__main__':
         os.mkdir('CERT')
     
     if args.root:
-        logging.info("Making root CA")
+        logger.info("Making root CA")
         cm.create_root_ca()
         importca.import_ca("CERT/root.crt")
     if args.renewca or args.root or domainsupdate:
-        logging.info("Making server certificate")
+        logger.info("Making server certificate")
         cm.create_certificate("CERT/server.crt", "CERT/server.key")
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -249,14 +251,15 @@ if __name__ == '__main__':
         context.load_cert_chain("CERT/server.crt", "CERT/server.key")
         cert_domains = cm.get_cert_domain("CERT/server.crt")
     except FileNotFoundError:
-        logging.error('cert not exist, please use --rr to create it')
+        logger.error('cert not exist, please use --rr to create it')
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
-        logging.info("server started at {}:{}".format(*server_address))
+        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
+        logger.info("server started at {}:{}".format(*server_address))
         server.serve_forever()
     except socket.error as e:
-        logging.error(e)
+        logger.error(e)
     except KeyboardInterrupt:
         server.shutdown()
         sys.exit(0)
