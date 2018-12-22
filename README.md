@@ -11,6 +11,7 @@
 - Python3.7 (其他版本未测试)
 - [pyopenssl](https://pyopenssl.org/)
 - [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
+- [doh-proxy](https://github.com/facebookexperimental/doh-proxy)
 
 ## 使用
 - 启动服务器  
