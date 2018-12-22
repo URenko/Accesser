@@ -59,14 +59,17 @@ class ProxyHandler(StreamRequestHandler):
         self.wfile.write(body.encode())
     
     def http_redirect(self, path):
+        ishttp = False
         if path.startswith('http://'):
             path = path[7:]
+            ishttp = True
         for key in config['http_redirect']:
             if path.startswith(key):
                 path = config['http_redirect'][key] + path[len(key):]
                 break
         else:
-            return False
+            if not ishttp:
+                return False
         logger.info('Redirect to '+path)
         self.wfile.write(REDIRECT_HEADER.format(path).encode('iso-8859-1'))
         return True
