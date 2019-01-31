@@ -101,7 +101,7 @@ def DNSLookup(name):
         return DNScache[name]
     args.qname = name
     future = asyncio.run_coroutine_threadsafe(DoHclient.make_request(build_query(args)), loop)
-    dnsr = future.result(5)
+    dnsr = future.result()
     for i in dnsr.answer:
         for j in i.items:
             if hasattr(j, 'address'):

@@ -16,13 +16,8 @@
 ## 使用
 - 启动服务器  
 `python accesser.py`
-- 更新服务器证书  
-`python accesser.py -r`
-- 更新根证书和服务器证书（部分平台需手动导入证书）  
-`python accesser.py -rr`
 - 增加支持的网址：  
 按pac文件格式编辑`pac.txt`使要网址从代理过  
-在`domains.txt`中添加新行再加入域名，重新启动程序
 
 ## 当前支持
 |                   |Windows|Mac OS|Linux|
@@ -34,4 +29,4 @@
 
 ## TODO
 - [ ] Pixiv注册  
-- [ ] 自动证书配置（不用domains.txt）
+- [x] 自动证书配置（不用domains.txt）

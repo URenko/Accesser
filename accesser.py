@@ -20,7 +20,6 @@ __version__ = '0.6.0'
 
 server_address = ('127.0.0.1', 7654)
 
-import argparse
 import logging
 import configparser
 import os, re, sys
@@ -47,6 +46,15 @@ class ProxyHandler(StreamRequestHandler):
     raw_request = b''
     remote_ip = None
     host = None
+    
+    def update_cert(self, server_name):
+        _server_name = server_name.split('.')
+        if len(_server_name) > 2:
+            server_name = '.'.join(_server_name[1:])
+        if not server_name in cert_store:
+            cm.create_certificate(server_name)
+        context.load_cert_chain("CERT/{}.crt".format(server_name))
+        cert_store.add(server_name)
     
     def send_error(self, code, message=None, explain=None):
         #TODO
@@ -186,6 +194,7 @@ class ProxyHandler(StreamRequestHandler):
         if not self.parse_host():
             return
         self.wfile.write(b'HTTP/1.1 200 Connection Established\r\n\r\n')
+        self.update_cert(self.host)
         self.request = context.wrap_socket(self.request, server_side=True)
         self.setup()
         if not self.parse_host(forward=True):
@@ -212,9 +221,6 @@ class ProxyHandler(StreamRequestHandler):
 
 if __name__ == '__main__':
     print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-r', '--renewca', help='renew cert', action="store_true")
-    args = parser.parse_args()
 
     config = configparser.ConfigParser(delimiters=('=',))
     config.read('setting.ini')
@@ -232,27 +238,21 @@ if __name__ == '__main__':
         DoH.DNScache[domain] = config['HOSTS'][domain]
     
     check_hostname = int(config['setting']['check_hostname'])
-    domainsupdate = not cm.match_domain('CERT/server.crt')
     
     if not os.path.exists('CERT'):
         os.mkdir('CERT')
     
     importca.import_ca()
-    if args.renewca or domainsupdate:
-        logger.info("Making server certificate")
-        cm.create_certificate("CERT/server.crt", "CERT/server.key")
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    try:
-        context.load_cert_chain("CERT/server.crt", "CERT/server.key")
-        cert_domains = cm.get_cert_domain("CERT/server.crt")
-    except FileNotFoundError:
-        logger.error('cert not exist, please use --rr to create it')
+    cert_store = set()
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
         threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
         logger.info("server started at {}:{}".format(*server_address))
+        if sys.platform.startswith('win'):
+            os.system('sysproxy.exe pac http://{}:{}/pac/?t=%random%'.format(*server_address))
         server.serve_forever()
     except socket.error as e:
         logger.error(e)

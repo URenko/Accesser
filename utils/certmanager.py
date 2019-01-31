@@ -21,30 +21,6 @@ import random
 import sys
 import ssl
 from OpenSSL import crypto
-
-def parse_domain():
-    domains = set()
-    with open('domains.txt') as f:
-        for domain in f:
-            domain = domain.strip().split('.')
-            if len(domain) == 2:
-                domains.add("DNS:{}.{}".format(*domain))
-            else:
-                domain[0] = 'DNS:*'
-                domains.add('.'.join(domain))
-    return ','.join(domains).encode()
-
-def match_domain(certfile):
-    if not os.path.exists(certfile):
-        return False
-    cert = {'subjectAltName': get_cert_domain(certfile)}
-    with open('domains.txt') as f:
-        for domain in f:
-            try:
-                ssl.match_hostname(cert, domain.strip())
-            except ssl.CertificateError:
-                return False
-    return True
     
 def create_root_ca():
     pkey = crypto.PKey()
@@ -91,18 +67,18 @@ def create_root_ca():
     with open('CERT/root.pfx', 'wb') as pfxfile:
         pfxfile.write(pfx.export())
 
-def create_certificate(certfile, pkeyfile):
+pkey = crypto.PKey()
+pkey.generate_key(crypto.TYPE_RSA, 2048)
+
+def create_certificate(server_name):
     rootpem = open("CERT/root.crt", "rb").read()
     rootkey = open("CERT/root.key", "rb").read()
     ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, rootpem)
     ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, rootkey)
 
-    pkey = crypto.PKey()
-    pkey.generate_key(crypto.TYPE_RSA, 2048)
-
     cert = crypto.X509()
     cert.set_serial_number(int(random.random() * sys.maxsize))
-    cert.gmtime_adj_notBefore(0)
+    cert.gmtime_adj_notBefore(-600)
     cert.gmtime_adj_notAfter(60 * 60 * 24 * 365)
     cert.set_version(2)
 
@@ -110,7 +86,7 @@ def create_certificate(certfile, pkeyfile):
     subject.CN = "Accesser_Proxy"
     subject.O = "Accesser"
 
-    cert.add_extensions([crypto.X509Extension(b"subjectAltName", False, parse_domain())])
+    cert.add_extensions([crypto.X509Extension(b"subjectAltName", False, ('DNS:'+server_name+',DNS:*.'+server_name).encode())])
 
     cert.set_issuer(ca_cert.get_subject())
 
@@ -118,38 +94,7 @@ def create_certificate(certfile, pkeyfile):
     cert.sign(ca_key, "sha256")
 
 
-    with open(certfile, "wb") as certfile:
+    with open('CERT/{}.crt'.format(server_name), "wb") as certfile:
         certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
+        certfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         certfile.close()
-
-    with open(pkeyfile, "wb") as pkeyfile:
-        pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
-        pkeyfile.close()
-
-def _subjectAltNameTuple(extension):
-    names = crypto._ffi.cast(
-        "GENERAL_NAMES*", crypto._lib.X509V3_EXT_d2i(extension._extension)
-    )
-
-    names = crypto._ffi.gc(names, crypto._lib.GENERAL_NAMES_free)
-    parts = ()
-    for i in range(crypto._lib.sk_GENERAL_NAME_num(names)):
-        name = crypto._lib.sk_GENERAL_NAME_value(names, i)
-        try:
-            label = extension._prefixes[name.type]
-        except KeyError:
-            pass
-        else:
-            value = crypto._native(
-                crypto._ffi.buffer(name.d.ia5.data, name.d.ia5.length)[:])
-            parts += ((label, value),)
-    return parts
-
-def get_cert_domain(certfile):
-    domains = []
-    with open(certfile, "rb") as f:
-        cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
-    for i in range(cert.get_extension_count()):
-        extension = cert.get_extension(i)
-        if b"subjectAltName" == extension.get_short_name():
-            return _subjectAltNameTuple(extension)
