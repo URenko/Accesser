@@ -17,23 +17,43 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-import OpenSSL
+from OpenSSL import crypto
 import os, sys
 import subprocess
 sys.path.append(os.path.dirname(__file__))
+import certmanager as cm
 
-def import_windows_ca(certfile):
-    def logandrun(cmd):
-        return logging.info(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
+def logandrun(cmd):
+    return logging.info(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
+
+def import_windows_ca():
     try:
-        logging.info("Deleting old certificate")
-        logandrun("CertUtil -delstore Root Accesser")
-        logging.info("Importing new certificate")
-        logandrun("CertUtil -addstore -f Root {}".format(certfile))
+        logandrun('certutil -f -user -p "" -exportPFX My Accesser CERT\\root.pfx')
     except subprocess.CalledProcessError:
-        logging.error("Import Failed")
+        logging.debug("Export Failed")
+    if not os.path.exists('CERT/root.pfx'):
+        cm.create_root_ca()
+        try:
+            logging.info("Importing new certificate")
+            logandrun('CertUtil -f -user -p "" -importPFX My CERT\\root.pfx')
+        except subprocess.CalledProcessError:
+            logging.error("Import Failed")
+            os.remove('CERT/root.pfx')
+            os.remove('CERT/root.crt')
+            os.remove('CERT/root.key')
+            logandrun('CertUtil -user -delstore My Accesser')
+            sys.exit(5)
+    else:
+        with open('CERT/root.pfx', 'rb') as pfxfile:
+            p12 = crypto.load_pkcs12(pfxfile.read())
+        with open("CERT/root.crt", "wb") as certfile:
+            certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_certificate()))
+            certfile.close()
+        with open("CERT/root.key", "wb") as pkeyfile:
+            pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, p12.get_privatekey()))
+            pkeyfile.close()
 
-def import_mac_ca(certfile):
+def import_mac_ca():
     ca_hash = CertUtil.ca_thumbprint.replace(':', '')
 
     def get_exist_ca_sha1():
@@ -49,7 +69,7 @@ def import_mac_ca(certfile):
         logging.info("Accesser CA exist")
         return
 
-    import_command = 'security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain {}'.format(certfile)
+    import_command = 'security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain {}'.format('root.crt')
     if exist_ca_sha1:
         delete_ca_command = 'security delete-certificate -Z %s' % exist_ca_sha1
         exec_command = "%s;%s" % (delete_ca_command, import_command)
@@ -61,36 +81,10 @@ def import_mac_ca(certfile):
     logging.info("try auto import CA command:%s", cmd)
     os.system(cmd)
 
-def import_ca(certfile):
-    if sys.platform.startswith('win'):
-        import win32elevate
-        if not win32elevate.areAdminRightsElevated():
-            win32elevate.elevateAdminRun('"'+os.path.abspath(__file__)+'" '+certfile, reattachConsole=False)
-        else:
-            main(certfile)
-    else:
-        logging.warning('other platform support is under development, please import root.crt manually.')
-
-def main(certfile):
-    import traceback, time
-    try:
+def import_ca():
+    if not(os.path.exists('CERT/root.crt') and os.path.exists('CERT/root.key')):
         if sys.platform.startswith('win'):
-            import_windows_ca(certfile)
+            import_windows_ca()
         else:
+            cm.create_root_ca()
             logging.warning('other platform support is under development, please import root.crt manually.')
-    except Exception:
-        traceback.print_exc()
-
-if __name__ == '__main__':
-    import configparser
-    config = configparser.ConfigParser()
-    config.read('setting.ini')
-    loglevel = getattr(logging, config['setting']['loglevel'])
-    logfile = config['setting']['logfile']
-    logging.basicConfig(level=loglevel, filename=logfile,
-                        format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
-    if len(sys.argv) < 2:
-        logging.error("Error argument")
-        sys.exit(1)
-    main(sys.argv[1])

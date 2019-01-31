@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.5.1'
+__version__ = '0.6.0'
 
 server_address = ('127.0.0.1', 7654)
 
@@ -211,10 +211,9 @@ class ProxyHandler(StreamRequestHandler):
         self.forward(self.request, self.remote_sock, self.host in content_fix)
 
 if __name__ == '__main__':
-    print("Accesser v{}  Copyright (C) 2018  URenko".format(__version__))
+    print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
     parser = argparse.ArgumentParser()
     parser.add_argument('-r', '--renewca', help='renew cert', action="store_true")
-    parser.add_argument('-rr', '--root', help='create root cert', action="store_true")
     args = parser.parse_args()
 
     config = configparser.ConfigParser(delimiters=('=',))
@@ -238,11 +237,8 @@ if __name__ == '__main__':
     if not os.path.exists('CERT'):
         os.mkdir('CERT')
     
-    if args.root:
-        logger.info("Making root CA")
-        cm.create_root_ca()
-        importca.import_ca("CERT/root.crt")
-    if args.renewca or args.root or domainsupdate:
+    importca.import_ca()
+    if args.renewca or domainsupdate:
         logger.info("Making server certificate")
         cm.create_certificate("CERT/server.crt", "CERT/server.key")
 
