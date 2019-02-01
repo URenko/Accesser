@@ -51,10 +51,11 @@ class ProxyHandler(StreamRequestHandler):
         _server_name = server_name.split('.')
         if len(_server_name) > 2:
             server_name = '.'.join(_server_name[1:])
-        if not server_name in cert_store:
-            cm.create_certificate(server_name)
-        context.load_cert_chain("CERT/{}.crt".format(server_name))
-        cert_store.add(server_name)
+        with cert_lock:
+            if not server_name in cert_store:
+                cm.create_certificate(server_name)
+            context.load_cert_chain("CERT/{}.crt".format(server_name))
+            cert_store.add(server_name)
     
     def send_error(self, code, message=None, explain=None):
         #TODO
@@ -246,6 +247,7 @@ if __name__ == '__main__':
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     cert_store = set()
+    cert_lock = threading.Lock()
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
