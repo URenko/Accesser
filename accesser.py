@@ -249,7 +249,7 @@ if __name__ == '__main__':
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
-        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
+        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
         logger.info("server started at {}:{}".format(*server_address))
         if sys.platform.startswith('win'):
             os.system('sysproxy.exe pac http://{}:{}/pac/?t=%random%'.format(*server_address))

@@ -22,6 +22,15 @@ import dns
 import priority
 from dohproxy import client_protocol, constants
 
+DoH_domains = (
+'mozilla.cloudflare-dns.com',
+'cloudflare-dns.com',
+'dns.quad9.net',
+'dns9.quad9.net',
+'dns10.quad9.net',
+'dns.rubyfish.cn')
+DoH_domain = None
+
 class Client(client_protocol.StubServerProtocol):
     async def make_request(self, dnsq):
         async with self._lock:
@@ -75,7 +84,6 @@ def build_query(args):
     return dnsq
 
 class Argument(object):
-    domain = 'mozilla.cloudflare-dns.com'
     qtype = 'A'
     dnssec = True
     insecure = False
@@ -84,16 +92,39 @@ class Argument(object):
     port = 443
     uri = constants.DOH_URI
     post = True
-    
-args = Argument()
-DNScache = dict()
 
-def init():
+DNScache = dict()
+logger = logging.getLogger('DoH')
+logger.setLevel(logging.INFO)
+args = Argument()
+
+async def test_DoH(args, domain):
+    global DoH_domain
+    try:
+        await Client(args=args, logger=logger).make_request(build_query(args))
+    except Exception:
+        return
+    if None == DoH_domain:
+        DoH_domain = domain
+        raise asyncio.CancelledError
+
+async def test_DoHs():
+    aws = []
+    for domain in DoH_domains:
+        args = Argument()
+        args.qname = 'zh.wikipedia.org'
+        args.domain = domain
+        aws.append(test_DoH(args, domain))
+    await asyncio.wait(aws, return_when=asyncio.FIRST_EXCEPTION)
+
+def init(main_logger):
     global DoHclient,loop
-    logger = logging.getLogger('DoH')
-    logger.setLevel(logging.INFO)
-    DoHclient = Client(args=args, logger=logger)
     loop = asyncio.get_event_loop()
+    main_logger.info('Selecting DoH server...')
+    loop.run_until_complete(test_DoHs())
+    main_logger.info('Auto selected DoH server: '+DoH_domain)
+    args.domain = DoH_domain
+    DoHclient = Client(args=args, logger=logger)
     return loop
 
 def DNSLookup(name):
