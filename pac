@@ -21,7 +21,7 @@ var shexps = {
   "*://onedrive.live.com/*": 1
 };
 
-var proxy = "PROXY 127.0.0.1:7654;";
+var proxy = "PROXY 127.0.0.1:7655;";
 
 var direct = 'DIRECT;';
 

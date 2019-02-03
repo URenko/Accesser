@@ -18,7 +18,7 @@
 
 __version__ = '0.6.0'
 
-server_address = ('127.0.0.1', 7654)
+server_address = ('127.0.0.1', 7655)
 
 import logging
 import configparser
@@ -28,18 +28,21 @@ import socket, ssl
 import select
 import asyncio
 import threading
+import queue
+import json
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
+from tornado.httpclient import AsyncHTTPClient
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
 from utils import importca
 from utils import DoH
+from utils import webui
 
 from http import HTTPStatus
 import urllib.error
 
 _MAXLINE = 65536
-PAC_HEADER = 'HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/x-ns-proxy-autoconfig\r\n\r\n'
 REDIRECT_HEADER = 'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{}\r\n\r\n'
 
 class ProxyHandler(StreamRequestHandler):
@@ -61,12 +64,6 @@ class ProxyHandler(StreamRequestHandler):
         #TODO
         pass
     
-    def send_pac(self):
-        with open('pac.txt') as f:
-            body = f.read()
-        self.wfile.write(PAC_HEADER.format(len(body)).encode('iso-8859-1'))
-        self.wfile.write(body.encode())
-    
     def http_redirect(self, path):
         ishttp = False
         if path.startswith('http://'):
@@ -79,7 +76,7 @@ class ProxyHandler(StreamRequestHandler):
         else:
             if not ishttp:
                 return False
-        logger.info('Redirect to '+path)
+        logger.debug('Redirect to '+path)
         self.wfile.write(REDIRECT_HEADER.format(path).encode('iso-8859-1'))
         return True
     
@@ -95,7 +92,7 @@ class ProxyHandler(StreamRequestHandler):
             if not raw_requestline:
                 return False
             requestline = raw_requestline.strip().decode('iso-8859-1')
-            logger.info(requestline)
+            logger.debug(requestline)
             words = requestline.split()
             if len(words) == 0:
                 return False
@@ -107,10 +104,7 @@ class ProxyHandler(StreamRequestHandler):
                         self.host = host
                         self.remote_ip = DoH.DNSLookup(host)
                 if 'GET' == command:
-                    if path.startswith('/pac/'):
-                        self.send_pac()
-                    else:
-                        self.http_redirect(path)
+                    self.http_redirect(path)
             elif 'POST' == command:
                     content_lenght = 0
             while True:
@@ -220,8 +214,20 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in content_fix)
 
+class JSONHandler(logging.handlers.QueueHandler):
+    def prepare(self, record):
+        return json.dumps({'level': record.levelname, 'content': self.format(record)})
+
+def update_checker(response):
+    if not response.error:
+        v2 = response.effective_url.rsplit('/', maxsplit=1)[-1][1:].split('.')
+        v1 = __version__.split('.')
+        if [int(v2[i]) for i in range(len(v2))] > [int(v1[i]) for i in range(len(v1))]:
+            logger.warning('There is a new version, check {} for update.'.format(response.effective_url))
+
 if __name__ == '__main__':
     print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
+    AsyncHTTPClient().fetch("https://github.com/URenko/Accesser/releases/latest", update_checker)
 
     config = configparser.ConfigParser(delimiters=('=',))
     config.read('setting.ini')
@@ -234,6 +240,10 @@ if __name__ == '__main__':
                         datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
     logger = logging.getLogger(__name__)
     logger.setLevel(config['setting']['loglevel'])
+    logqueue = queue.Queue(0)
+    logger.addHandler(JSONHandler(logqueue))
+    
+    webui.init(logqueue=logqueue)
     
     for domain in config['HOSTS']:
         DoH.DNScache[domain] = config['HOSTS'][domain]
@@ -254,7 +264,7 @@ if __name__ == '__main__':
         threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
         logger.info("server started at {}:{}".format(*server_address))
         if sys.platform.startswith('win'):
-            os.system('sysproxy.exe pac http://{}:{}/pac/?t=%random%'.format(*server_address))
+            os.system('sysproxy.exe pac http://{}:7654/pac/?t=%random%'.format(*server_address))
         server.serve_forever()
     except socket.error as e:
         logger.error(e)
