@@ -1,5 +1,6 @@
 import tornado.web
-import queue
+from tornado import gen
+import asyncio
 import os
 import sys
 
@@ -10,18 +11,27 @@ class MainHandler(tornado.web.RequestHandler):
 class LogHandler(tornado.web.RequestHandler):
     def initialize(self, logqueue):
         self.logqueue = logqueue
+    @gen.coroutine
     def post(self):
-        try:
-            msg = self.logqueue.get_nowait()
-        except queue.Empty:
-            msg = ''
-        self.write(msg)
+        data = yield self.logqueue.get()
+        self.write(data)
+        self.finish()
 
 class ShutdownHandler(tornado.web.RequestHandler):
     def get(self):
         if sys.platform.startswith('win'):
-            os.system('sysproxy pac ""')
+            os.system('sysproxy.exe pac ""')
         os._exit(0)
+
+class ConfigHandler(tornado.web.RequestHandler):
+    def get(self):
+        os.startfile(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setting.ini'))
+        self.write('')
+
+class OpenpathHandler(tornado.web.RequestHandler):
+    def get(self):
+        os.startfile(os.path.dirname(os.path.dirname(__file__)))
+        self.write('')
 
 class PACHandler(tornado.web.StaticFileHandler):
     def set_headers(self):
@@ -32,6 +42,8 @@ def make_app(logqueue):
         (r"/", MainHandler),
         (r"/(pac)/", PACHandler, {'path': os.path.dirname(os.path.dirname(__file__))}),
         (r"/shutdown", ShutdownHandler),
+        (r"/configfile", ConfigHandler),
+        (r"/openpath", OpenpathHandler),
         (r"/log", LogHandler, {'logqueue': logqueue})
     ], static_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static'),
     template_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'template'))

@@ -28,10 +28,11 @@ import socket, ssl
 import select
 import asyncio
 import threading
-import queue
 import json
+import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from tornado.httpclient import AsyncHTTPClient
+from tornado.queues import Queue
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
@@ -43,6 +44,7 @@ from http import HTTPStatus
 import urllib.error
 
 _MAXLINE = 65536
+# PAC_HEADER = 'HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/x-ns-proxy-autoconfig\r\n\r\n'
 REDIRECT_HEADER = 'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{}\r\n\r\n'
 
 class ProxyHandler(StreamRequestHandler):
@@ -63,6 +65,12 @@ class ProxyHandler(StreamRequestHandler):
     def send_error(self, code, message=None, explain=None):
         #TODO
         pass
+    
+    # def send_pac(self):
+        # with open('pac.txt') as f:
+            # body = f.read()
+        # self.wfile.write(PAC_HEADER.format(len(body)).encode('iso-8859-1'))
+        # self.wfile.write(body.encode())
     
     def http_redirect(self, path):
         ishttp = False
@@ -105,6 +113,10 @@ class ProxyHandler(StreamRequestHandler):
                         self.remote_ip = DoH.DNSLookup(host)
                 if 'GET' == command:
                     self.http_redirect(path)
+                    # if path.startswith('/pac/'):
+                        # self.send_pac()
+                    # else:
+                        # self.http_redirect(path)
             elif 'POST' == command:
                     content_lenght = 0
             while True:
@@ -240,10 +252,11 @@ if __name__ == '__main__':
                         datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
     logger = logging.getLogger(__name__)
     logger.setLevel(config['setting']['loglevel'])
-    logqueue = queue.Queue(0)
+    logqueue = Queue()
     logger.addHandler(JSONHandler(logqueue))
     
     webui.init(logqueue=logqueue)
+    webbrowser.open('http://localhost:7654/')
     
     for domain in config['HOSTS']:
         DoH.DNScache[domain] = config['HOSTS'][domain]
@@ -264,7 +277,7 @@ if __name__ == '__main__':
         threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
         logger.info("server started at {}:{}".format(*server_address))
         if sys.platform.startswith('win'):
-            os.system('sysproxy.exe pac http://{}:7654/pac/?t=%random%'.format(*server_address))
+            os.system('sysproxy.exe pac http://localhost:7654/pac/?t=%random%')
         server.serve_forever()
     except socket.error as e:
         logger.error(e)
