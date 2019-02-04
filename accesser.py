@@ -110,7 +110,8 @@ class ProxyHandler(StreamRequestHandler):
                     host, port = path.split(':')
                     if '443' == port:
                         self.host = host
-                        self.remote_ip = DoH.DNSLookup(host)
+                        with DNS_lock:
+                            self.remote_ip = DoH.DNSLookup(host)
                 if 'GET' == command:
                     self.http_redirect(path)
                     # if path.startswith('/pac/'):
@@ -260,6 +261,7 @@ if __name__ == '__main__':
     
     for domain in config['HOSTS']:
         DoH.DNScache[domain] = config['HOSTS'][domain]
+    DNS_lock = threading.Lock()
     
     check_hostname = int(config['setting']['check_hostname'])
     
