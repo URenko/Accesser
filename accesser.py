@@ -34,11 +34,11 @@ from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from tornado.httpclient import AsyncHTTPClient
 from tornado.queues import Queue
 from tld import get_tld
+from dns.resolver import Resolver
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
 from utils import importca
-from utils import DoH
 from utils import webui
 
 from http import HTTPStatus
@@ -114,7 +114,7 @@ class ProxyHandler(StreamRequestHandler):
                     if '443' == port:
                         self.host = host
                         with DNS_lock:
-                            self.remote_ip = DoH.DNSLookup(host)
+                            self.remote_ip = DNSLookup(host)
                 if 'GET' == command:
                     self.http_redirect(path)
                     # if path.startswith('/pac/'):
@@ -230,6 +230,14 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in content_fix)
 
+def DNSLookup(name):
+    if name in DNScache:
+        return DNScache[name]
+    else:
+        res = DNSquery(name)
+        DNScache[name] = res
+        return res
+
 class JSONHandler(logging.handlers.QueueHandler):
     def prepare(self, record):
         return json.dumps({'level': record.levelname, 'content': self.format(record)})
@@ -262,9 +270,21 @@ if __name__ == '__main__':
     webui.init(logqueue=logqueue)
     webbrowser.open('http://localhost:7654/')
     
-    for domain in config['HOSTS']:
-        DoH.DNScache[domain] = config['HOSTS'][domain]
+    DNScache = {domain:config['HOSTS'][domain] for domain in config['HOSTS']}
     DNS_lock = threading.Lock()
+    if config['setting']['DNS']:
+        DNSresolver = Resolver(configure=False)
+        if 'SYSTEM' != config['setting']['DNS'].upper():
+            DNSresolver.read_resolv_conf(config['setting']['DNS'])
+        else:
+            if sys.platform == 'win32':
+                DNSresolver.read_registry()
+            else:
+                DNSresolver.read_resolv_conf('/etc/resolv.conf')
+        DNSquery = lambda x:DNSresolver.query(x, 'A')[0].to_text()
+    else:
+        from utils import DoH
+        DNSquery = DoH.DNSquery
     
     check_hostname = int(config['setting']['check_hostname'])
     
@@ -279,7 +299,10 @@ if __name__ == '__main__':
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
-        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
+        if not config['setting']['DNS']:
+            threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
+        else:
+            threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
         logger.info("server started at {}:{}".format(*server_address))
         if sys.platform.startswith('win'):
             os.system('sysproxy.exe pac http://localhost:7654/pac/?t=%random%')

@@ -93,7 +93,6 @@ class Argument(object):
     uri = constants.DOH_URI
     post = True
 
-DNScache = dict()
 logger = logging.getLogger('DoH')
 logger.setLevel(logging.INFO)
 args = Argument()
@@ -127,15 +126,16 @@ def init(main_logger):
     DoHclient = Client(args=args, logger=logger)
     return loop
 
-def DNSLookup(name):
-    if name in DNScache:
-        return DNScache[name]
+def DNSquery(name):
     args.qname = name
     future = asyncio.run_coroutine_threadsafe(DoHclient.make_request(build_query(args)), loop)
-    dnsr = future.result()
+    try:
+        dnsr = future.result(10)
+    except asyncio.TimeoutError:
+        logging.error('DNS query timeout.')
+        return None
     for i in dnsr.answer:
         for j in i.items:
             if hasattr(j, 'address'):
-                DNScache[name] = j.address
                 return j.address
     return None
