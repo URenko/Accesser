@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.6.0'
+__version__ = '0.6.1'
 
 server_address = ('127.0.0.1', 7655)
 
@@ -33,6 +33,7 @@ import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from tornado.httpclient import AsyncHTTPClient
 from tornado.queues import Queue
+from tld import get_tld
 
 sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
@@ -53,9 +54,11 @@ class ProxyHandler(StreamRequestHandler):
     host = None
     
     def update_cert(self, server_name):
-        _server_name = server_name.split('.')
-        if len(_server_name) > 2:
-            server_name = '.'.join(_server_name[1:])
+        res = get_tld(server_name, as_object=True, fix_protocol=True)
+        if res.subdomain:
+            server_name = res.subdomain.split('.', 1)[-1] + '.' + res.domain + '.' + res.tld
+        else:
+            server_name = res.domain + '.' + res.tld
         with cert_lock:
             if not server_name in cert_store:
                 cm.create_certificate(server_name)

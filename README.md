@@ -11,6 +11,7 @@
 - [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
 - [doh-proxy](https://github.com/facebookexperimental/doh-proxy)
 - tornado
+- tld
 
 ## 增加支持的网站 
 按pac文件格式编辑`pac.txt`使要支持的网站从代理过  

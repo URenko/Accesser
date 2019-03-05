@@ -30,7 +30,7 @@ def create_root_ca():
     cert.set_version(2)
     cert.set_serial_number(int(random.random() * sys.maxsize))
     cert.gmtime_adj_notBefore(0)
-    cert.gmtime_adj_notAfter(60 * 60 * 24 * 365)
+    cert.gmtime_adj_notAfter(60 * 60 * 24 * 365 * 10)
 
     subject = cert.get_subject()
     subject.CN = "Accesser"
