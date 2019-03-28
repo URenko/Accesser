@@ -20,36 +20,39 @@ import logging
 from OpenSSL import crypto
 import os, sys
 import subprocess
-sys.path.append(os.path.dirname(__file__))
-import certmanager as cm
+
+from . import certmanager as cm
+from . import setting
+
+certpath = os.path.join(setting.basepath, 'CERT')
 
 def logandrun(cmd):
     return logging.info(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
 
 def import_windows_ca():
     try:
-        logandrun('certutil -f -user -p "" -exportPFX My Accesser CERT\\root.pfx')
+        logandrun('certutil -f -user -p "" -exportPFX My Accesser '+os.path.join(certpath, 'root.pfx'))
     except subprocess.CalledProcessError:
         logging.debug("Export Failed")
-    if not os.path.exists('CERT/root.pfx'):
+    if not os.path.exists(os.path.join(certpath ,"root.pfx")):
         cm.create_root_ca()
         try:
             logging.info("Importing new certificate")
-            logandrun('CertUtil -f -user -p "" -importPFX My CERT\\root.pfx')
+            logandrun('CertUtil -f -user -p "" -importPFX My '+os.path.join(certpath, 'root.pfx'))
         except subprocess.CalledProcessError:
             logging.error("Import Failed")
-            os.remove('CERT/root.pfx')
-            os.remove('CERT/root.crt')
-            os.remove('CERT/root.key')
+            os.remove(os.path.join(certpath ,"root.pfx"))
+            os.remove(os.path.join(certpath ,"root.crt"))
+            os.remove(os.path.join(certpath ,"root.key"))
             logandrun('CertUtil -user -delstore My Accesser')
             sys.exit(5)
     else:
-        with open('CERT/root.pfx', 'rb') as pfxfile:
+        with open(os.path.join(certpath ,"root.pfx"), 'rb') as pfxfile:
             p12 = crypto.load_pkcs12(pfxfile.read())
-        with open("CERT/root.crt", "wb") as certfile:
+        with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
             certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_certificate()))
             certfile.close()
-        with open("CERT/root.key", "wb") as pkeyfile:
+        with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
             pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, p12.get_privatekey()))
             pkeyfile.close()
 
@@ -82,7 +85,7 @@ def import_mac_ca():
     os.system(cmd)
 
 def import_ca():
-    if not(os.path.exists('CERT/root.crt') and os.path.exists('CERT/root.key')):
+    if not(os.path.exists(os.path.join(certpath ,"root.crt")) and os.path.exists(os.path.join(certpath ,"root.key"))):
         if sys.platform.startswith('win'):
             import_windows_ca()
         else:

@@ -4,6 +4,8 @@ import asyncio
 import os
 import sys
 
+from . import setting
+
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         self.render('index.html')
@@ -20,17 +22,17 @@ class LogHandler(tornado.web.RequestHandler):
 class ShutdownHandler(tornado.web.RequestHandler):
     def get(self):
         if sys.platform.startswith('win'):
-            os.system('sysproxy.exe pac ""')
+            os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac ""')
         os._exit(0)
 
 class ConfigHandler(tornado.web.RequestHandler):
     def get(self):
-        os.startfile(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'setting.ini'))
+        os.startfile(os.path.join(setting.basepath, 'setting.ini'))
         self.write('')
 
 class OpenpathHandler(tornado.web.RequestHandler):
     def get(self):
-        os.startfile(os.path.dirname(os.path.dirname(__file__)))
+        os.startfile(setting.basepath)
         self.write('')
 
 class PACHandler(tornado.web.StaticFileHandler):
@@ -44,14 +46,14 @@ class CRTHandler(tornado.web.StaticFileHandler):
 def make_app(logqueue):
     return tornado.web.Application([
         (r"/", MainHandler),
-        (r"/(pac)/", PACHandler, {'path': os.path.dirname(os.path.dirname(__file__))}),
-        (r"/(CERT/root.crt)", CRTHandler, {'path': os.path.dirname(os.path.dirname(__file__))}),
+        (r"/(pac)/", PACHandler, {'path': setting.basepath}),
+        (r"/(CERT/root.crt)", CRTHandler, {'path': setting.basepath}),
         (r"/shutdown", ShutdownHandler),
         (r"/configfile", ConfigHandler),
         (r"/openpath", OpenpathHandler),
         (r"/log", LogHandler, {'logqueue': logqueue})
-    ], static_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'static'),
-    template_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), 'template'))
+    ], static_path=os.path.join(setting.basepath, 'static'),
+    template_path=os.path.join(setting.basepath, 'template'))
 
 def init(logqueue):
     app = make_app(logqueue)

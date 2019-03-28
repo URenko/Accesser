@@ -36,10 +36,10 @@ from tornado.queues import Queue
 from tld import get_tld
 from dns.resolver import Resolver
 
-sys.path.append(os.path.dirname(__file__))
 from utils import certmanager as cm
 from utils import importca
 from utils import webui
+from utils import setting
 
 from http import HTTPStatus
 import urllib.error
@@ -62,7 +62,7 @@ class ProxyHandler(StreamRequestHandler):
         with cert_lock:
             if not server_name in cert_store:
                 cm.create_certificate(server_name)
-            context.load_cert_chain("CERT/{}.crt".format(server_name))
+            context.load_cert_chain(os.path.join(cm.certpath, "{}.crt".format(server_name)))
             cert_store.add(server_name)
     
     def send_error(self, code, message=None, explain=None):
@@ -254,10 +254,10 @@ if __name__ == '__main__':
     AsyncHTTPClient().fetch("https://github.com/URenko/Accesser/releases/latest", update_checker)
 
     config = configparser.ConfigParser(delimiters=('=',))
-    config.read('setting.ini')
+    config.read(os.path.join(setting.basepath, 'setting.ini'))
     content_fix = configparser.ConfigParser(delimiters=('=',))
     content_fix.optionxform = lambda option: option
-    content_fix.read('content_fix.ini')
+    content_fix.read(os.path.join(setting.basepath, 'content_fix.ini'))
 
     logging.basicConfig(filename=config['setting']['logfile'],
                         format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
@@ -288,9 +288,6 @@ if __name__ == '__main__':
     
     check_hostname = int(config['setting']['check_hostname'])
     
-    if not os.path.exists('CERT'):
-        os.mkdir('CERT')
-    
     importca.import_ca()
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -305,7 +302,7 @@ if __name__ == '__main__':
             threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
         logger.info("server started at {}:{}".format(*server_address))
         if sys.platform.startswith('win'):
-            os.system('sysproxy.exe pac http://localhost:7654/pac/?t=%random%')
+            os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
         server.serve_forever()
     except socket.error as e:
         logger.error(e)

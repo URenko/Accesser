@@ -21,7 +21,13 @@ import random
 import sys
 import ssl
 from OpenSSL import crypto
-    
+
+from . import setting
+
+certpath = os.path.join(setting.basepath, 'CERT')
+if not os.path.exists(certpath):
+    os.mkdir(certpath)
+
 def create_root_ca():
     pkey = crypto.PKey()
     pkey.generate_key(crypto.TYPE_RSA, 4096)
@@ -53,26 +59,26 @@ def create_root_ca():
     ])
     cert.sign(pkey, "sha256")
 
-    with open("CERT/root.crt", "wb") as certfile:
+    with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
         certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
         certfile.close()
 
-    with open("CERT/root.key", "wb") as pkeyfile:
+    with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
         pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         pkeyfile.close()
 
     pfx = crypto.PKCS12Type()
     pfx.set_privatekey(pkey)
     pfx.set_certificate(cert)
-    with open('CERT/root.pfx', 'wb') as pfxfile:
+    with open(os.path.join(certpath ,"root.pfx"), 'wb') as pfxfile:
         pfxfile.write(pfx.export())
 
 pkey = crypto.PKey()
 pkey.generate_key(crypto.TYPE_RSA, 2048)
 
 def create_certificate(server_name):
-    rootpem = open("CERT/root.crt", "rb").read()
-    rootkey = open("CERT/root.key", "rb").read()
+    rootpem = open(os.path.join(certpath ,"root.crt"), "rb").read()
+    rootkey = open(os.path.join(certpath ,"root.key"), "rb").read()
     ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, rootpem)
     ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, rootkey)
 
@@ -94,7 +100,7 @@ def create_certificate(server_name):
     cert.sign(ca_key, "sha256")
 
 
-    with open('CERT/{}.crt'.format(server_name), "wb") as certfile:
+    with open(os.path.join(certpath ,'{}.crt'.format(server_name)), "wb") as certfile:
         certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
         certfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         certfile.close()
