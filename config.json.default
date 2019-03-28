@@ -1,0 +1,29 @@
+{
+  "log": {
+    "logfile": null,
+    "loglevel": "DEBUG"
+  },
+  "check_hostname": true,
+  "DNS": null,
+  "http_redirect": {
+    "pixiv.net/": "www.pixiv.net/",
+	"www.google.com/recaptcha/": "www.recaptcha.net/recaptcha/",
+    "tumblr.com/": "www.tumblr.com/",
+    "instagram.com/": "www.instagram.com/"
+  },
+  "alert_hostname": {
+    "www.quora.com": "fs.quoracdn.net",
+    "sketch.pixiv.net": "pixivsketch.net"
+  },
+  "hosts": {
+    "www.instagram.com": "31.13.82.174",
+    "www.whatsapp.com": "157.240.22.53",
+    "static.whatsapp.net": "157.240.22.53"
+  },
+  "hosts_ipv6": {},
+  "content_fix": {
+    "accounts.pixiv.net": {
+      "\"pixivAccount.captchaType\":\"KCaptcha\"": "\"pixivAccount.captchaType\":\"ReCaptcha\""
+    }
+  }
+}

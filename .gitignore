@@ -107,3 +107,4 @@ python/
 CERT/
 hosts
 *.exe
+config.json

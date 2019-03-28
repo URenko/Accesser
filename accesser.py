@@ -80,9 +80,9 @@ class ProxyHandler(StreamRequestHandler):
         if path.startswith('http://'):
             path = path[7:]
             ishttp = True
-        for key in config['http_redirect']:
+        for key in setting.http_redirect:
             if path.startswith(key):
-                path = config['http_redirect'][key] + path[len(key):]
+                path = setting.http_redirect[key] + path[len(key):]
                 break
         else:
             if not ishttp:
@@ -188,8 +188,8 @@ class ProxyHandler(StreamRequestHandler):
                                 content_encoding = None
                         if 'gzip' == content_encoding:
                             body = zlib.decompress(body ,15+32)
-                        for old in content_fix[self.host]:
-                            body = body.replace(old.encode('utf8'), content_fix[self.host][old].encode('utf8'))
+                        for old in setting.content_fix[self.host]:
+                            body = body.replace(old.encode('utf8'), setting.content_fix[self.host][old].encode('utf8'))
                         if None != content_encoding:
                             headers = re.sub(r'Content-Encoding: (\S+)\r\n', r'', headers)
                             headers = re.sub(r'Content-Length: (\d+)\r\n', r'Content-Length: '+str(len(body))+r'\r\n', headers)
@@ -215,20 +215,20 @@ class ProxyHandler(StreamRequestHandler):
         remote_context.check_hostname = False
         self.remote_sock = remote_context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
-        if check_hostname:
+        if setting.check_hostname:
             try:
                 ssl.match_hostname(cert, self.host)
             except ssl.CertificateError as err:
                 certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
                 certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
                 if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
-                    if self.host in config['alert_hostname']:
-                        if not config['alert_hostname'][self.host] in certdns:
+                    if self.host in setting.alert_hostname:
+                        if not setting.alert_hostname[self.host] in certdns:
                             raise err
                     else:
                         raise err
         self.remote_sock.sendall(self.raw_request)
-        self.forward(self.request, self.remote_sock, self.host in content_fix)
+        self.forward(self.request, self.remote_sock, self.host in setting.content_fix)
 
 def DNSLookup(name):
     if name in DNScache:
@@ -252,30 +252,24 @@ def update_checker(response):
 if __name__ == '__main__':
     print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
     AsyncHTTPClient().fetch("https://github.com/URenko/Accesser/releases/latest", update_checker)
-
-    config = configparser.ConfigParser(delimiters=('=',))
-    config.read(os.path.join(setting.basepath, 'setting.ini'))
-    content_fix = configparser.ConfigParser(delimiters=('=',))
-    content_fix.optionxform = lambda option: option
-    content_fix.read(os.path.join(setting.basepath, 'content_fix.ini'))
-
-    logging.basicConfig(filename=config['setting']['logfile'],
+    
+    logging.basicConfig(filename=setting.log['logfile'],
                         format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
     logger = logging.getLogger(__name__)
-    logger.setLevel(config['setting']['loglevel'])
+    logger.setLevel(setting.log['loglevel'].upper())
     logqueue = Queue()
     logger.addHandler(JSONHandler(logqueue))
     
     webui.init(logqueue=logqueue)
     webbrowser.open('http://localhost:7654/')
     
-    DNScache = {domain:config['HOSTS'][domain] for domain in config['HOSTS']}
+    DNScache = setting.hosts.copy()
     DNS_lock = threading.Lock()
-    if config['setting']['DNS']:
+    if setting.DNS:
         DNSresolver = Resolver(configure=False)
-        if 'SYSTEM' != config['setting']['DNS'].upper():
-            DNSresolver.read_resolv_conf(config['setting']['DNS'])
+        if 'SYSTEM' != setting.DNS.upper():
+            DNSresolver.read_resolv_conf(setting.DNS)
         else:
             if sys.platform == 'win32':
                 DNSresolver.read_registry()
@@ -286,8 +280,6 @@ if __name__ == '__main__':
         from utils import DoH
         DNSquery = DoH.DNSquery
     
-    check_hostname = int(config['setting']['check_hostname'])
-    
     importca.import_ca()
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
@@ -296,7 +288,7 @@ if __name__ == '__main__':
     
     try:
         server = ThreadingTCPServer(server_address, ProxyHandler)
-        if not config['setting']['DNS']:
+        if not setting.DNS:
             threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
         else:
             threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
