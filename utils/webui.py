@@ -37,10 +37,15 @@ class PACHandler(tornado.web.StaticFileHandler):
     def set_headers(self):
         self.set_header('Content-Type', 'application/x-ns-proxy-autoconfig')
 
+class CRTHandler(tornado.web.StaticFileHandler):
+    def set_headers(self):
+        self.set_header('Content-Type', 'application/x-x509-ca-cert')
+
 def make_app(logqueue):
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/(pac)/", PACHandler, {'path': os.path.dirname(os.path.dirname(__file__))}),
+        (r"/(CERT/root.crt)", CRTHandler, {'path': os.path.dirname(os.path.dirname(__file__))}),
         (r"/shutdown", ShutdownHandler),
         (r"/configfile", ConfigHandler),
         (r"/openpath", OpenpathHandler),
