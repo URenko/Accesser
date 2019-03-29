@@ -18,8 +18,6 @@
 
 __version__ = '0.6.1'
 
-server_address = ('127.0.0.1', 7655)
-
 import logging
 import configparser
 import os, re, sys
@@ -230,6 +228,21 @@ class ProxyHandler(StreamRequestHandler):
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in setting.content_fix)
 
+class Proxy():
+    def start(self, address, port):
+        try:
+            self.server = ThreadingTCPServer((address, int(port)), ProxyHandler)
+            logger.info("server started at {}:{}".format(address, port))
+            if sys.platform.startswith('win'):
+                os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
+            self.server.serve_forever()
+        except socket.error as e:
+            logger.error(e)
+    def shutdown(self):
+        self.server.shutdown()
+    def server_close(self):
+        self.server.server_close()
+
 def DNSLookup(name):
     if name in DNScache:
         return DNScache[name]
@@ -261,7 +274,8 @@ if __name__ == '__main__':
     logqueue = Queue()
     logger.addHandler(JSONHandler(logqueue))
     
-    webui.init(logqueue=logqueue)
+    proxy = Proxy()
+    webui.init(proxy, logqueue=logqueue)
     webbrowser.open('http://localhost:7654/')
     
     DNScache = setting.hosts.copy()
@@ -286,18 +300,8 @@ if __name__ == '__main__':
     cert_store = set()
     cert_lock = threading.Lock()
     
-    try:
-        server = ThreadingTCPServer(server_address, ProxyHandler)
-        if not setting.DNS:
-            threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
-        else:
-            threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
-        logger.info("server started at {}:{}".format(*server_address))
-        if sys.platform.startswith('win'):
-            os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
-        server.serve_forever()
-    except socket.error as e:
-        logger.error(e)
-    except KeyboardInterrupt:
-        server.shutdown()
-        sys.exit(0)
+    if not setting.DNS:
+        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
+    else:
+        threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
+    proxy.start(setting.server['address'], setting.server['port'])
