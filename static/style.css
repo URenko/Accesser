@@ -1,0 +1,10 @@
+
+.setting-switch label
+{
+    transition:0.5s;
+}
+.setting-switch label:not(.active)
+{
+    background:#fff;
+    color:#337ab7;
+}
