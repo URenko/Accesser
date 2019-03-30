@@ -29,6 +29,7 @@ import threading
 import json
 import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
+from urllib import request
 from tornado.httpclient import AsyncHTTPClient
 from tornado.queues import Queue
 from tld import get_tld
@@ -255,16 +256,17 @@ class JSONHandler(logging.handlers.QueueHandler):
     def prepare(self, record):
         return json.dumps({'level': record.levelname, 'content': self.format(record)})
 
-def update_checker(response):
-    if not response.error:
-        v2 = response.effective_url.rsplit('/', maxsplit=1)[-1][1:].split('.')
+def update_checker():
+    with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
+        v2 = f.geturl().rsplit('/', maxsplit=1)[-1][1:].split('.')
         v1 = __version__.split('.')
         if [int(v2[i]) for i in range(len(v2))] > [int(v1[i]) for i in range(len(v1))]:
-            logger.warning('There is a new version, check {} for update.'.format(response.effective_url))
+            logger.warning('There is a new version, check {} for update.'.format(f.geturl()))
 
 if __name__ == '__main__':
     print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
-    AsyncHTTPClient().fetch("https://github.com/URenko/Accesser/releases/latest", update_checker)
+    
+    threading.Thread(target=update_checker).start()
     
     logging.basicConfig(filename=setting.log['logfile'],
                         format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
