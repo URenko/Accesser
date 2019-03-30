@@ -38,7 +38,7 @@ def set(keys, value):
 def save():
     with open('config.json', 'r') as f:
         config = dict()
-        for key in json.load(f):
+        for key in keys:
             config[key] = globals()[key]
     with open('config.json', 'w') as f:
         json.dump(config, f, indent=2)

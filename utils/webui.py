@@ -31,6 +31,7 @@ class SetHandler(tornado.web.RequestHandler):
                 require_restart = require_restart or setting.set(i.split('.'), self.get_argument(i))
             except tornado.web.MissingArgumentError:
                 pass
+        setting.save()
         if require_restart:
             self.restart_server()
             self.write('1')
