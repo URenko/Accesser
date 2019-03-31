@@ -18,20 +18,16 @@
 
 __version__ = '0.6.1'
 
-import logging
-import configparser
 import os, re, sys
 import zlib
 import socket, ssl
 import select
 import asyncio
 import threading
-import json
 import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from urllib import request
 from tornado.httpclient import AsyncHTTPClient
-from tornado.queues import Queue
 from tld import get_tld
 from dns.resolver import Resolver
 
@@ -39,6 +35,7 @@ from utils import certmanager as cm
 from utils import importca
 from utils import webui
 from utils import setting
+from utils.log import logger
 
 from http import HTTPStatus
 import urllib.error
@@ -252,10 +249,6 @@ def DNSLookup(name):
         DNScache[name] = res
         return res
 
-class JSONHandler(logging.handlers.QueueHandler):
-    def prepare(self, record):
-        return json.dumps({'level': record.levelname, 'content': self.format(record)})
-
 def update_checker():
     with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
         v2 = f.geturl().rsplit('/', maxsplit=1)[-1][1:].split('.')
@@ -268,16 +261,8 @@ if __name__ == '__main__':
     
     threading.Thread(target=update_checker).start()
     
-    logging.basicConfig(filename=setting.log['logfile'],
-                        format='%(asctime)s %(levelname)-8s L%(lineno)-3s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S', filemode='a+')
-    logger = logging.getLogger(__name__)
-    logger.setLevel(setting.log['loglevel'].upper())
-    logqueue = Queue()
-    logger.addHandler(JSONHandler(logqueue))
-    
     proxy = Proxy()
-    webui.init(proxy, logqueue=logqueue)
+    webui.init(proxy)
     webbrowser.open('http://localhost:7654/')
     
     DNScache = setting.hosts.copy()
@@ -303,7 +288,7 @@ if __name__ == '__main__':
     cert_lock = threading.Lock()
     
     if not setting.DNS:
-        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(logger),)).start()
+        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
     else:
         threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
     proxy.start(setting.server['address'], setting.server['port'])

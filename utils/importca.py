@@ -16,31 +16,32 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 from OpenSSL import crypto
 import os, sys
 import subprocess
 
 from . import certmanager as cm
 from . import setting
+from .log import logger
+logger = logger.getChild('importca')
 
 certpath = os.path.join(setting.basepath, 'CERT')
 
 def logandrun(cmd):
-    return logging.info(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
+    return logger.debug(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
 
 def import_windows_ca():
     try:
         logandrun('certutil -f -user -p "" -exportPFX My Accesser '+os.path.join(certpath, 'root.pfx'))
     except subprocess.CalledProcessError:
-        logging.debug("Export Failed")
+        logger.debug("Export Failed")
     if not os.path.exists(os.path.join(certpath ,"root.pfx")):
         cm.create_root_ca()
         try:
-            logging.info("Importing new certificate")
+            logger.info("Importing new certificate")
             logandrun('CertUtil -f -user -p "" -importPFX My '+os.path.join(certpath, 'root.pfx'))
         except subprocess.CalledProcessError:
-            logging.error("Import Failed")
+            logger.error("Import Failed")
             os.remove(os.path.join(certpath ,"root.pfx"))
             os.remove(os.path.join(certpath ,"root.crt"))
             os.remove(os.path.join(certpath ,"root.key"))
@@ -69,7 +70,7 @@ def import_mac_ca():
 
     exist_ca_sha1 = get_exist_ca_sha1()
     if exist_ca_sha1 == ca_hash:
-        logging.info("Accesser CA exist")
+        logger.info("Accesser CA exist")
         return
 
     import_command = 'security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain {}'.format('root.crt')
@@ -81,7 +82,7 @@ def import_mac_ca():
 
     admin_command = """osascript -e 'do shell script "%s" with administrator privileges' """ % exec_command
     cmd = admin_command.encode('utf-8')
-    logging.info("try auto import CA command:%s", cmd)
+    logger.info("try auto import CA command:%s", cmd)
     os.system(cmd)
 
 def import_ca():
@@ -90,4 +91,4 @@ def import_ca():
             import_windows_ca()
         else:
             cm.create_root_ca()
-            logging.warning('other platform support is under development, please import root.crt manually.')
+            logger.warning('other platform support is under development, please import root.crt manually.')

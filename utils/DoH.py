@@ -22,6 +22,10 @@ import dns
 import priority
 from dohproxy import client_protocol, constants
 
+from .log import logger
+logger = logger.getChild('DoH')
+logger.setLevel(logging.INFO)
+
 DoH_domains = (
 'mozilla.cloudflare-dns.com',
 'cloudflare-dns.com',
@@ -93,8 +97,6 @@ class Argument(object):
     uri = constants.DOH_URI
     post = True
 
-logger = logging.getLogger('DoH')
-logger.setLevel(logging.INFO)
 args = Argument()
 
 async def test_DoH(args, domain):
@@ -116,12 +118,12 @@ async def test_DoHs():
         aws.append(test_DoH(args, domain))
     await asyncio.wait(aws, return_when=asyncio.FIRST_EXCEPTION)
 
-def init(main_logger):
+def init():
     global DoHclient,loop
     loop = asyncio.get_event_loop()
-    main_logger.info('Selecting DoH server...')
+    logger.info('Selecting DoH server...')
     loop.run_until_complete(test_DoHs())
-    main_logger.info('Auto selected DoH server: '+DoH_domain)
+    logger.info('Auto selected DoH server: '+DoH_domain)
     args.domain = DoH_domain
     DoHclient = Client(args=args, logger=logger)
     return loop

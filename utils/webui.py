@@ -6,6 +6,7 @@ import sys
 import threading
 
 from . import setting
+from . import log
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -39,11 +40,9 @@ class SetHandler(tornado.web.RequestHandler):
         self.write('0')
 
 class LogHandler(tornado.web.RequestHandler):
-    def initialize(self, logqueue):
-        self.logqueue = logqueue
     @gen.coroutine
     def post(self):
-        data = yield self.logqueue.get()
+        data = yield log.logqueue.get()
         self.write(data)
         self.finish()
 
@@ -68,7 +67,7 @@ class CRTHandler(tornado.web.StaticFileHandler):
     def set_headers(self):
         self.set_header('Content-Type', 'application/x-x509-ca-cert')
 
-def make_app(proxy, logqueue):
+def make_app(proxy):
     return tornado.web.Application([
         (r"/", MainHandler),
         (r"/set", SetHandler, {'proxy': proxy}),
@@ -77,10 +76,10 @@ def make_app(proxy, logqueue):
         (r"/(CERT/root.crt)", CRTHandler, {'path': setting.basepath}),
         (r"/shutdown", ShutdownHandler),
         (r"/openpath", OpenpathHandler),
-        (r"/log", LogHandler, {'logqueue': logqueue})
+        (r"/log", LogHandler)
     ], static_path=os.path.join(setting.basepath, 'static'),
     template_path=os.path.join(setting.basepath, 'template'))
 
-def init(proxy, logqueue):
-    app = make_app(proxy, logqueue)
+def init(proxy):
+    app = make_app(proxy)
     app.listen(7654, '127.0.0.1')
