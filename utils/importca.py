@@ -19,6 +19,7 @@
 from OpenSSL import crypto
 import os, sys
 import subprocess
+import locale
 
 from . import certmanager as cm
 from .setting import basepath
@@ -28,7 +29,7 @@ logger = logger.getChild('importca')
 certpath = os.path.join(basepath, 'CERT')
 
 def logandrun(cmd):
-    return logger.debug(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)
+    return logger.debug(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout.decode(locale.getpreferredencoding()))
 
 def import_windows_ca():
     try:
@@ -42,11 +43,12 @@ def import_windows_ca():
             logandrun('CertUtil -f -user -p "" -importPFX My '+os.path.join(certpath, 'root.pfx'))
         except subprocess.CalledProcessError:
             logger.error("Import Failed")
-            os.remove(os.path.join(certpath ,"root.pfx"))
-            os.remove(os.path.join(certpath ,"root.crt"))
-            os.remove(os.path.join(certpath ,"root.key"))
             logandrun('CertUtil -user -delstore My Accesser')
-            sys.exit(5)
+            # os.remove(os.path.join(certpath ,"root.pfx"))
+            # os.remove(os.path.join(certpath ,"root.crt"))
+            # os.remove(os.path.join(certpath ,"root.key"))
+            # sys.exit(5)
+            logger.warning('Try to manually import the certificate')
     else:
         with open(os.path.join(certpath ,"root.pfx"), 'rb') as pfxfile:
             p12 = crypto.load_pkcs12(pfxfile.read())
