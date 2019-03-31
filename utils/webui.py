@@ -4,9 +4,12 @@ import asyncio
 import os
 import sys
 import threading
+import json
+import urllib.parse
 
 from . import setting
-from . import log
+from .setting import basepath
+from .log import logger, logqueue
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -15,7 +18,7 @@ class MainHandler(tornado.web.RequestHandler):
 class GetHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def post(self):
-        self.write(setting.tojson())
+        self.write(json.dumps(setting.config))
 
 class SetHandler(tornado.web.RequestHandler):
     def initialize(self, proxy):
@@ -23,16 +26,17 @@ class SetHandler(tornado.web.RequestHandler):
     def restart_server(self):
         self.proxy.shutdown()
         self.proxy.server_close()
-        threading.Thread(target=self.proxy.start, args=(setting.server['address'],setting.server['port'])).start()
+        threading.Thread(target=self.proxy.start, args=(setting.config['server']['address'],setting.config['server']['port'])).start()
     @gen.coroutine
     def post(self):
-        require_restart = False
-        for i in ('server.address', 'server.port'):
-            try:
-                require_restart = require_restart or setting.set(i.split('.'), self.get_argument(i))
-            except tornado.web.MissingArgumentError:
-                pass
-        setting.save()
+        try:
+            require_restart = setting.set(json.loads(urllib.parse.unquote(self.request.body.decode('utf-8'))))
+            setting.save()
+        except json.JSONDecodeError as err:
+            logger.error('JSON decode failed.')
+            logger.debug(err.doc)
+            self.write('-1')
+            return
         if require_restart:
             self.restart_server()
             self.write('1')
@@ -42,26 +46,26 @@ class SetHandler(tornado.web.RequestHandler):
 class LogHandler(tornado.web.RequestHandler):
     @gen.coroutine
     def post(self):
-        data = yield log.logqueue.get()
+        data = yield logqueue.get()
         self.write(data)
         self.finish()
 
 class ShutdownHandler(tornado.web.RequestHandler):
     def get(self):
         if sys.platform.startswith('win'):
-            os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac ""')
+            os.system(os.path.join(basepath, 'sysproxy.exe')+' pac ""')
         os._exit(0)
 
 class OpenpathHandler(tornado.web.RequestHandler):
     def get(self):
-        os.startfile(setting.basepath)
+        os.startfile(basepath)
         self.write('')
 
 class PACHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         self.set_header('Content-Type', 'application/x-ns-proxy-autoconfig')
     def get(self):
-        self.render('pac', port=setting.server['port'])
+        self.render('pac', port=setting.config['server']['port'])
 
 class CRTHandler(tornado.web.StaticFileHandler):
     def set_headers(self):
@@ -73,12 +77,12 @@ def make_app(proxy):
         (r"/set", SetHandler, {'proxy': proxy}),
         (r"/get", GetHandler),
         (r"/pac/", PACHandler),
-        (r"/(CERT/root.crt)", CRTHandler, {'path': setting.basepath}),
+        (r"/(CERT/root.crt)", CRTHandler, {'path': basepath}),
         (r"/shutdown", ShutdownHandler),
         (r"/openpath", OpenpathHandler),
         (r"/log", LogHandler)
-    ], static_path=os.path.join(setting.basepath, 'static'),
-    template_path=os.path.join(setting.basepath, 'template'))
+    ], static_path=os.path.join(basepath, 'static'),
+    template_path=os.path.join(basepath, 'template'))
 
 def init(proxy):
     app = make_app(proxy)

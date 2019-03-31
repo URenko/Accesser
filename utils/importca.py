@@ -21,11 +21,11 @@ import os, sys
 import subprocess
 
 from . import certmanager as cm
-from . import setting
+from .setting import basepath
 from .log import logger
 logger = logger.getChild('importca')
 
-certpath = os.path.join(setting.basepath, 'CERT')
+certpath = os.path.join(basepath, 'CERT')
 
 def logandrun(cmd):
     return logger.debug(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout)

@@ -35,6 +35,7 @@ from utils import certmanager as cm
 from utils import importca
 from utils import webui
 from utils import setting
+from utils.setting import basepath
 from utils.log import logger
 
 from http import HTTPStatus
@@ -76,9 +77,9 @@ class ProxyHandler(StreamRequestHandler):
         if path.startswith('http://'):
             path = path[7:]
             ishttp = True
-        for key in setting.http_redirect:
+        for key in setting.config['http_redirect']:
             if path.startswith(key):
-                path = setting.http_redirect[key] + path[len(key):]
+                path = setting.config['http_redirect'][key] + path[len(key):]
                 break
         else:
             if not ishttp:
@@ -184,8 +185,8 @@ class ProxyHandler(StreamRequestHandler):
                                 content_encoding = None
                         if 'gzip' == content_encoding:
                             body = zlib.decompress(body ,15+32)
-                        for old in setting.content_fix[self.host]:
-                            body = body.replace(old.encode('utf8'), setting.content_fix[self.host][old].encode('utf8'))
+                        for old in setting.config['content_fix'][self.host]:
+                            body = body.replace(old.encode('utf8'), setting.config['content_fix'][self.host][old].encode('utf8'))
                         if None != content_encoding:
                             headers = re.sub(r'Content-Encoding: (\S+)\r\n', r'', headers)
                             headers = re.sub(r'Content-Length: (\d+)\r\n', r'Content-Length: '+str(len(body))+r'\r\n', headers)
@@ -211,20 +212,20 @@ class ProxyHandler(StreamRequestHandler):
         remote_context.check_hostname = False
         self.remote_sock = remote_context.wrap_socket(self.remote_sock)
         cert = self.remote_sock.getpeercert()
-        if setting.check_hostname:
+        if setting.config['check_hostname']:
             try:
                 ssl.match_hostname(cert, self.host)
             except ssl.CertificateError as err:
                 certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
                 certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
                 if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
-                    if self.host in setting.alert_hostname:
-                        if not setting.alert_hostname[self.host] in certdns:
+                    if self.host in setting.config['alert_hostname']:
+                        if not setting.config['alert_hostname'][self.host] in certdns:
                             raise err
                     else:
                         raise err
         self.remote_sock.sendall(self.raw_request)
-        self.forward(self.request, self.remote_sock, self.host in setting.content_fix)
+        self.forward(self.request, self.remote_sock, self.host in setting.config['content_fix'])
 
 class Proxy():
     def start(self, address, port):
@@ -232,7 +233,7 @@ class Proxy():
             self.server = ThreadingTCPServer((address, int(port)), ProxyHandler)
             logger.info("server started at {}:{}".format(address, port))
             if sys.platform.startswith('win'):
-                os.system(os.path.join(setting.basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
+                os.system(os.path.join(basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
             self.server.serve_forever()
         except socket.error as e:
             logger.error(e)
@@ -265,12 +266,12 @@ if __name__ == '__main__':
     webui.init(proxy)
     webbrowser.open('http://localhost:7654/')
     
-    DNScache = setting.hosts.copy()
+    DNScache = setting.config['hosts'].copy()
     DNS_lock = threading.Lock()
-    if setting.DNS:
+    if setting.config['DNS']:
         DNSresolver = Resolver(configure=False)
-        if 'SYSTEM' != setting.DNS.upper():
-            DNSresolver.read_resolv_conf(setting.DNS)
+        if 'SYSTEM' != setting.config['DNS'].upper():
+            DNSresolver.read_resolv_conf(setting.config['DNS'])
         else:
             if sys.platform == 'win32':
                 DNSresolver.read_registry()
@@ -287,8 +288,8 @@ if __name__ == '__main__':
     cert_store = set()
     cert_lock = threading.Lock()
     
-    if not setting.DNS:
+    if not setting.config['DNS']:
         threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
     else:
         threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
-    proxy.start(setting.server['address'], setting.server['port'])
+    proxy.start(setting.config['server']['address'], setting.config['server']['port'])
