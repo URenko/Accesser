@@ -29,7 +29,13 @@ logger = logger.getChild('importca')
 certpath = os.path.join(basepath, 'CERT')
 
 def logandrun(cmd):
-    return logger.debug(subprocess.run(cmd, check=True, stdout=subprocess.PIPE).stdout.decode(locale.getpreferredencoding()))
+    if hasattr(subprocess, 'STARTUPINFO'):
+        si = subprocess.STARTUPINFO()
+        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+    else:
+        si = None
+    return logger.debug(subprocess.check_output(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE \
+           , startupinfo=si, env=os.environ).decode(locale.getpreferredencoding()))
 
 def import_windows_ca():
     try:
