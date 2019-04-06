@@ -32,7 +32,8 @@ DoH_domains = (
 'dns.quad9.net',
 'dns9.quad9.net',
 'dns10.quad9.net',
-'dns.rubyfish.cn')
+'dns.rubyfish.cn',
+'dns.twnic.tw')
 DoH_domain = None
 
 class Client(client_protocol.StubServerProtocol):
