@@ -1,4 +1,51 @@
+let NotifyLogger = 
+{
+    _loglevel:"info",
+    _LoglevelPrior:["NOTSET",
+        "DEBUG",
+        "INFO",
+        "WARNING",
+        "ERROR",
+        "CRITICAL"],
+    _bl2fl:{
+        NOTSET:"success",
+        DEBUG:"success",
+        INFO:"info",
+        WARNING:"warning",
+        ERROR:"danger",
+        CRITICAL:"danger"
+    },
+
+    log(level, data, duration=10000)
+    {
+        level = level.toUpperCase();
+        if(this._LoglevelPrior.indexOf(level) >= 
+            this._LoglevelPrior.indexOf(this._loglevel))
+        {
+            $.notify({message:data},{type:this._bl2fl[level],delay:duration});
+        }
+    },
+    setLogLevel(v)
+    {
+        this.loglevel = v.toLowerCase();
+    }
+}
 $(document).ready(function(){
+
+    let webuiSettings ={
+        loglevel:"INFO"
+    }
+    if("Accesser" in localStorage)
+    {
+        webuiSettings = JSON.parse(localStorage.getItem("Accesser"));
+    }
+    NotifyLogger.setLogLevel(webuiSettings.loglevel);
+    window.onunload=function()
+    {
+        localStorage["Accesser"] = JSON.stringify(webuiSettings);
+    }
+
+
     $('#shutdown').click(function(){
         $.get('shutdown');
         window.close();
@@ -21,56 +68,149 @@ $(document).ready(function(){
         url: 'log',
         dataType: 'json',
         success: function(data){
-            if(data.level==='INFO'){$.notify({message:data.content},{type:'info',delay:10000});}
-            else if(data.level==='WARNING'){$.notify({message:data.content},{type:'warning',delay:10000});}
-            else if(data.level==='ERROR'){$.notify({message:data.content},{type:'danger',delay:10000});}
-            $.post(getlog);
+            NotifyLogger.log(data.level, data.content, 10000);
         },
         error: function(xhr, text){
             if(text==='timeout'){$.post(getlog);}
         }
     };
-    $.post(getlog);
+    setInterval(function(){
+        $.post(getlog)
+    },1000);
+    $("#server-setting-form #DNS").change(function(e){
+        let sel = $("#DNS-wrapper").get(0).children[1];
+        let udf = $("#DNS-wrapper").get(0).children[2];
+        if(e.target.value == "userDefine")
+        {
+            sel.classList.remove("col-sm-8");
+            sel.classList.add("col-sm-3");
+            udf.classList.remove("hidden");
+            udf.classList.add("col-sm-5");
+        }
+        else
+        {
+            sel.classList.remove("col-sm-3");
+            sel.classList.add("col-sm-8");
+            udf.classList.remove("col-sm-5");
+            udf.classList.add("hidden");
+        }
+    })
     
+    //retrieve setting from server
     $("#config").click(function(){
+
         $.post({
             type:"post",
             url:"get",
             success:function(data)
             {
-                let settings = JSON.parse(data)["server"];
+                let settings = JSON.parse(data);
+                console.log(settings);
+                let setFormByName = function(form, name, value)
+                {
+                    let se = $(`${form} *[name='${name}']`);
+                    if(se.length == 0) return;
+                    if(se.prop("tagName") == "INPUT")
+                    {
+                        if(se.attr("type") == "radio") 
+                            $(`${form}  input[name='${name}'][value='${value}']`).click();
+                        else if(se.attr("type") == "text")
+                            se.val(value);
+                    }
+                    else if(se.prop("tagName") == "SELECT")
+                    {
+                        $.each(se.children(), function(n, e){
+                            if(e.value == value)
+                                e.selected = true;
+                        })
+                    }
+                }
                 //console.log(settings);
                 for(let i in settings)
                 {
-                    let se = $(`#setting-form input[name='${i}']`);
-                    if(se.attr("type") == "radio") // [enbale_LAN] 0.0.0.0 enable 127.0.0.1 disable;
-                        $(`#setting-form input[name='${i}'][value='${settings[i]}']`).click();
-                    else if(se.attr("type") == "text")
-                        se.val(settings[i]);
+                    if(settings[i] instanceof Object)
+                    {
+                        for(let j in settings[i])
+                        {
+                            setFormByName("#server-setting-form",`${i}.${j}`, settings[i][j] == null ? "":settings[i][j]);
+                        }
+                    }
+                    else
+                        setFormByName("#server-setting-form", i, settings[i]);
+                }
+
+                for(let i in webuiSettings)
+                {
+                    setFormByName("#webui-setting-form", `webui.${i}`, webuiSettings[i]);
                 }
             }
         })
     })
 
-    
+    //Send settings to server.
     $("#settingModal .modal-footer .btn-primary").click(function()
     {
         console.log("Saving changes");
+        //"ala.bla.cla" -> ala.bla.cla
+        let setJSONSepe = function(data, name, value)
+        {
+            let dotPos = name.indexOf(".")
+            if(dotPos > 0)
+            {
+                let nameFirst = name.substring(0, dotPos);
+                if(!(nameFirst in data))
+                {
+                    data[nameFirst] = {};
+                }
+                setJSONSepe(data[nameFirst], name.substring(dotPos + 1, name.length), value);
+            }
+            else
+            {
+                data[name] = value;
+            }
+
+        }
         let data={};
-        $.each($("#settingModal input"), function(n, e){
-            if(e.type == "radio" && e.checked || e.type != "radio")
-                data["server." + e.name] = e.value;//parameters' names of getting and setting are inconsistent.
-            
+        $.each($("#server-setting-form input"), function(n, e){
+            if(e.type == "radio" && e.checked || e.type != "radio" && e.name !="DNS-userDefine")
+                setJSONSepe(data, e.name, e.value);
         });
+        $.each($("#server-setting-form select"), function(n, e)
+        {
+            if(e.name != "DNS")
+                setJSONSepe(data, e.name, e.value);
+        })
+        if($("#DNS-wrapper select[name='DNS']").val() == "")
+        {
+            data["DNS"] = null;
+        }
+        else if($("#DNS-wrapper select").val() == "userDefine")
+        {
+            data["DNS"] = $("#DNS-wrapper input[name='DNS-userDefine']").val();
+        }
+        else
+        {
+            data["DNS"] = $("#DNS-wrapper select[name='DNS']").val();
+        }
+
+        webuiSettings["loglevel"] = $("#webui-setting-form select[name='webui.loglevel'").val();
+        NotifyLogger.setLogLevel(webuiSettings["loglevel"]);
+        console.log(data);
         
         $.post({
             type:"POST",
             url:"set",
-            data:data,
+            data:JSON.stringify(data),
             success:function(data)
             {
-                $.notify({message:"设置已保存"},{type:'info',delay:10000});
+                if(data == -1)
+                    NotifyLogger.log("ERROR", "保存设置失败", 10000);
+                else if(data >= 0)
+                    NotifyLogger.log("INFO", "保存设置成功", 10000);
+                if(data > 0)
+                    NotifyLogger.log("INFO", "等待服务器重启", 10000);
             },
+            
             dataType:"json"
         });
     }
