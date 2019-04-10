@@ -2,6 +2,9 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <META HTTP-EQUIV="Pragma" CONTENT="no-cache"> 
+    <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate"> 
+    <META HTTP-EQUIV="Expires" CONTENT="0"> 
     <title>Accesser</title>
     
     <script src="https://cdnjs.loli.net/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -37,33 +40,111 @@
 
                 <div class="modal-body">
 
-                    <form id="setting-form" class="form-horizontal">
+                    <form id="server-setting-form" class="form-horizontal">
 
-                        <div id="setting-temp2-wrapper" class="form-group row">
-                            <label for="setting-temp2" class="col-sm-3 control-label">允许局域网访问:</label>
+                        <div id="server.address-wrapper" class="form-group row">
+
+                            <label class="col-sm-3 control-label">允许局域网访问:</label>
 
                             <div class="btn-group col-sm-8 setting-switch" data-toggle="buttons">
                                 <label class="btn btn-primary">
-                                    <input type="radio" name="address" id="option1" value="0.0.0.0"> ON
+                                    <input type="radio" name="server.address" value="0.0.0.0"> ON
                                 </label>
                                 <label class="btn btn-primary">
-                                    <input type="radio" name="address" id="option2" value="127.0.0.1"> OFF
+                                    <input type="radio" name="server.address" value="127.0.0.1"> OFF
                                 </label>
                             </div>
-                            
+                        
                         </div>
 
-                        <div id="setting-port-wrapper"  class="form-group">
-                            <label for="setting-port" class="col-sm-3 control-label">服务器端口:</label>
+                        <div id="server.port-wrapper"  class="form-group">
+                            <label for="server.port" class="col-sm-3 control-label">服务器端口:</label>
                             <div class="col-sm-8">
-                                <input id="setting-port" name="port" type="text" class="form-control" placeholder="(1024)...">
+                                <input id="server.port" name="server.port" type="text" class="form-control" placeholder="1-65535 建议>1024">
                             </div>    
                         </div>
+
+                        <div id="log.logfile-wrapper" class="form-group">
+
+                            <label for="log.logfile" class="col-sm-3 control-label">日志文件:</label>
+                            <div class="col-sm-8">
+                                <input id="log.logfile" name="log.logfile" type="text" class="form-control" placeholder="指定日志文件路径(空表示输出至控制台)">
+                            </div>
+                        </div>
                         
+                        <div id="log.loglevel-wrapper" class="form-group">
+                            <label for="log.loglevel" class="col-sm-3 control-label">日志级别:</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="log.loglevel" name="log.loglevel">
+                                    <option value="NOTSET">Notset</option>
+                                    <option value="DEBUG">Debug</option>
+                                    <option value="INFO">Info</option>
+                                    <option value="WARNING">Warning</option>
+                                    <option value="ERROR">Error</option>
+                                    <option value="CRITICAL">Critical</option>
+                                </select>
+                            </div>
+                        
+                        </div>
+
+                        <div id="check_hostname-wrapper" class="form-group row">
+
+                            <label class="col-sm-3 control-label">校验证书域名:</label>
+
+                            <div class="btn-group col-sm-8 setting-switch" data-toggle="buttons">
+                                <label class="btn btn-primary">
+                                    <input type="radio" name="check_hostname" value="true"> ON
+                                </label>
+                                <label class="btn btn-primary">
+                                    <input type="radio" name="check_hostname" value="false"> OFF
+                                </label>
+                            </div>
+                        
+                        </div>
+
+                        <div id="DNS-wrapper" class="form-group row">
+                            <label for="DNS" class="col-sm-3 control-label">DNS配置:</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="DNS" name="DNS">
+                                    <option value="">内置DoH</option>
+                                    <option value="SYSTEM">系统DNS</option>
+                                    <option value="userDefine">自定义文件</option>
+                                </select>
+                            </div>
+                            <div class="hidden">
+                                <!--
+                                    Enabled when userDefine is selected
+                                    Cause server care only dns file path.
+                                    userDefined path must be handled explicitly by front end. 
+                                -->
+                                <input name="DNS-userDefine" class="form-control" placeholder="自定义resolv.conf格式文件路径" >
+                            </div>
+                        </div>
+                    </form>
+                    <hr>
+                    <form id="webui-setting-form" class="form-horizontal">
+                        <div id="webui.loglevel-wrapper" class="form-group row">
+                            <label for="webui.loglevel" class="col-sm-3 control-label">WebUI log级别:</label>
+                            <div class="col-sm-8">
+                                <select class="form-control" id="webui.loglevel" name="webui.loglevel">
+                                    <option value="NOTSET">Notset</option>
+                                    <option value="DEBUG">Debug</option>
+                                    <option value="INFO">Info</option>
+                                    <option value="WARNING">Warning</option>
+                                    <option value="ERROR">Error</option>
+                                    <option value="CRITICAL">Critical</option>
+                                </select>
+                            </div>
+                        </div>
                     </form>
                                 
                 </div>
                 <div class="modal-footer">
+                    <div id="setting-help">
+                        <a href="https://github.com/URenko/Accesser/wiki/%E8%AE%BE%E7%BD%AE%E8%AF%B4%E6%98%8E" target="_blank">
+                            设置说明
+                        </a>
+                    </div>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">关闭</button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal"><span class="glyphicon glyphicon-floppy-disk" aria-hidden="true"></span>保存</button>
                 </div>
