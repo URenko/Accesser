@@ -88,4 +88,7 @@ def make_app(proxy):
 
 def init(proxy):
     app = make_app(proxy)
-    app.listen(7654, '127.0.0.1')
+    try:
+        app.listen(7654, '127.0.0.1')
+    except Exception as err:
+        logger.error(err)

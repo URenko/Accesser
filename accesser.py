@@ -44,7 +44,7 @@ from http import HTTPStatus
 import urllib.error
 
 _MAXLINE = 65536
-# PAC_HEADER = 'HTTP/1.1 200 OK\r\nContent-Length: {}\r\nContent-Type: application/x-ns-proxy-autoconfig\r\n\r\n'
+
 REDIRECT_HEADER = 'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{}\r\n\r\n'
 
 class ProxyHandler(StreamRequestHandler):
@@ -67,12 +67,6 @@ class ProxyHandler(StreamRequestHandler):
     def send_error(self, code, message=None, explain=None):
         #TODO
         pass
-    
-    # def send_pac(self):
-        # with open('pac.txt') as f:
-            # body = f.read()
-        # self.wfile.write(PAC_HEADER.format(len(body)).encode('iso-8859-1'))
-        # self.wfile.write(body.encode())
     
     def http_redirect(self, path):
         ishttp = False
@@ -116,10 +110,6 @@ class ProxyHandler(StreamRequestHandler):
                             self.remote_ip = DNSLookup(host)
                 if 'GET' == command:
                     self.http_redirect(path)
-                    # if path.startswith('/pac/'):
-                        # self.send_pac()
-                    # else:
-                        # self.http_redirect(path)
             elif 'POST' == command:
                     content_lenght = 0
             while True:
@@ -227,9 +217,9 @@ class ProxyHandler(StreamRequestHandler):
                 if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
                     if self.host in setting.config['alert_hostname']:
                         if not setting.config['alert_hostname'][self.host] in certdns:
-                            raise err
+                            logger.warning(err)
                     else:
-                        raise err
+                        logger.warning(err)
         self.remote_sock.sendall(self.raw_request)
         self.forward(self.request, self.remote_sock, self.host in setting.config['content_fix'])
 
