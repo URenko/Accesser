@@ -8,7 +8,17 @@ var domains = {
   "quora.com": 1,
   "reddit.com": 1,
   "redditmedia.com": 1,
-  "apkmirror.com": 1
+  "apkmirror.com": 1,
+  "nicovideo.jp": 1,
+  "dmc.nico": 1,
+  "bbc.com": 1,
+  "dropbox.com": 1,
+  "dropboxapi.com": 1,
+  "dropbox-dns.com": 1,
+  "kobo.com": 1,
+  "medium.com": 1,
+  "pinterest.com": 1,
+  "thetvdb.com": 1
 };
 
 var shexps = {
@@ -18,7 +28,11 @@ var shexps = {
   "*://steamuserimages-a.akamaihd.net/*": 1,
   "*://player.vimeo.com/*": 1,
   "*://*.amazon.co.jp/*": 1,
-  "*://onedrive.live.com/*": 1
+  "*://onedrive.live.com/*": 1,
+  "*://*.bbc.co.uk/*": 1,
+  "*://*.bbci.co.uk/*": 1,
+  "*://*.japantimes.co.jp/*": 1,
+  "*://*.search.yahoo.com/*": 1
 };
 
 var proxy = "PROXY 127.0.0.1:{{port}};";

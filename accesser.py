@@ -207,10 +207,14 @@ class ProxyHandler(StreamRequestHandler):
         self.setup()
         if not self.parse_host(forward=True):
             return
+        if self.host in setting.config['alert_hostname']:
+            server_hostname = setting.config['alert_hostname'][self.host]
+        else:
+            server_hostname = None
         self.remote_sock = socket.create_connection((self.remote_ip, 443))
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
-        self.remote_sock = remote_context.wrap_socket(self.remote_sock)
+        self.remote_sock = remote_context.wrap_socket(self.remote_sock, server_hostname=server_hostname)
         cert = self.remote_sock.getpeercert()
         if setting.config['check_hostname']:
             try:
