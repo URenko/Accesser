@@ -268,7 +268,8 @@ if __name__ == '__main__':
     
     proxy = Proxy()
     webui.init(proxy)
-    webbrowser.open('http://localhost:7654/')
+    if setting.config['webui']:
+        webbrowser.open('http://localhost:7654/')
     
     DNScache = setting.config['hosts'].copy()
     DNS_lock = threading.Lock()
