@@ -19,11 +19,13 @@
 __version__ = '0.6.1'
 
 import os, re, sys
+import random
 import zlib
 import socket, ssl
 import select
 import asyncio
 import threading
+import subprocess
 import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from urllib import request
@@ -232,12 +234,21 @@ class ProxyHandler(StreamRequestHandler):
         self.forward(self.request, self.remote_sock, self.host in setting.config['content_fix'])
 
 class Proxy():
+    def __init__(self):
+        if hasattr(subprocess, 'STARTUPINFO'):
+            self.si = subprocess.STARTUPINFO()
+            self.si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            self.si = None
+    def winrun(self, cmd):
+        subprocess.check_output(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE \
+           , startupinfo=self.si, env=os.environ)
     def start(self, address, port):
         try:
             self.server = ThreadingTCPServer((address, int(port)), ProxyHandler)
             logger.info("server started at {}:{}".format(address, port))
             if sys.platform.startswith('win'):
-                os.system(os.path.join(basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t=%random%')
+                self.winrun(os.path.join(basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t='+str(random.randrange(2**16)))
             self.server.serve_forever()
         except socket.error as e:
             logger.error(e)

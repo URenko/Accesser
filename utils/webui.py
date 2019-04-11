@@ -51,9 +51,11 @@ class LogHandler(tornado.web.RequestHandler):
         self.finish()
 
 class ShutdownHandler(tornado.web.RequestHandler):
+    def initialize(self, proxy):
+        self.proxy = proxy
     def get(self):
         if sys.platform.startswith('win'):
-            os.system(os.path.join(basepath, 'sysproxy.exe')+' pac ""')
+            self.proxy.winrun(os.path.join(basepath, 'sysproxy.exe')+' pac ""')
         os._exit(0)
 
 class OpenpathHandler(tornado.web.RequestHandler):
@@ -78,7 +80,7 @@ def make_app(proxy):
         (r"/get", GetHandler),
         (r"/pac/", PACHandler),
         (r"/(CERT/root.crt)", CRTHandler, {'path': basepath}),
-        (r"/shutdown", ShutdownHandler),
+        (r"/shutdown", ShutdownHandler, {'proxy': proxy}),
         (r"/openpath", OpenpathHandler),
         (r"/log", LogHandler)
     ], static_path=os.path.join(basepath, 'static'),
