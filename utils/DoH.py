@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import random
 import logging
 import asyncio
 import dns
@@ -32,8 +33,13 @@ DoH_domains = (
 'dns.quad9.net',
 'dns9.quad9.net',
 'dns10.quad9.net',
-'dns.rubyfish.cn',
-'dns.twnic.tw')
+'ea-dns.rubyfish.cn',
+'uw-dns.rubyfish.cn',
+'dns.twnic.tw',
+'dns.adguard.com',
+'sdns.233py.com',
+'sg.gridns.xyz',
+)
 DoH_domain = None
 
 class Client(client_protocol.StubServerProtocol):
@@ -122,11 +128,12 @@ async def test_DoHs():
 def init():
     global DoHclient,loop
     loop = asyncio.get_event_loop()
+    args.domain = random.choice(DoH_domains)
+    DoHclient = Client(args=args, logger=logger)
     logger.info('Selecting DoH server...')
     loop.run_until_complete(test_DoHs())
     logger.info('Auto selected DoH server: '+DoH_domain)
     args.domain = DoH_domain
-    DoHclient = Client(args=args, logger=logger)
     return loop
 
 def DNSquery(name):

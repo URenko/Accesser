@@ -288,8 +288,8 @@ if __name__ == '__main__':
     cert_store = set()
     cert_lock = threading.Lock()
     
+    threading.Thread(target=proxy.start, args=(setting.config['server']['address'],setting.config['server']['port'])).start()
     if not setting.config['DNS']:
-        threading.Thread(target=lambda loop:loop.run_forever(), args=(DoH.init(),)).start()
+        DoH.init().run_forever()
     else:
-        threading.Thread(target=lambda loop:loop.run_forever(), args=(asyncio.get_event_loop(),)).start()
-    proxy.start(setting.config['server']['address'], setting.config['server']['port'])
+        asyncio.get_event_loop().run_forever()
