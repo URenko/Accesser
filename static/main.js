@@ -1,6 +1,6 @@
 let NotifyLogger = 
 {
-    _loglevel:"info",
+    _loglevel:"INFO",
     _LoglevelPrior:["NOTSET",
         "DEBUG",
         "INFO",
@@ -27,7 +27,7 @@ let NotifyLogger =
     },
     setLogLevel(v)
     {
-        this.loglevel = v.toLowerCase();
+        this._loglevel = v.toUpperCase();
     }
 }
 $(document).ready(function(){
@@ -67,16 +67,21 @@ $(document).ready(function(){
     let getlog = {
         url: 'log',
         dataType: 'json',
+        timeout:0,
         success: function(data){
             NotifyLogger.log(data.level, data.content, 10000);
         },
         error: function(xhr, text){
             if(text==='timeout'){$.post(getlog);}
+        },
+        complete:function(xhr, result)
+        {
+            $.post(getlog);
+            //console.log(result);
         }
     };
-    setInterval(function(){
-        $.post(getlog)
-    },1000);
+    $.post(getlog);
+    
     $("#server-setting-form #DNS").change(function(e){
         let sel = $("#DNS-wrapper").get(0).children[1];
         let udf = $("#DNS-wrapper").get(0).children[2];
