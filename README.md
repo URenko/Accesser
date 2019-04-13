@@ -2,6 +2,10 @@
 一个解决SNI RST导致中文维基、Pixiv等站点无法访问的工具  
 [支持的站点](https://github.com/URenko/Accesser/wiki/目前支持的站点)
 
+[![](https://img.shields.io/github/release/URenko/Accesser.svg)](https://github.com/URenko/Accesser/releases/latest)
+[![](https://img.shields.io/github/downloads/URenko/Accesser/total.svg)](https://github.com/URenko/Accesser/releases/latest)
+[![](https://img.shields.io/github/license/URenko/Accesser.svg)](https://github.com/URenko/Accesser/blob/master/LICENSE)
+
 ## 使用方法
 参见[https://urenko.github.io/Accesser/](https://urenko.github.io/Accesser/)
 
