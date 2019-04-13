@@ -18,7 +18,9 @@ var domains = {
   "kobo.com": 1,
   "medium.com": 1,
   "pinterest.com": 1,
-  "thetvdb.com": 1
+  "thetvdb.com": 1,
+  "dw.com": 1,
+  "imgur.com": 1
 };
 
 var shexps = {
