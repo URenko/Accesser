@@ -20,7 +20,13 @@ var domains = {
   "pinterest.com": 1,
   "thetvdb.com": 1,
   "dw.com": 1,
-  "imgur.com": 1
+  "imgur.com": 1,
+  "startpage.com": 1,
+  "uptodown.com": 1,
+  "pornhub.com": 1,
+  "phncdn.com": 1,
+  "artstation.com": 1,
+  "vimeo.com": 1
 };
 
 var shexps = {
@@ -28,7 +34,6 @@ var shexps = {
   "*://ja.wikipedia.org/*": 1,
   "*://steamcommunity-a.akamaihd.net/*": 1,
   "*://steamuserimages-a.akamaihd.net/*": 1,
-  "*://player.vimeo.com/*": 1,
   "*://*.amazon.co.jp/*": 1,
   "*://onedrive.live.com/*": 1,
   "*://*.bbc.co.uk/*": 1,

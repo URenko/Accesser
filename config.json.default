@@ -18,7 +18,8 @@
   },
   "alert_hostname": {
     "www.quora.com": "fs.quoracdn.net",
-    "sketch.pixiv.net": "pixivsketch.net"
+    "sketch.pixiv.net": "pixivsketch.net",
+	"cdn1-smallimg.phncdn.com": "pabbp.com"
   },
   "hosts": {
     "www.instagram.com": "31.13.82.174",
@@ -96,7 +97,12 @@
     "cfl.dropboxstatic.com": "104.16.100.29",
     "cf.dropboxstatic.com": "54.230.175.68",
     "dbxlocal.dropboxstatic.com": "162.125.33.9",
-    "log.getdropbox.com": "162.125.82.2"
+    "log.getdropbox.com": "162.125.82.2",
+	"ci.phncdn.com": "152.195.33.132",
+	"cv.phncdn.com": "152.195.33.132",
+	"cs.phncdn.com": "152.195.33.132",
+	"di.phncdn.com": "205.185.208.142",
+	"ev.phncdn.com": "208.99.84.114"
   },
   "hosts_ipv6": {},
   "content_fix": {

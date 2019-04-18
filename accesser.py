@@ -203,7 +203,11 @@ class ProxyHandler(StreamRequestHandler):
             server_hostname = setting.config['alert_hostname'][self.host]
         else:
             server_hostname = None
-        self.remote_sock = socket.create_connection((self.remote_ip, 443))
+        try:
+            self.remote_sock = socket.create_connection((self.remote_ip, 443))
+        except TimeoutError:
+            logger.warning('Try connect '+self.host+' with '+self.remote_ip+' timeout.')
+            return
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
         self.remote_sock = remote_context.wrap_socket(self.remote_sock, server_hostname=server_hostname)
