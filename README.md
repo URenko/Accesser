@@ -18,7 +18,7 @@
 2. 下载**Python3.7**，我们推荐从[Python官网](https://www.python.org/downloads/release/python-373/)下载。此外，在Linux下，我们推荐使用[pyenv](https://github.com/pyenv/pyenv-installer)来管理不同版本的Python
 3. 安装依赖包：
 ```
-pip3 install pyopenssl,doh-proxy
+pip3 install pyopenssl,doh-proxy,tld
 pip3 install -U git+https://github.com/URenko/aioh2.git
 ```
 4. 设置PAC代理为`http://127.0.0.1:7654/pac/`
