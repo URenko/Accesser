@@ -26,12 +26,11 @@ var domains = {
   "pornhub.com": 1,
   "phncdn.com": 1,
   "artstation.com": 1,
-  "vimeo.com": 1
+  "vimeo.com": 1,
+  "wikipedia.org": 1
 };
 
 var shexps = {
-  "*://zh.wikipedia.org/*": 1,
-  "*://ja.wikipedia.org/*": 1,
   "*://steamcommunity-a.akamaihd.net/*": 1,
   "*://steamuserimages-a.akamaihd.net/*": 1,
   "*://*.amazon.co.jp/*": 1,

@@ -1,5 +1,5 @@
 # Accesser
-一个解决SNI RST导致中文维基、Pixiv等站点无法访问的工具  
+一个解决SNI RST导致维基百科、Pixiv等站点无法访问的工具  
 [支持的站点](https://github.com/URenko/Accesser/wiki/目前支持的站点)
 
 [![](https://img.shields.io/github/release/URenko/Accesser.svg)](https://github.com/URenko/Accesser/releases/latest)
@@ -18,7 +18,7 @@
 - tld
 
 ## 增加支持的网站 
-按pac文件格式编辑`pac.txt`使要支持的网站从代理过  
+按pac文件格式编辑`template/pac`使要支持的网站从代理过  
 
 ## 当前支持
 |                   |Windows|Mac OS|Linux|
