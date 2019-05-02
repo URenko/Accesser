@@ -27,7 +27,8 @@ var domains = {
   "phncdn.com": 1,
   "artstation.com": 1,
   "vimeo.com": 1,
-  "wikipedia.org": 1
+  "wikipedia.org": 1,
+  "nicovideo.jp": 1
 };
 
 var shexps = {
