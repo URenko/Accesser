@@ -14,6 +14,8 @@
     "port": 53
   },
   "webui": true,
+  "webuiport": 7654,
+  "setproxy": true,
   "http_redirect": {
     "pixiv.net/": "www.pixiv.net/",
     "www.google.com/recaptcha/": "www.recaptcha.net/recaptcha/",

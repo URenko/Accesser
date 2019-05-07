@@ -89,6 +89,6 @@ def make_app(proxy):
 def init(proxy):
     app = make_app(proxy)
     try:
-        app.listen(7654, '127.0.0.1')
+        app.listen(int(setting.config['webuiport']), '127.0.0.1')
     except Exception as err:
         logger.error(err)

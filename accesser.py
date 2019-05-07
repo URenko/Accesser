@@ -241,7 +241,7 @@ class Proxy():
             self.server = ThreadingTCPServer((address, int(port)), ProxyHandler)
             logger.info("server started at {}:{}".format(address, port))
             if setting.config['setproxy'] and sys.platform.startswith('win'):
-                self.winrun(os.path.join(basepath, 'sysproxy.exe')+' pac http://localhost:7654/pac/?t='+str(random.randrange(2**16)))
+                self.winrun(os.path.join(basepath, 'sysproxy.exe')+' pac http://localhost:'+str(setting.config['webuiport'])+'/pac/?t='+str(random.randrange(2**16)))
             self.server.serve_forever()
         except socket.error as e:
             logger.error(e)
