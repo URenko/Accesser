@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.6.1'
+__version__ = '0.6.2'
 
 import os, re, sys
 import random
@@ -106,8 +106,7 @@ class ProxyHandler(StreamRequestHandler):
                     host, port = path.split(':')
                     if '443' == port:
                         self.host = host
-                        with DNS_lock:
-                            self.remote_ip = DNSLookup(host)
+                        self.remote_ip = DNSquery(host)
                 if 'GET' == command:
                     self.http_redirect(path)
             elif 'POST' == command:
@@ -251,14 +250,6 @@ class Proxy():
     def server_close(self):
         self.server.server_close()
 
-def DNSLookup(name):
-    if name in DNScache:
-        return DNScache[name]
-    else:
-        res = DNSquery(name)
-        DNScache[name] = res
-        return res
-
 def update_checker():
     with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
         v2 = f.geturl().rsplit('/', maxsplit=1)[-1][1:].split('.')
@@ -276,21 +267,24 @@ if __name__ == '__main__':
     if setting.config['webui']:
         webbrowser.open('http://localhost:7654/')
     
-    DNScache = setting.config['hosts'].copy()
-    DNS_lock = threading.Lock()
-    if setting.config['DNS']:
-        DNSresolver = Resolver(configure=False)
-        if 'SYSTEM' != setting.config['DNS'].upper():
-            DNSresolver.read_resolv_conf(setting.config['DNS'])
-        else:
-            if sys.platform == 'win32':
-                DNSresolver.read_registry()
-            else:
-                DNSresolver.read_resolv_conf('/etc/resolv.conf')
-        DNSquery = lambda x:DNSresolver.query(x, 'A')[0].to_text()
+    DNSresolver = Resolver(configure=False)
+    if not setting.config['DNS']['dnscrypt-proxy']:
+        DNSresolver.nameservers = [setting.config['DNS']['nameserver']]
+        DNSresolver.port = int(setting.config['DNS']['port'])
     else:
-        from utils import DoH
-        DNSquery = DoH.DNSquery
+        # Launch dnscrypt-proxy in the `./dnscrypt`.
+        # And use `127.0.0.1:53000` in default.
+        DNSresolver.nameservers = ['127.0.0.1']
+        DNSresolver.port = 53000
+        dnscrypt_dir = os.path.join(basepath, 'dnscrypt')
+        if hasattr(subprocess, 'STARTUPINFO'):
+            si = subprocess.STARTUPINFO()
+            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        else:
+            si = None
+        subprocess.Popen([os.path.join(dnscrypt_dir, 'dnscrypt-proxy'),'-child','-logfile','dnscrypt-proxy.log'], stdin=subprocess.PIPE, stderr=subprocess.PIPE \
+               , startupinfo=si, env=os.environ)
+    DNSquery = lambda x:DNSresolver.query(x, 'A')[0].to_text()
     
     importca.import_ca()
 
@@ -299,7 +293,4 @@ if __name__ == '__main__':
     cert_lock = threading.Lock()
     
     threading.Thread(target=proxy.start, args=(setting.config['server']['address'],setting.config['server']['port'])).start()
-    if not setting.config['DNS']:
-        DoH.init().run_forever()
-    else:
-        asyncio.get_event_loop().run_forever()
+    asyncio.get_event_loop().run_forever()
