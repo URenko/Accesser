@@ -54,7 +54,7 @@ class ShutdownHandler(tornado.web.RequestHandler):
     def initialize(self, proxy):
         self.proxy = proxy
     def get(self):
-        if sys.platform.startswith('win'):
+        if setting.config['setproxy'] and sys.platform.startswith('win'):
             self.proxy.winrun(os.path.join(basepath, 'sysproxy.exe')+' pac ""')
         os._exit(0)
 
