@@ -27,7 +27,10 @@ var domains = {
   "phncdn.com": 1,
   "artstation.com": 1,
   "vimeo.com": 1,
-  "wikipedia.org": 1
+  "wikipedia.org": 1,
+  "epochtimes.com": 1,
+  "euronews.com": 1,
+  "reuters.com": 1
 };
 
 var shexps = {
@@ -38,7 +41,8 @@ var shexps = {
   "*://*.bbc.co.uk/*": 1,
   "*://*.bbci.co.uk/*": 1,
   "*://*.japantimes.co.jp/*": 1,
-  "*://*.search.yahoo.com/*": 1
+  "*://*.yahoo.co.jp/*": 1,
+  "*://*.cna.com.tw/*": 1
 };
 
 var proxy = "PROXY 127.0.0.1:{{port}};";
