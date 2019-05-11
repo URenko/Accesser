@@ -96,7 +96,7 @@ def import_mac_ca():
 
 def import_ca():
     if not(os.path.exists(os.path.join(certpath ,"root.crt")) and os.path.exists(os.path.join(certpath ,"root.key"))):
-        if setting.importca:
+        if setting.config['importca']:
             if sys.platform.startswith('win'):
                 import_windows_ca()
             else:

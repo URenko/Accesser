@@ -22,9 +22,13 @@ import sys
 import ssl
 from OpenSSL import crypto
 
+from . import setting
 from .setting import basepath
 
-certpath = os.path.join(basepath, 'CERT')
+if setting.config['importca']:
+    certpath = os.path.join(basepath, 'CERT')
+else:
+    certpath ='CERT'
 if not os.path.exists(certpath):
     os.mkdir(certpath)
 
