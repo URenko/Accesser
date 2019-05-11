@@ -30,7 +30,8 @@ var domains = {
   "wikipedia.org": 1,
   "epochtimes.com": 1,
   "euronews.com": 1,
-  "reuters.com": 1
+  "reuters.com": 1,
+  "google.com.hk": 1
 };
 
 var shexps = {

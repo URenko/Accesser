@@ -31,7 +31,7 @@ from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from urllib import request
 from tornado.httpclient import AsyncHTTPClient
 from tld import get_tld
-from dns.resolver import Resolver
+from dns.resolver import Resolver, NoAnswer
 
 from utils import certmanager as cm
 from utils import importca
@@ -250,6 +250,12 @@ class Proxy():
     def server_close(self):
         self.server.server_close()
 
+def DNSquery(domain):
+    try:
+        return DNSresolver.query(domain, 'AAAA')[0].to_text()
+    except NoAnswer:
+        return DNSresolver.query(domain, 'A')[0].to_text()
+
 def update_checker():
     with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
         v2 = f.geturl().rsplit('/', maxsplit=1)[-1][1:].split('.')
@@ -284,7 +290,6 @@ if __name__ == '__main__':
             si = None
         subprocess.Popen([os.path.join(dnscrypt_dir, 'dnscrypt-proxy'),'-child','-logfile','dnscrypt-proxy.log'], stdin=subprocess.PIPE, stderr=subprocess.PIPE \
                , startupinfo=si, env=os.environ)
-    DNSquery = lambda x:DNSresolver.query(x, 'A')[0].to_text()
     
     importca.import_ca()
 
