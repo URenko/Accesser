@@ -17,11 +17,14 @@ if path.exists('config.json'):
 parser = argparse.ArgumentParser()
 parser.add_argument('--cli', action='store_true', help='do not open webui automatically')
 parser.add_argument('--notsetproxy', action='store_true', help='do not set system\'s pac proxy automatically')
+parser.add_argument('--notimportca', action='store_true', help='do not import certificate to system automatically')
 args = parser.parse_args()
 if args.cli:
     config['webui'] = False
 if args.notsetproxy:
     config['setproxy'] = False
+if args.notimportca:
+    config['importca'] = False
 
 def set(new):
     '''set value and return whether need to restart server'''

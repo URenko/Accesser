@@ -21,6 +21,7 @@ import os, sys
 import subprocess
 import locale
 
+from . import setting
 from . import certmanager as cm
 from .setting import basepath
 from .log import logger
@@ -95,8 +96,11 @@ def import_mac_ca():
 
 def import_ca():
     if not(os.path.exists(os.path.join(certpath ,"root.crt")) and os.path.exists(os.path.join(certpath ,"root.key"))):
-        if sys.platform.startswith('win'):
-            import_windows_ca()
+        if setting.importca:
+            if sys.platform.startswith('win'):
+                import_windows_ca()
+            else:
+                cm.create_root_ca()
+                logger.warning('other platform support is under development, please import root.crt manually.')
         else:
             cm.create_root_ca()
-            logger.warning('other platform support is under development, please import root.crt manually.')
