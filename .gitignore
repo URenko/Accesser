@@ -111,3 +111,4 @@ config.json
 /dnscrypt/*
 !/dnscrypt/cloaking-rules.txt
 !/dnscrypt/dnscrypt-proxy.toml
+.1
