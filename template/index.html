@@ -17,7 +17,7 @@
 </head>
 <body>
     <div class="page-header">
-        <h1>Accesser 控制台</h1>
+        <h1>Accesser 控制台 <small>v{{version}}</small></h1>
     </div>
     <ul class="nav nav-stacked">
         <li role="presentation" id="shutdown"><a href="#"><span class="glyphicon glyphicon-off" aria-hidden="true"></span>关闭</a></li>
@@ -106,9 +106,8 @@
                             <label for="DNS" class="col-sm-3 control-label">DNS配置:</label>
                             <div class="col-sm-8">
                                 <select class="form-control" id="DNS" name="DNS">
-                                    <option value="">内置DoH</option>
-                                    <option value="SYSTEM">系统DNS</option>
-                                    <option value="userDefine">自定义文件</option>
+                                    <option value="dnscrypt-proxy">Dnscrypt-proxy</option>
+                                    <option value="userDefine">其他</option>
                                 </select>
                             </div>
                             <div class="hidden">
@@ -117,7 +116,7 @@
                                     Cause server care only dns file path.
                                     userDefined path must be handled explicitly by front end. 
                                 -->
-                                <input name="DNS-userDefine" class="form-control" placeholder="自定义resolv.conf格式文件路径" >
+                                <input name="DNS-userDefine" class="form-control" placeholder="ip:port" >
                             </div>
                         </div>
                     </form>

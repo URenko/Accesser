@@ -119,7 +119,7 @@ $(document).ready(function(){
                     {
                         if(se.attr("type") == "radio") 
                             $(`${form}  input[name='${name}'][value='${value}']`).click();
-                        else if(se.attr("type") == "text")
+                        else
                             se.val(value);
                     }
                     else if(se.prop("tagName") == "SELECT")
@@ -135,10 +135,36 @@ $(document).ready(function(){
                 {
                     if(settings[i] instanceof Object)
                     {
-                        for(let j in settings[i])
+                        if([i] == "DNS")
                         {
-                            setFormByName("#server-setting-form",`${i}.${j}`, settings[i][j] == null ? "":settings[i][j]);
+                            let sel = $("#DNS-wrapper").get(0).children[1];
+                            let udf = $("#DNS-wrapper").get(0).children[2];
+                            if(settings[i]["dnscrypt-proxy"] == true)
+                            {
+                                sel.classList.remove("col-sm-3");
+                                sel.classList.add("col-sm-8");
+                                udf.classList.remove("col-sm-5");
+                                udf.classList.add("hidden");
+                                setFormByName("#server-setting-form", "DNS", "dnscrypt-proxy");
+                            }
+                            else
+                            {
+                                sel.classList.remove("col-sm-8");
+                                sel.classList.add("col-sm-3");
+                                udf.classList.remove("hidden");
+                                udf.classList.add("col-sm-5");
+                                setFormByName("#server-setting-form", "DNS", "userDefine");
+                                setFormByName("#server-setting-form", "DNS-userDefine", settings[i]["nameserver"] + ":" + settings[i]["port"]);
+                            }
                         }
+                        else
+                        {
+                            for(let j in settings[i])
+                            {
+                                setFormByName("#server-setting-form",`${i}.${j}`, settings[i][j] == null ? "":settings[i][j]);
+                            }
+                        }
+                        
                     }
                     else
                         setFormByName("#server-setting-form", i, settings[i]);
@@ -185,19 +211,29 @@ $(document).ready(function(){
             if(e.name != "DNS")
                 setJSONSepe(data, e.name, e.value);
         })
-        if($("#DNS-wrapper select[name='DNS']").val() == "")
+        
+        if($("#DNS-wrapper select[name='DNS']").val() == "dnscrypt-proxy")
         {
-            data["DNS"] = null;
+            data["DNS"] = {
+                "dnscrypt-proxy":true,
+                "nameserver":"",
+                "port": ""
+            };
         }
         else if($("#DNS-wrapper select").val() == "userDefine")
         {
-            data["DNS"] = $("#DNS-wrapper input[name='DNS-userDefine']").val();
+            let os = $("#DNS-wrapper input[name='DNS-userDefine']").val().split(":");
+            let s = os[0];
+            let p = os[1];
+            if(typeof p == "undefined")
+                p = "80";
+            data["DNS"] = {
+                "dnscrypt-proxy":false,
+                "nameserver":s,
+                "port": p
+            };
         }
-        else
-        {
-            data["DNS"] = $("#DNS-wrapper select[name='DNS']").val();
-        }
-
+        
         webuiSettings["loglevel"] = $("#webui-setting-form select[name='webui.loglevel'").val();
         NotifyLogger.setLogLevel(webuiSettings["loglevel"]);
         console.log(data);

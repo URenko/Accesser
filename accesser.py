@@ -269,7 +269,7 @@ if __name__ == '__main__':
     threading.Thread(target=update_checker).start()
     
     proxy = Proxy()
-    webui.init(proxy)
+    webui.init(proxy, version=__version__)
     if setting.config['webui']:
         webbrowser.open('http://localhost:7654/')
     

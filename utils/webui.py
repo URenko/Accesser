@@ -12,8 +12,10 @@ from .setting import basepath
 from .log import logger, logqueue
 
 class MainHandler(tornado.web.RequestHandler):
+    def initialize(self, version):
+        self.version = version
     def get(self):
-        self.render('index.html')
+        self.render('index.html', version=self.version)
 
 class GetHandler(tornado.web.RequestHandler):
     @gen.coroutine
@@ -73,9 +75,9 @@ class CRTHandler(tornado.web.StaticFileHandler):
     def set_headers(self):
         self.set_header('Content-Type', 'application/x-x509-ca-cert')
 
-def make_app(proxy):
+def make_app(proxy, version):
     return tornado.web.Application([
-        (r"/", MainHandler),
+        (r"/", MainHandler, {'version': version}),
         (r"/set", SetHandler, {'proxy': proxy}),
         (r"/get", GetHandler),
         (r"/pac/", PACHandler),
@@ -86,8 +88,8 @@ def make_app(proxy):
     ], static_path=os.path.join(basepath, 'static'),
     template_path=os.path.join(basepath, 'template'))
 
-def init(proxy):
-    app = make_app(proxy)
+def init(proxy, version):
+    app = make_app(proxy, version)
     try:
         app.listen(int(setting.config['webuiport']), '127.0.0.1')
     except Exception as err:
