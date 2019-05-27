@@ -18,16 +18,23 @@
 2. 下载**Python3.7**，我们推荐从[Python官网](https://www.python.org/downloads/release/python-373/)下载。此外，在Linux下，我们推荐使用[pyenv](https://github.com/pyenv/pyenv-installer)来管理不同版本的Python
 3. 安装依赖包：
 ```
-pip3 install pyopenssl doh-proxy tld tornado
-pip3 install -U git+https://github.com/URenko/aioh2.git
+pip3 install pyopenssl tld dnspython tornado
 ```
-4. 设置PAC代理为`http://127.0.0.1:7654/pac/`
-5. 运行程序：`python3 accesser.py`
-6. 点击导入证书来下载证书，然后手动导入证书
-7. 对于Firefox浏览器，还需按照[https://github.com/URenko/Accesser/wiki/Firefox设置方法](https://github.com/URenko/Accesser/wiki/Firefox设置方法)进行设置
+4. 从[这里](https://github.com/jedisct1/dnscrypt-proxy/releases)下载编译好的dnscrypt-proxy，从中提取出可执行文件，放在`dnscrypt`目录下
+5. 设置PAC代理为`http://127.0.0.1:7654/pac/`
+6. 运行程序：`python3 accesser.py`
+7. 点击导入证书来下载证书，然后手动导入证书
+8. 对于Firefox浏览器，还需按照[https://github.com/URenko/Accesser/wiki/Firefox设置方法](https://github.com/URenko/Accesser/wiki/Firefox设置方法)进行设置
+
+### Android
+参考[FAQ](https://github.com/URenko/Accesser/wiki/FAQ#q-%E6%88%91%E6%83%B3%E5%9C%A8android%E4%B8%8A%E7%94%A8)。
 
 ## 有问题？
 
-如果您在使用过程中遇到了问题，请阅读[FAQ](https://github.com/URenko/Accesser/wiki/FAQ)，或者[发issue](https://github.com/URenko/Accesser/issues)求助，或者在Telegram上联系[@URenko](https://t.me/URenko)
+如果您在使用过程中遇到了问题，请阅读[FAQ](https://github.com/URenko/Accesser/wiki/FAQ)，或者[发issue](https://github.com/URenko/Accesser/issues)求助。
 
 如果您启动了程序，请在描述问题时附上日志。对于一键程序，同目录下的`accesser.log`就是日志文件。
+
+#### [设置说明](https://github.com/URenko/Accesser/wiki/%E8%AE%BE%E7%BD%AE%E8%AF%B4%E6%98%8E)
+
+#### [开发者指南](https://github.com/URenko/Accesser/wiki/%E5%BC%80%E5%8F%91%E8%80%85%E6%8C%87%E5%8D%97)
