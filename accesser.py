@@ -251,9 +251,12 @@ class Proxy():
         self.server.server_close()
 
 def DNSquery(domain):
-    try:
-        return DNSresolver.query(domain, 'AAAA')[0].to_text()
-    except NoAnswer:
+    if setting.config['ipv6']:
+        try:
+            return DNSresolver.query(domain, 'AAAA')[0].to_text()
+        except NoAnswer:
+            return DNSresolver.query(domain, 'A')[0].to_text()
+    else:
         return DNSresolver.query(domain, 'A')[0].to_text()
 
 def update_checker():
@@ -288,7 +291,7 @@ if __name__ == '__main__':
             si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         else:
             si = None
-        subprocess.Popen([os.path.join(dnscrypt_dir, 'dnscrypt-proxy'),'-child','-logfile','dnscrypt-proxy.log'], stdin=subprocess.PIPE, stderr=subprocess.PIPE \
+        subprocess.Popen([os.path.join(dnscrypt_dir, 'dnscrypt-proxy'),'-child','-logfile','dnscrypt-proxy.log'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE \
                , startupinfo=si, env=os.environ)
     
     importca.import_ca()

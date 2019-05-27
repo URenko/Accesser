@@ -17,6 +17,7 @@
   "webuiport": 7654,
   "setproxy": true,
   "importca": true,
+  "ipv6": false,
   "http_redirect": {
     "pixiv.net/": "www.pixiv.net/",
     "www.google.com/recaptcha/": "www.recaptcha.net/recaptcha/",
