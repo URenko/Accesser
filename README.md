@@ -1,4 +1,6 @@
 # Accesser
+[English version](README.en.md)
+
 一个解决SNI RST导致维基百科、Pixiv等站点无法访问的工具  
 [支持的站点](https://github.com/URenko/Accesser/wiki/目前支持的站点)
 
@@ -13,7 +15,8 @@
 - Python3.7 (其他版本未测试)
 - [pyopenssl](https://pyopenssl.org/)
 - [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
-- [doh-proxy](https://github.com/facebookexperimental/doh-proxy)
+- dnspython
+- [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy)
 - tornado
 - tld
 
@@ -26,4 +29,3 @@
 |基础支持            |  ✔  |  ✔  | ✔ |
 |自动配置pac代理      |  ✔  |      |     |
 |自动导入证书至系统   |  ✔  |      |     |
-|自动导入证书至Firefox|      |      |     |
