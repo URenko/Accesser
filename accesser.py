@@ -274,7 +274,7 @@ if __name__ == '__main__':
     proxy = Proxy()
     webui.init(proxy, version=__version__)
     if setting.config['webui']:
-        webbrowser.open('http://localhost:7654/')
+        webbrowser.open('http://localhost:{}/'.format(setting.config['webuiport']))
     
     DNSresolver = Resolver(configure=False)
     if not setting.config['DNS']['dnscrypt-proxy']:
