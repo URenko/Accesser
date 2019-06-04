@@ -123,3 +123,4 @@ fr.wikipedia.org         198.35.26.96
 it.wikipedia.org         198.35.26.96
 pt.wikipedia.org         198.35.26.96
 pl.wikipedia.org         198.35.26.96
+skyapi.onedrive.live.com 40.90.142.224

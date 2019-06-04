@@ -38,7 +38,7 @@ var shexps = {
   "*://steamcommunity-a.akamaihd.net/*": 1,
   "*://steamuserimages-a.akamaihd.net/*": 1,
   "*://*.amazon.co.jp/*": 1,
-  "*://onedrive.live.com/*": 1,
+  "*://*onedrive.live.com/*": 1,
   "*://*.bbc.co.uk/*": 1,
   "*://*.bbci.co.uk/*": 1,
   "*://*.japantimes.co.jp/*": 1,
