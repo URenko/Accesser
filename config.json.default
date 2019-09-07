@@ -1,6 +1,6 @@
 {
   "log": {
-    "logfile": null,
+    "logfile": "Accesser.log",
     "loglevel": "DEBUG"
   },
   "server": {

@@ -69,6 +69,10 @@ class PACHandler(tornado.web.RequestHandler):
     def set_default_headers(self):
         self.set_header('Content-Type', 'application/x-ns-proxy-autoconfig')
     def get(self):
+        if os.path.exists('pac'):
+            with open('pac') as f:
+                self.write(f.read())
+            return
         self.render('pac', port=setting.config['server']['port'])
 
 class CRTHandler(tornado.web.StaticFileHandler):
@@ -91,6 +95,6 @@ def make_app(proxy, version):
 def init(proxy, version):
     app = make_app(proxy, version)
     try:
-        app.listen(int(setting.config['webuiport']), '127.0.0.1')
+        app.listen(int(setting.config['webuiport']), setting.config['server']['address'])
     except Exception as err:
         logger.error(err)

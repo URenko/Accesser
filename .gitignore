@@ -112,3 +112,4 @@ config.json
 !/dnscrypt/cloaking-rules.txt
 !/dnscrypt/dnscrypt-proxy.toml
 .1
+/pac
