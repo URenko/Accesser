@@ -31,7 +31,8 @@ var domains = {
   "epochtimes.com": 1,
   "euronews.com": 1,
   "reuters.com": 1,
-  "google.com.hk": 1
+  "google.com.hk": 1,
+  "mega.nz": 1
 };
 
 var shexps = {
