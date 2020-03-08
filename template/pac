@@ -32,7 +32,9 @@ var domains = {
   "euronews.com": 1,
   "reuters.com": 1,
   "google.com.hk": 1,
-  "mega.nz": 1
+  "mega.nz": 1,
+  "nytimes.com": 1,
+  "archiveofourown.org": 1
 };
 
 var shexps = {
