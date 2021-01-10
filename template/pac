@@ -34,7 +34,9 @@ var domains = {
   "google.com.hk": 1,
   "mega.nz": 1,
   "nytimes.com": 1,
-  "archiveofourown.org": 1
+  "archiveofourown.org": 1,
+  "e-hentai.org": 1,
+  "exhentai.org": 1
 };
 
 var shexps = {
