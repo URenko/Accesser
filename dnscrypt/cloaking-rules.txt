@@ -124,3 +124,6 @@ it.wikipedia.org         103.102.166.224
 pt.wikipedia.org         103.102.166.224
 pl.wikipedia.org         103.102.166.224
 skyapi.onedrive.live.com 40.90.142.224
+
+info.nicovideo.jp d2c1o7y4lmdvf6.cloudfront.net
+blog.nicovideo.jp d11c2xcc0ucqv1.cloudfront.net
