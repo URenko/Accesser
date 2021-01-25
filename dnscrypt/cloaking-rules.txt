@@ -8,17 +8,6 @@
 # This has to be enabled with the `cloaking_rules` parameter in the main
 # configuration file
 
-
-www.google.*             forcesafesearch.google.com
-
-www.bing.com             strict.bing.com
-
-www.youtube.com          restrictmoderate.youtube.com
-m.youtube.com            restrictmoderate.youtube.com
-youtubei.googleapis.com  restrictmoderate.youtube.com
-youtube.googleapis.com   restrictmoderate.youtube.com
-www.youtube-nocookie.com restrictmoderate.youtube.com
-
 localhost                127.0.0.1
 localhost                ::1
 
@@ -103,24 +92,25 @@ cv.phncdn.com            152.195.33.132
 cs.phncdn.com            152.195.33.132
 di.phncdn.com            205.185.208.142
 ev.phncdn.com            208.99.84.114
-www.wikipedia.org        103.102.166.224
-zh.wikipedia.org         103.102.166.224
-en.wikipedia.org         103.102.166.224
-ja.wikipedia.org         103.102.166.224
-zh-yue.wikipedia.org     103.102.166.224
-gan.wikipedia.org        103.102.166.224
-wuu.wikipedia.org        103.102.166.224
-zh-min-nan.wikipedia.org 103.102.166.224
-cdo.wikipedia.org        103.102.166.224
-hak.wikipedia.org        103.102.166.224
-bo.wikipedia.org         103.102.166.224
-ug.wikipedia.org         103.102.166.224
-zh-classical.wikipedia.org 103.102.166.224
-es.wikipedia.org         103.102.166.224
-de.wikipedia.org         103.102.166.224
-ru.wikipedia.org         103.102.166.224
-fr.wikipedia.org         103.102.166.224
-it.wikipedia.org         103.102.166.224
-pt.wikipedia.org         103.102.166.224
-pl.wikipedia.org         103.102.166.224
+
+*.mediawiki.org 91.198.174.192
+*.wikipedia.org 91.198.174.192
+*.m.wikipedia.org 91.198.174.192
+*.wikiquote.org 91.198.174.192
+*.m.wikiquote.org 91.198.174.192
+*.wikinews.org 91.198.174.192
+*.m.wikinews.org 91.198.174.192
+*.wikiversity.org 91.198.174.192
+*.m.wikiversity.org 91.198.174.192
+*.wiktionary.org 91.198.174.192
+*.m.wiktionary.org 91.198.174.192
+*.wikibooks.org 91.198.174.192
+*.m.wikibooks.org 91.198.174.192
+*.wikiyoyage.org 91.198.174.192
+*.wikisource.org 91.198.174.192
+*.wikidata.org 91.198.174.192
+*.m.wikiyoyage.org 91.198.174.192
+*.m.wikisource.org 91.198.174.192
+*.m.wikidata.org 91.198.174.192
+
 skyapi.onedrive.live.com 40.90.142.224
