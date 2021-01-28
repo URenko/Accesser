@@ -255,7 +255,7 @@ def DNSquery(domain):
         try:
             return DNSresolver.resolve(domain, 'AAAA')[0].to_text()
         except NoAnswer:
-            return DNSresolver.resole(domain, 'A')[0].to_text()
+            return DNSresolver.resolve(domain, 'A')[0].to_text()
     else:
         return DNSresolver.resolve(domain, 'A')[0].to_text()
 
