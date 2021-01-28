@@ -93,6 +93,10 @@ cs.phncdn.com            152.195.33.132
 di.phncdn.com            205.185.208.142
 ev.phncdn.com            208.99.84.114
 
+site.nicovideo.jp d4fsvsnk8os9s.cloudfront.net
+info.nicovideo.jp d2c1o7y4lmdvf6.cloudfront.net
+blog.nicovideo.jp d11c2xcc0ucqv1.cloudfront.net
+
 *.mediawiki.org 91.198.174.192
 *.wikipedia.org 91.198.174.192
 *.wikiquote.org 91.198.174.192
