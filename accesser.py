@@ -253,11 +253,11 @@ class Proxy():
 def DNSquery(domain):
     if setting.config['ipv6']:
         try:
-            return DNSresolver.query(domain, 'AAAA')[0].to_text()
+            return DNSresolver.resolve(domain, 'AAAA')[0].to_text()
         except NoAnswer:
-            return DNSresolver.query(domain, 'A')[0].to_text()
+            return DNSresolver.resolve(domain, 'A')[0].to_text()
     else:
-        return DNSresolver.query(domain, 'A')[0].to_text()
+        return DNSresolver.resolve(domain, 'A')[0].to_text()
 
 def update_checker():
     with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:

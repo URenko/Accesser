@@ -71,7 +71,7 @@ def create_root_ca():
         pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
         pkeyfile.close()
 
-    pfx = crypto.PKCS12Type()
+    pfx = crypto.PKCS12()
     pfx.set_privatekey(pkey)
     pfx.set_certificate(cert)
     with open(os.path.join(certpath ,"root.pfx"), 'wb') as pfxfile:
