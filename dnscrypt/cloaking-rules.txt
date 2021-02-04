@@ -6,7 +6,8 @@ m.wenxuecity.com 35.190.31.60
 bbs.wenxuecity.com 35.190.31.60
 passport.wenxuecity.com 35.190.31.60
 cdn.wenxuecity.com 35.190.94.124
-
+count.wenxuecity.com 0.0.0.0
+adserver.wenxuecity.com 0.0.0.0
 www.dropbox.com 162.125.69.1
 
 
