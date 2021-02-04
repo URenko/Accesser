@@ -12,7 +12,6 @@ www.dropbox.com 162.125.69.1
 
 # Akamai
 
-steam*-a.akamaihd.net 23.57.66.9
 .appledaily.com 104.74.56.205 # static.omoplanet.com
 .appledaily.com 60.254.170.127 # appledaily.com
 
@@ -58,10 +57,6 @@ samizdat-graphql.nytimes.com 151.101.1.16
 .thumbs.redditmedia.com 151.101.129.140
 emoji.redditmedia.com 151.101.129.140
 styles.redditmedia.com 151.101.129.140
-www.bloomberg.com 151.101.1.16
-.bwbx.io 151.101.1.16
-media*.giphy.com 151.101.230.2
-.h-cdn.com 151.101.78.133
 www.bbc.com 151.101.128.81
 disqus.com 151.101.64.134
 i.imgur.com 151.101.196.193
@@ -73,36 +68,6 @@ i.stack.imgur.com 151.101.196.193
 .theepochtimes.com 151.139.128.13
 donate.epochtimes.com 151.139.128.13
 i.epochtimes.com 151.139.128.13
-stackpath.bootstrapcdn.com 151.139.128.13
-maxcdn.bootstrapcdn.com 151.139.128.13
-www.stackpath.com 151.139.128.13
-support.stackpath.com 151.139.128.13
-
-
-# Twitter
-
-*.twitter.com 104.244.42.13
-*.twitter.com 104.244.42.76
-*.twitter.com 104.244.42.78
-*.twitter.com 104.244.42.137
-*.twitter.com 104.244.42.140
-*.twitter.com 104.244.42.141
-*.twitter.com 104.244.42.142
-*.twitter.com 104.244.42.148
-*.twitter.com 104.244.42.201
-*.twitter.com 104.244.42.206
-*.twitter.com 104.244.42.212
-*.t.co 104.244.42.13
-*.t.co 104.244.42.76
-*.t.co 104.244.42.78
-*.t.co 104.244.42.137
-*.t.co 104.244.42.140
-*.t.co 104.244.42.141
-*.t.co 104.244.42.142
-*.t.co 104.244.42.148
-*.t.co 104.244.42.201
-*.t.co 104.244.42.206
-*.t.co 104.244.42.212
 
 
 # WIKIMEDIA
