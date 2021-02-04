@@ -1,4 +1,7 @@
 var domains = {
+  "9to5google.com': 1,
+  "9to5mac.com": 1,
+  "9to5toys.com": 1,
   "apkmirror.com": 1,
   "appledaily.com": 1,
   "archiveofourown.org": 1,
