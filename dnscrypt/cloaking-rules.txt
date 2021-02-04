@@ -1,92 +1,6 @@
-################################
-#        Cloaking rules        #
-################################
-
-# The following example rules force "safe" (without adult content) search
-# results from Google, Bing and YouTube.
-#
-# This has to be enabled with the `cloaking_rules` parameter in the main
-# configuration file
-
 localhost                127.0.0.1
 localhost                ::1
 
-www.instagram.com        31.13.82.174
-www.whatsapp.com         157.240.22.53
-static.whatsapp.net      157.240.22.53
-www.bbc.com              151.101.8.81
-fig.bbc.co.uk            212.58.244.115
-www.bbc.co.uk            212.58.244.69
-static.bbci.co.uk        104.118.112.225
-static.bbci.co.uk        23.59.2.139
-nav.files.bbci.co.uk     104.76.83.32
-ichef.bbci.co.uk         23.42.122.193
-m.files.bbci.co.uk       23.73.186.251
-feeds.bbci.co.uk         125.56.212.236
-mybbc.files.bbci.co.uk   23.13.157.61
-polling.bbc.co.uk        23.66.206.133
-search.files.bbci.co.uk  104.72.213.225
-a.files.bbci.co.uk       95.101.92.111
-gel.files.bbci.co.uk     95.101.15.42
-emp.bbc.com              104.103.150.125
-news.bbcimg.co.uk        23.53.213.148
-mybbc-analytics.files.bbci.co.uk 23.201.173.230
-ssl.bbc.co.uk            212.58.244.114
-push.api.bbci.co.uk      54.72.23.188
-search-suggest.api.bbci.co.uk 52.31.189.25
-ess.api.bbci.co.uk       34.245.252.9
-session.bbc.com          212.58.249.134
-account.bbc.com          212.58.244.92
-open.live.bbc.co.uk      212.58.244.78
-db.tt                    162.125.248.2
-www.dropbox.com          162.125.69.1
-www.dualstack.dropbox-dns.com 162.125.67.1
-api.dropbox.com          162.125.5.7
-api.dualstack.dropbox-dns.com 162.125.5.7
-api.dropboxapi.com       162.125.5.7
-api-d.dropbox.com        162.125.33.7
-api.v.dropbox.com        162.125.34.7
-api-notify.dropbox.com   162.125.34.7
-aem.dropbox.com          99.84.239.58
-api-content.dropbox.com  162.125.82.8
-api-content-photos.dropbox.com 162.125.82.5
-blogs.dropbox.com        13.35.8.95
-block.dropbox.com        162.125.17.132
-block.v.dropbox.com      162.125.17.5
-bolt.dropbox.com         162.125.18.133
-client.dropbox.com       162.125.65.3
-client-cf.dropbox.com    162.125.65.3
-client.v.dropbox.com     162.125.32.137
-client-lb.dropbox.com    162.125.80.3
-client-web.dropbox.com   162.125.80.3
-d.dropbox.com            162.125.32.135
-d.v.dropbox.com          162.125.32.135
-dl.dropbox.com           162.125.83.6
-dl-web.dropbox.com       162.125.83.6
-dl-doc.dropbox.com       162.125.83.6
-dl-debug.dropbox.com     54.236.121.227
-forums.dropbox.com       13.35.8.71
-linux.dropbox.com        13.35.99.72
-m.dropbox.com            162.125.80.2
-marketing.dropbox.com    54.230.173.117
-photos.dropbox.com       162.125.66.5
-photos-1.dropbox.com     162.125.83.5
-photos-2.dropbox.com     162.125.83.5
-photos-3.dropbox.com     162.125.83.5
-photos-4.dropbox.com     162.125.83.5
-photos-5.dropbox.com     162.125.83.5
-photos-6.dropbox.com     162.125.83.5
-photos-thumb.dropbox.com 162.125.83.5
-photos-thumb.x.dropbox.com 162.125.18.129
-paper.dropbox.com        54.153.81.237
-status.dropbox.com       54.230.173.90
-snapengage.dropbox.com   54.230.173.29
-dl.dropboxusercontent.com 162.125.7.6
-www.dropboxstatic.com    162.125.33.9
-cfl.dropboxstatic.com    104.16.100.29
-cf.dropboxstatic.com     54.230.175.68
-dbxlocal.dropboxstatic.com 162.125.33.9
-log.getdropbox.com       162.125.82.2
 ci.phncdn.com            152.195.33.132
 cv.phncdn.com            152.195.33.132
 cs.phncdn.com            152.195.33.132
@@ -107,5 +21,3 @@ blog.nicovideo.jp d11c2xcc0ucqv1.cloudfront.net
 *.wikiyoyage.org 91.198.174.192
 *.wikisource.org 91.198.174.192
 *.wikidata.org 91.198.174.192
-
-skyapi.onedrive.live.com 40.90.142.224
