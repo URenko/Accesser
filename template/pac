@@ -1,4 +1,7 @@
 var domains = {
+  "9to5google.com': 1,
+  "9to5mac.com": 1,
+  "9to5toys.com": 1,
   "apkmirror.com": 1,
   "appledaily.com": 1,
   "archiveofourown.org": 1,
@@ -15,7 +18,7 @@ var domains = {
   "euronews.com": 1,
   "exhentai.org": 1,
   "ftchinese.com": 1,
-  "githunusercontent.com": 1,
+  "githubusercontent.com": 1,
   "imgur.com": 1,
   "indiewire.com": 1,
   "instagram.com": 1,
