@@ -1,0 +1,73 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - name: Setup python
+      uses: actions/setup-python@v2
+      with:
+          python-version: '3.9'
+          architecture: x64
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pyopenssl dnspython tornado tld pyinstaller
+        
+    - name: Download dnscrypt-proxy
+      run: 
+           |
+         $url = curl  "https://api.github.com/repos/dnscrypt/dnscrypt-proxy/releases/latest" | jq -r '.assets[].browser_download_url' | grep 'win64*.*zip' | grep -v minisig
+         Invoke-WebRequest -v -o ./dnscrypt.zip $url
+         Expand-Archive ./dnscrypt.zip -DestinationPath ./
+         mv win64/dnscrypt-proxy.exe dnscrypt/dnscrypt-proxy.exe
+         
+    - name: Download sysproxy.exe
+      run: |
+        curl -OL https://github.com/v2ray/V2RayN/raw/master/v2rayN/Resources/sysproxy.exe.gz
+        gzip -d sysproxy.exe.gz
+        
+    - name: Download accesser.spec
+      run: |
+        curl -OL https://gist.githubusercontent.com/URenko/ea511f422c225887ae2c49ccaab64839/raw/a861bea681d801ef7a6795c72749337b3b0fc0e6/accesser.spec
+        $libdir = python -c 'import site; print(site.getsitepackages()[0])'
+        echo $libdir
+        ((Get-Content -path ./accesser.spec -Raw) -replace 'Python安装的目录',$libdir) | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace '\\','/') | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace 'Lib','lib') | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace 'Accesser代码所在目录','./') | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace '请注意按照开发环境修改中文部分，并删去本行注释！！！','#') | Set-Content -Path ./accesser.spec
+        cat accesser.spec
+
+    - name: Package Application
+      run: |
+        pyinstaller accesser.spec
+      
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false  
+    
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./dist/accesser.exe
+        asset_name: accesser.exe
+        asset_content_type: application/vnd.microsoft.portable-executable
