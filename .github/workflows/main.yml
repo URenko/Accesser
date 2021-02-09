@@ -40,8 +40,6 @@ jobs:
         $libdir = python -c 'import site; print(site.getsitepackages()[0])'
         echo $libdir
         ((Get-Content -path ./accesser.spec -Raw) -replace 'Python安装的目录',$libdir) | Set-Content -Path ./accesser.spec
-        ((Get-Content -path ./accesser.spec -Raw) -replace '\\','/') | Set-Content -Path ./accesser.spec
-        ((Get-Content -path ./accesser.spec -Raw) -replace 'Lib','lib') | Set-Content -Path ./accesser.spec
         ((Get-Content -path ./accesser.spec -Raw) -replace 'Accesser代码所在目录','./') | Set-Content -Path ./accesser.spec
         ((Get-Content -path ./accesser.spec -Raw) -replace '请注意按照开发环境修改中文部分，并删去本行注释！！！','#') | Set-Content -Path ./accesser.spec
         cat accesser.spec
