@@ -1,111 +1,74 @@
-################################
-#        Cloaking rules        #
-################################
+.pixiv.net 210.140.131.219
+www.bbc.co.uk 212.58.233.252
 
-# The following example rules force "safe" (without adult content) search
-# results from Google, Bing and YouTube.
-#
-# This has to be enabled with the `cloaking_rules` parameter in the main
-# configuration file
+www.wenxuecity.com 35.190.31.60
+m.wenxuecity.com 35.190.31.60
+bbs.wenxuecity.com 35.190.31.60
+passport.wenxuecity.com 35.190.31.60
+cdn.wenxuecity.com 35.190.94.124
+count.wenxuecity.com 0.0.0.0
+adserver.wenxuecity.com 0.0.0.0
+www.dropbox.com 162.125.69.1
 
-localhost                127.0.0.1
-localhost                ::1
 
-www.instagram.com        31.13.82.174
-www.whatsapp.com         157.240.22.53
-static.whatsapp.net      157.240.22.53
-www.bbc.com              151.101.8.81
-fig.bbc.co.uk            212.58.244.115
-www.bbc.co.uk            212.58.244.69
-static.bbci.co.uk        104.118.112.225
-static.bbci.co.uk        23.59.2.139
-nav.files.bbci.co.uk     104.76.83.32
-ichef.bbci.co.uk         23.42.122.193
-m.files.bbci.co.uk       23.73.186.251
-feeds.bbci.co.uk         125.56.212.236
-mybbc.files.bbci.co.uk   23.13.157.61
-polling.bbc.co.uk        23.66.206.133
-search.files.bbci.co.uk  104.72.213.225
-a.files.bbci.co.uk       95.101.92.111
-gel.files.bbci.co.uk     95.101.15.42
-emp.bbc.com              104.103.150.125
-news.bbcimg.co.uk        23.53.213.148
-mybbc-analytics.files.bbci.co.uk 23.201.173.230
-ssl.bbc.co.uk            212.58.244.114
-push.api.bbci.co.uk      54.72.23.188
-search-suggest.api.bbci.co.uk 52.31.189.25
-ess.api.bbci.co.uk       34.245.252.9
-session.bbc.com          212.58.249.134
-account.bbc.com          212.58.244.92
-open.live.bbc.co.uk      212.58.244.78
-db.tt                    162.125.248.2
-www.dropbox.com          162.125.69.1
-www.dualstack.dropbox-dns.com 162.125.67.1
-api.dropbox.com          162.125.5.7
-api.dualstack.dropbox-dns.com 162.125.5.7
-api.dropboxapi.com       162.125.5.7
-api-d.dropbox.com        162.125.33.7
-api.v.dropbox.com        162.125.34.7
-api-notify.dropbox.com   162.125.34.7
-aem.dropbox.com          99.84.239.58
-api-content.dropbox.com  162.125.82.8
-api-content-photos.dropbox.com 162.125.82.5
-blogs.dropbox.com        13.35.8.95
-block.dropbox.com        162.125.17.132
-block.v.dropbox.com      162.125.17.5
-bolt.dropbox.com         162.125.18.133
-client.dropbox.com       162.125.65.3
-client-cf.dropbox.com    162.125.65.3
-client.v.dropbox.com     162.125.32.137
-client-lb.dropbox.com    162.125.80.3
-client-web.dropbox.com   162.125.80.3
-d.dropbox.com            162.125.32.135
-d.v.dropbox.com          162.125.32.135
-dl.dropbox.com           162.125.83.6
-dl-web.dropbox.com       162.125.83.6
-dl-doc.dropbox.com       162.125.83.6
-dl-debug.dropbox.com     54.236.121.227
-forums.dropbox.com       13.35.8.71
-linux.dropbox.com        13.35.99.72
-m.dropbox.com            162.125.80.2
-marketing.dropbox.com    54.230.173.117
-photos.dropbox.com       162.125.66.5
-photos-1.dropbox.com     162.125.83.5
-photos-2.dropbox.com     162.125.83.5
-photos-3.dropbox.com     162.125.83.5
-photos-4.dropbox.com     162.125.83.5
-photos-5.dropbox.com     162.125.83.5
-photos-6.dropbox.com     162.125.83.5
-photos-thumb.dropbox.com 162.125.83.5
-photos-thumb.x.dropbox.com 162.125.18.129
-paper.dropbox.com        54.153.81.237
-status.dropbox.com       54.230.173.90
-snapengage.dropbox.com   54.230.173.29
-dl.dropboxusercontent.com 162.125.7.6
-www.dropboxstatic.com    162.125.33.9
-cfl.dropboxstatic.com    104.16.100.29
-cf.dropboxstatic.com     54.230.175.68
-dbxlocal.dropboxstatic.com 162.125.33.9
-log.getdropbox.com       162.125.82.2
-ci.phncdn.com            152.195.33.132
-cv.phncdn.com            152.195.33.132
-cs.phncdn.com            152.195.33.132
-di.phncdn.com            205.185.208.142
-ev.phncdn.com            208.99.84.114
+# Akamai
 
-site.nicovideo.jp d4fsvsnk8os9s.cloudfront.net
+.appledaily.com 104.74.56.205 # static.omoplanet.com
+.appledaily.com 60.254.170.127 # appledaily.com
+
+
+# Cloudflare
+
+.e-hentai.org 104.20.27.25
+
+
+# CloudFront
+
 info.nicovideo.jp d2c1o7y4lmdvf6.cloudfront.net
 blog.nicovideo.jp d11c2xcc0ucqv1.cloudfront.net
+site.nicovideo.jp d4fsvsnk8os9s.cloudfront.net
+cn.nytimes.com d1emgxxou2di91.cloudfront.net
+www.ftchinese.com dsiij4vzr462k.cloudfront.net
 
-*.mediawiki.org 91.198.174.192
-*.wikipedia.org 91.198.174.192
-*.wikiquote.org 91.198.174.192
-*.wikinews.org 91.198.174.192
-*.wikiversity.org 91.198.174.192
-*.wiktionary.org 91.198.174.192
-*.wikibooks.org 91.198.174.192
-*.wikiyoyage.org 91.198.174.192
-*.wikisource.org 91.198.174.192
-*.wikidata.org 91.198.174.192
 
-skyapi.onedrive.live.com 40.90.142.224
+# Fastly
+
+.bandcamp.com 151.101.65.57
+www.nytimes.com 151.101.1.6
+purr.nytimes.com 151.101.1.6
+archive.nytimes.com 151.101.1.6
+mwcm.nytimes.com 151.101.1.16
+myaccount.nytimes.com 151.101.1.16
+samizdat-graphql.nytimes.com 151.101.1.16
+.nyt.com 151.101.1.16
+.reddit.com 151.101.1.2
+.redd.it 151.101.1.3
+.redditstatic.com 151.101.1.5
+.thumbs.redditmedia.com 151.101.129.140
+emoji.redditmedia.com 151.101.129.140
+styles.redditmedia.com 151.101.129.140
+www.bbc.com 151.101.128.81
+disqus.com 151.101.64.134
+i.imgur.com 151.101.196.193
+i.stack.imgur.com 151.101.196.193
+
+
+# StackPath
+
+.theepochtimes.com 151.139.128.13
+donate.epochtimes.com 151.139.128.13
+i.epochtimes.com 151.139.128.13
+
+
+# WIKIMEDIA
+
+.mediawiki.org 91.198.174.192
+.wikipedia.org 91.198.174.192
+.wikiquote.org 91.198.174.192
+.wikinews.org 91.198.174.192
+.wikiversity.org 91.198.174.192
+.wiktionary.org 91.198.174.192
+.wikibooks.org 91.198.174.192
+.wikiyoyage.org 91.198.174.192
+.wikisource.org 91.198.174.192
+.wikidata.org 91.198.174.192

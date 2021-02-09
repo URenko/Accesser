@@ -23,7 +23,7 @@
     "www.google.com/recaptcha/": "www.recaptcha.net/recaptcha/",
     "tumblr.com/": "www.tumblr.com/",
     "instagram.com/": "www.instagram.com/"
-    },
+  },
   "alert_hostname": {
     "www.quora.com": "fs.quoracdn.net",
     "sketch.pixiv.net": "pixivsketch.net",
@@ -31,7 +31,8 @@
     "nyaa.si": "ddos-guard.net",
     "site.nicovideo.jp": "d4fsvsnk8os9s.cloudfront.net",
     "blog.nicovideo.jp": "d11c2xcc0ucqv1.cloudfront.net",
-    "info.nicovideo.jp": "d2c1o7y4lmdvf6.cloudfront.net"
+    "info.nicovideo.jp": "d2c1o7y4lmdvf6.cloudfront.net",
+    "www.ftchinese.com": "dsiij4vzr462k.cloudfront.net"
   },
   "content_fix": {
     "accounts.pixiv.net": {
