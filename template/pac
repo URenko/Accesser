@@ -1,7 +1,4 @@
 var domains = {
-  "9to5google.com': 1,
-  "9to5mac.com": 1,
-  "9to5toys.com": 1,
   "apkmirror.com": 1,
   "appledaily.com": 1,
   "archiveofourown.org": 1,
@@ -18,15 +15,12 @@ var domains = {
   "euronews.com": 1,
   "exhentai.org": 1,
   "ftchinese.com": 1,
-  "githubusercontent.com": 1,
   "imgur.com": 1,
-  "indiewire.com": 1,
   "instagram.com": 1,
   "i.pximg.net": 1,
   "kobo.com": 1,
   "medium.com": 1,
   "mega.nz": 1,
-  "minnpost.com": 1,
   "nicovideo.jp": 1,
   "nyaa.si": 1,
   "nytimes.com": 1,
@@ -48,8 +42,7 @@ var domains = {
   "uptodown.com": 1,
   "vimeo.com": 1,
   "wenxuecity.com": 1,
-  "wikimediafoundation.org": 1,
-  "wikipedia.org": 1,
+  "wikipedia.org": 1
 };
 
 var shexps = {

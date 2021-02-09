@@ -17,16 +17,6 @@ www.dropbox.com 162.125.69.1
 .appledaily.com 60.254.170.127 # appledaily.com
 
 
-# Automattic 
-
-.9to5mac.com 192.0.66.1
-.9to5google.com 192.0.66.1
-.9to5toys.com 192.0.66.1
-.wikimediafoundation.org 192.0.66.1
-.minnpost.com 192.0.66.1
-.indiewire.com 192.0.66.3
-
-
 # Cloudflare
 
 .e-hentai.org 104.20.27.25
