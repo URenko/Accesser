@@ -43,8 +43,6 @@ www.ftchinese.com dsiij4vzr462k.cloudfront.net
 
 # Fastly
 
-avatar*.githubusercontent.com
-raw.githubusercontent.com 151.101.192.133
 .bandcamp.com 151.101.65.57
 www.nytimes.com 151.101.1.6
 purr.nytimes.com 151.101.1.6
