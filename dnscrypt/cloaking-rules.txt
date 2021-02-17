@@ -27,7 +27,10 @@ www.dropbox.com 162.125.69.1
 info.nicovideo.jp d2c1o7y4lmdvf6.cloudfront.net
 blog.nicovideo.jp d11c2xcc0ucqv1.cloudfront.net
 site.nicovideo.jp d4fsvsnk8os9s.cloudfront.net
-cn.nytimes.com d1emgxxou2di91.cloudfront.net
+cn.nytimes.com 13.33.171.126
+cn.nytimes.com 13.33.171.67
+cn.nytimes.com 13.33.171.93
+cn.nytimes.com 13.33.171.121
 www.ftchinese.com dsiij4vzr462k.cloudfront.net
 
 
