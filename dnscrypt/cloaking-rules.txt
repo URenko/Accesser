@@ -19,7 +19,7 @@ www.dropbox.com 162.125.69.1
 
 # Cloudflare
 
-.e-hentai.org 104.20.27.25
+.e-hentai.org e-hentai.org.cdn.cloudflare.net
 
 
 # CloudFront
