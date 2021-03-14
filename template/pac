@@ -15,6 +15,7 @@ var domains = {
   "euronews.com": 1,
   "exhentai.org": 1,
   "ftchinese.com": 1,
+  "github.com": 1,
   "imgur.com": 1,
   "instagram.com": 1,
   "i.pximg.net": 1,
