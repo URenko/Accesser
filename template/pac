@@ -4,6 +4,7 @@ var domains = {
   "archiveofourown.org": 1,
   "artstation.com": 1,
   "bbc.com": 1,
+  "cdn.discordapp.com": 1,
   "disqus.com": 1,
   "dmc.nico": 1,
   "dropbox.com": 1,
