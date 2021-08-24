@@ -30,7 +30,7 @@
 # server_names = ['scaleway-fr', 'google', 'yandex', 'cloudflare']
 
 
-listen_addresses = ['[::]:53000']
+listen_addresses = ['127.0.0.1:53000', '[::1]:53000']
 
 
 ## Maximum number of simultaneous client connections to accept
