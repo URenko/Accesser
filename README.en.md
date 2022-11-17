@@ -19,7 +19,6 @@ refer to [https://urenko.github.io/Accesser/](https://urenko.github.io/Accesser/
 - [pyopenssl](https://pyopenssl.org/)
 - [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
 - dnspython
-- [dnscrypt-proxy](https://github.com/jedisct1/dnscrypt-proxy)
 - tornado
 - tld
 

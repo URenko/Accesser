@@ -108,8 +108,5 @@ CERT/
 hosts
 *.exe
 config.json
-/dnscrypt/*
-!/dnscrypt/cloaking-rules.txt
-!/dnscrypt/dnscrypt-proxy.toml
 .1
 /pac

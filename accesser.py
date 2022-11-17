@@ -29,7 +29,7 @@ import subprocess
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from urllib import request
 from tld import get_tld
-from dns.resolver import Resolver, NoAnswer
+from dns.resolver import Resolver, NoAnswer, LRUCache
 
 from utils import certmanager as cm
 from utils import importca
@@ -105,6 +105,7 @@ class ProxyHandler(StreamRequestHandler):
                     if '443' == port:
                         self.host = host
                         self.remote_ip = DNSquery(host)
+                        logger.debug(f'DNS: {self.host} -> {self.remote_ip}')
                 if 'GET' == command:
                     self.http_redirect(path)
             elif 'POST' == command:
@@ -249,6 +250,9 @@ class Proxy():
         self.server.server_close()
 
 def DNSquery(domain):
+    try:
+        return next(v for k,v in setting.config['hosts'].items() if k==domain or (k.startswith('.') and domain.endswith(k)))
+    except StopIteration: pass
     if setting.config['ipv6']:
         try:
             return DNSresolver.resolve(domain, 'AAAA')[0].to_text()
@@ -272,22 +276,9 @@ if __name__ == '__main__':
     proxy = Proxy()
     
     DNSresolver = Resolver(configure=False)
-    if not setting.config['DNS']['dnscrypt-proxy']:
-        DNSresolver.nameservers = [setting.config['DNS']['nameserver']]
-        DNSresolver.port = int(setting.config['DNS']['port'])
-    else:
-        # Launch dnscrypt-proxy in the `./dnscrypt`.
-        # And use `127.0.0.1:53000` in default.
-        DNSresolver.nameservers = ['127.0.0.1']
-        DNSresolver.port = 53000
-        dnscrypt_dir = os.path.join(basepath, 'dnscrypt')
-        if hasattr(subprocess, 'STARTUPINFO'):
-            si = subprocess.STARTUPINFO()
-            si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-        else:
-            si = None
-        subprocess.Popen([os.path.join(dnscrypt_dir, 'dnscrypt-proxy'),'-child','-logfile','dnscrypt-proxy.log'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE \
-               , startupinfo=si, env=os.environ)
+    DNSresolver.cache = LRUCache()
+    DNSresolver.nameservers = [setting.config['DNS']['nameserver']]
+    DNSresolver.port = int(setting.config['DNS']['port'])
     
     importca.import_ca()
 

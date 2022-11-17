@@ -1,0 +1,3 @@
+pyopenssl
+tld
+dnspython[doh]
