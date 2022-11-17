@@ -1,7 +1,5 @@
-import logging
+import logging, logging.handlers
 import json
-
-from tornado.queues import Queue
 
 from . import setting
 
@@ -20,5 +18,7 @@ logging.basicConfig(format='%(asctime)s %(levelname)-8s %(name)s: %(message)s',
 logger = logging.getLogger('Accesser')
 logger.setLevel(setting.config['log']['loglevel'].upper())
 
-logqueue = Queue()
-logger.addHandler(JSONHandler(logqueue))
+if setting.config['webui']:
+    from tornado.queues import Queue
+    logqueue = Queue()
+    logger.addHandler(JSONHandler(logqueue))

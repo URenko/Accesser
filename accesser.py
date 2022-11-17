@@ -26,19 +26,17 @@ import select
 import asyncio
 import threading
 import subprocess
-import webbrowser
 from socketserver import StreamRequestHandler,ThreadingTCPServer,_SocketWriter
 from urllib import request
-from tornado.httpclient import AsyncHTTPClient
 from tld import get_tld
 from dns.resolver import Resolver, NoAnswer
 
 from utils import certmanager as cm
 from utils import importca
-from utils import webui
 from utils import setting
 from utils.setting import basepath
 from utils.log import logger
+from utils.cert_verify import match_hostname
 
 from http import HTTPStatus
 import urllib.error
@@ -213,7 +211,7 @@ class ProxyHandler(StreamRequestHandler):
         cert = self.remote_sock.getpeercert()
         if setting.config['check_hostname']:
             try:
-                ssl.match_hostname(cert, self.host)
+                match_hostname(cert, self.host)
             except ssl.CertificateError as err:
                 certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
                 certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
@@ -272,9 +270,6 @@ if __name__ == '__main__':
     threading.Thread(target=update_checker).start()
     
     proxy = Proxy()
-    webui.init(proxy, version=__version__)
-    if setting.config['webui']:
-        webbrowser.open('http://localhost:{}/'.format(setting.config['webuiport']))
     
     DNSresolver = Resolver(configure=False)
     if not setting.config['DNS']['dnscrypt-proxy']:
@@ -301,4 +296,7 @@ if __name__ == '__main__':
     cert_lock = threading.Lock()
     
     threading.Thread(target=proxy.start, args=(setting.config['server']['address'],setting.config['server']['port'])).start()
-    asyncio.get_event_loop().run_forever()
+
+    if setting.config['webui']:
+        from utils import webui
+        asyncio.run(webui.init(proxy, version=__version__))

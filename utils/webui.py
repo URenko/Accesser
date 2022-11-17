@@ -6,6 +6,7 @@ import sys
 import threading
 import json
 import urllib.parse
+import webbrowser
 
 from . import setting
 from .setting import basepath
@@ -92,9 +93,11 @@ def make_app(proxy, version):
     ], static_path=os.path.join(basepath, 'static'),
     template_path=os.path.join(basepath, 'template'))
 
-def init(proxy, version):
+async def init(proxy, version):
     app = make_app(proxy, version)
     try:
         app.listen(int(setting.config['webuiport']), setting.config['server']['address'])
+        webbrowser.open('http://localhost:{}/'.format(setting.config['webuiport']))
+        await asyncio.Event().wait()
     except Exception as err:
         logger.error(err)
