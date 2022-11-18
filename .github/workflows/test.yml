@@ -5,46 +5,30 @@ on: push
 jobs:
   build:
 
-    runs-on: windows-latest
+    runs-on: windows-2022
 
     steps:
     - name: Setup python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-          python-version: '3.9'
+          python-version: '3.11'
           architecture: x64
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Install dependencies
       run: |
-        pip install pyopenssl dnspython tornado tld pyinstaller
+        pip install pyinstaller tornado
+        pip install -r requirements.txt
         
-    - name: Download dnscrypt-proxy
-      run: 
-           |
-         $url = curl  "https://api.github.com/repos/dnscrypt/dnscrypt-proxy/releases/latest" | jq -r '.assets[].browser_download_url' | grep 'win64*.*zip' | grep -v minisig
-         Invoke-WebRequest -v -o ./dnscrypt.zip $url
-         Expand-Archive ./dnscrypt.zip -DestinationPath ./
-         mv win64/dnscrypt-proxy.exe dnscrypt/dnscrypt-proxy.exe
-         
-    - name: Download sysproxy.exe
+    - name: edit accesser.spec
       run: |
-        curl -OL https://github.com/v2ray/V2RayN/raw/master/v2rayN/Resources/sysproxy.exe.gz
-        gzip -d sysproxy.exe.gz
-        
-    - name: Download accesser.spec
-      run: |
-        curl -OL https://gist.githubusercontent.com/URenko/ea511f422c225887ae2c49ccaab64839/raw/a861bea681d801ef7a6795c72749337b3b0fc0e6/accesser.spec
         $libdir = python -c 'import os.path, tld; print(repr(os.path.dirname(tld.__file__))[1:-1])'
-        echo $libdir
-        ((Get-Content -path ./accesser.spec -Raw) -replace 'Python安装的目录/Lib/site-packages/tld',$libdir) | Set-Content -Path ./accesser.spec
-        ((Get-Content -path ./accesser.spec -Raw) -replace 'Accesser代码所在目录','./') | Set-Content -Path ./accesser.spec
-        ((Get-Content -path ./accesser.spec -Raw) -replace '请注意按照开发环境修改中文部分，并删去本行注释！！！','#') | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace '{{tld_path}}',$libdir) | Set-Content -Path ./accesser.spec
         ((Get-Content -path ./config.json.default -Raw) -replace '"logfile": null','"logfile": "Accesser.log"') | Set-Content -Path ./config.json.default
         cat accesser.spec
     - name: Package Application
       run: |
         pyinstaller accesser.spec
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: artifact
         path: ./dist/accesser.exe
