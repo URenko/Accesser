@@ -65,7 +65,7 @@ class ProxyHandler(StreamRequestHandler):
         pass
 
     def send_pac(self):
-        with open(os.path.join(basepath, 'template/pac'), 'rb') as f:
+        with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'template/pac'), 'rb') as f:
             pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1'))
         self.wfile.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nContent-Length: {len(pac)}\r\n\r\n'.encode('iso-8859-1'))
         self.wfile.write(pac)
