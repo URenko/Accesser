@@ -17,7 +17,6 @@ refer to [https://urenko.github.io/Accesser/](https://urenko.github.io/Accesser/
 ## Requirements
 - Python3.7 (Other versions not tested)
 - [pyopenssl](https://pyopenssl.org/)
-- [sysproxy](https://github.com/Noisyfox/sysproxy)(for Windows)
 - dnspython
 - tornado
 - tld
