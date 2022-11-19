@@ -17,7 +17,7 @@
 参见[https://urenko.github.io/Accesser/](https://urenko.github.io/Accesser/)
 
 ## 依赖
-- Python3.7 (其他版本未测试)
+- Python3.11
 - [pyopenssl](https://pyopenssl.org/)
 - dnspython
 - tornado

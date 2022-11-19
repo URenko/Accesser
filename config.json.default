@@ -33,11 +33,6 @@
     "info.nicovideo.jp": "d2c1o7y4lmdvf6.cloudfront.net",
     "www.ftchinese.com": "dsiij4vzr462k.cloudfront.net"
   },
-  "content_fix": {
-    "accounts.pixiv.net": {
-      "\"pixivAccount.captchaType\":\"KCaptcha\"": "\"pixivAccount.captchaType\":\"ReCaptcha\""
-    }
-  },
   "hosts": {
     ".pixiv.net": "210.140.131.219",
     "www.bbc.co.uk": "212.58.233.252",

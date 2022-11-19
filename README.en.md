@@ -15,7 +15,7 @@ Because the main users of this project are in mainland China, you may encounter 
 refer to [https://urenko.github.io/Accesser/](https://urenko.github.io/Accesser/)
 
 ## Requirements
-- Python3.7 (Other versions not tested)
+- Python3.11
 - [pyopenssl](https://pyopenssl.org/)
 - dnspython
 - tornado
