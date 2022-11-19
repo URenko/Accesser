@@ -1,6 +1,10 @@
 name: Auto build for windows
 
-on: push
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
 
 jobs:
   build:
@@ -24,11 +28,28 @@ jobs:
         $libdir = python -c 'import os.path, tld; print(repr(os.path.dirname(tld.__file__))[1:-1])'
         ((Get-Content -path ./accesser.spec -Raw) -replace '{{tld_path}}',$libdir) | Set-Content -Path ./accesser.spec
         ((Get-Content -path ./config.json.default -Raw) -replace '"logfile": null','"logfile": "Accesser.log"') | Set-Content -Path ./config.json.default
+        ((Get-Content -path ./config.json.default -Raw) -replace '"loglevel": "DEBUG"','"loglevel": "INFO"') | Set-Content -Path ./config.json.default
+        ((Get-Content -path ./accesser.spec -Raw) -replace 'console=True','console=False') | Set-Content -Path ./accesser.spec
         cat accesser.spec
-    - name: Package Application
+    - name: Package Application (without console)
       run: |
         pyinstaller accesser.spec
+      env:
+        PYTHONOPTIMIZE: 1
+    
+    - name: edit accesser.spec
+      run: |
+        git checkout accesser.spec config.json.default
+        $libdir = python -c 'import os.path, tld; print(repr(os.path.dirname(tld.__file__))[1:-1])'
+        ((Get-Content -path ./accesser.spec -Raw) -replace '{{tld_path}}',$libdir) | Set-Content -Path ./accesser.spec
+        ((Get-Content -path ./accesser.spec -Raw) -replace "name='accesser'","name='accesser_cli'") | Set-Content -Path ./accesser.spec
+        cat accesser.spec
+    - name: Package Application (with console)
+      run: |
+        pyinstaller accesser.spec
+      env:
+        PYTHONOPTIMIZE: 1
+    
     - uses: actions/upload-artifact@v3
       with:
-        name: artifact
-        path: ./dist/accesser.exe
+        path: ./dist/
