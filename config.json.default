@@ -12,7 +12,7 @@
     "nameserver": "https://firefox.cloudflare-dns.com/dns-query",
     "port": 53
   },
-  "webui": true,
+  "webui": false,
   "webuiport": 7654,
   "setproxy": true,
   "importca": true,

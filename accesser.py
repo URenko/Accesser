@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.6.3'
+__version__ = '0.7.0'
 
 import os, sys
 import random
@@ -128,7 +128,7 @@ async def proxy():
     print(f"Serving on {', '.join(str(sock.getsockname()) for sock in server.sockets)}")
     if setting.config['setproxy'] and sys.platform.startswith('win'):
         from utils import sysproxy
-        sysproxy.set_pac('http://localhost:'+str(setting.config['webuiport'])+'/pac/?t='+str(random.randrange(2**16)))
+        sysproxy.set_pac('http://localhost:'+str(setting.config['server']['port'])+'/pac/?t='+str(random.randrange(2**16)))
 
     async with server:
         await server.serve_forever()
@@ -160,7 +160,7 @@ def update_checker():
 
 async def main():
     global context, cert_store, cert_lock, DNSresolver
-    print("Accesser v{}  Copyright (C) 2018-2019  URenko".format(__version__))
+    print("Accesser v{}  Copyright (C) 2018-2022  URenko".format(__version__))
     
     async with asyncio.TaskGroup() as tg:
         tg.create_task(asyncio.to_thread(update_checker))
