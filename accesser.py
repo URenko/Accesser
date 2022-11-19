@@ -167,7 +167,7 @@ async def main():
         
         DNSresolver = dns.asyncresolver.Resolver(configure=False)
         DNSresolver.cache = dns.resolver.LRUCache()
-        DNSresolver.nameservers = [setting.config['DNS']['nameserver']]
+        DNSresolver.nameservers = setting.config['DNS']['nameserver']
         DNSresolver.port = int(setting.config['DNS']['port'])
         
         importca.import_ca()

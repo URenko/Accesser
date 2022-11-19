@@ -9,7 +9,7 @@
   },
   "check_hostname": true,
   "DNS": {
-    "nameserver": "https://firefox.cloudflare-dns.com/dns-query",
+    "nameserver": ["https://firefox.cloudflare-dns.com/dns-query", "https://185.222.222.222/dns-query", "https://45.11.45.11/dns-query", "https://dns.quad9.net/dns-query", "https://dns11.quad9.net/dns-query", "https://dns10.quad9.net/dns-query"],
     "port": 53
   },
   "webui": false,
