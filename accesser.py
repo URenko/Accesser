@@ -103,21 +103,19 @@ async def handle(reader, writer):
 
         await update_cert(host)
         await writer.start_tls(context)
-        server_hostname = setting.config['alert_hostname'].get(host, host)
-        remote_reader, remote_writer = await asyncio.open_connection(remote_ip, port, ssl=True, server_hostname='')
+        server_hostname = setting.config['alert_hostname'].get(host, '')
+        logger.debug(f'{server_hostname=}')
+        remote_context = ssl.create_default_context()
+        remote_context.check_hostname = False
+        remote_reader, remote_writer = await asyncio.open_connection(remote_ip, port, ssl=remote_context, server_hostname=server_hostname)
         cert = remote_writer.get_extra_info('peercert')
-        if setting.config['check_hostname']:
+        logger.debug(f"{cert.get('subjectAltName', ())=}")
+        if setting.config['check_hostname'] is not False:
             try:
-                match_hostname(cert, host)
+                match_hostname(cert, setting.config['alert_hostname'].get(host, host))
             except ssl.CertificateError as err:
-                certdns = tuple(map(lambda x:x[1], cert['subjectAltName']))
-                certfp = tuple(map(lambda x:x.rsplit('.', maxsplit=2)[-2:], certdns))
-                if not self.host.rsplit('.', maxsplit=2)[-2:] in certfp:
-                    if self.host in setting.config['alert_hostname']:
-                        if not setting.config['alert_hostname'][self.host] in certdns:
-                            logger.warning(err)
-                    else:
-                        logger.warning(err)
+                logger.warning(err)
+                return
         
         await asyncio.gather(
             forward_stream(reader, remote_writer),
