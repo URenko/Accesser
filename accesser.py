@@ -84,14 +84,15 @@ async def handle(reader, writer):
     with closing(writer):
         raw_request = await reader.readuntil(b'\r\n\r\n')
         requestline = raw_request.decode('iso-8859-1').splitlines()[0]
-        logger.debug(f"{writer.get_extra_info('peername')} say: {requestline}")
+        i_addr, i_port = writer.get_extra_info('peername')
+        logger.debug(f"{i_addr}:{i_port} say: {requestline}")
         words = requestline.split()
         command, path = words[:2]
         match command:
             case 'CONNECT':
                 host, port = path.split(':')
                 remote_ip = await DNSquery(host)
-                logger.debug(f'DNS: {host} -> {remote_ip}')
+                logger.debug(f'[{i_port:5}] DNS: {host} -> {remote_ip}')
             case 'GET':
                 if path.startswith('/pac/'):
                     return await send_pac(writer)
@@ -104,17 +105,17 @@ async def handle(reader, writer):
         await update_cert(host)
         await writer.start_tls(context)
         server_hostname = setting.config['alert_hostname'].get(host, '')
-        logger.debug(f'{server_hostname=}')
+        logger.debug(f'[{i_port:5}] {server_hostname=}')
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
         remote_reader, remote_writer = await asyncio.open_connection(remote_ip, port, ssl=remote_context, server_hostname=server_hostname)
         cert = remote_writer.get_extra_info('peercert')
-        logger.debug(f"{cert.get('subjectAltName', ())=}")
+        logger.debug(f"[{i_port:5}] {cert.get('subjectAltName', ())=}")
         if setting.config['check_hostname'] is not False:
             try:
                 match_hostname(cert, setting.config['alert_hostname'].get(host, host))
             except ssl.CertificateError as err:
-                logger.warning(err)
+                logger.warning(f'[{i_port:5}] {err}')
                 return
         
         await asyncio.gather(
