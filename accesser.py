@@ -53,7 +53,7 @@ async def update_cert(server_name):
         cert_store.add(server_name)
 
 async def send_pac(writer: asyncio.StreamWriter):
-    with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'template/pac'), 'rb') as f:
+    with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'pac'), 'rb') as f:
         pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1'))
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nContent-Length: {len(pac)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(pac)
@@ -178,10 +178,6 @@ async def main():
         cert_lock = asyncio.Lock()
         
         tg.create_task(proxy())
-
-        if setting.config['webui']:
-            from utils import webui
-            tg.create_task(webui.init(proxy, version=__version__))
 
 if __name__ == '__main__':
     asyncio.run(main())
