@@ -6,7 +6,7 @@ block_cipher = None
 a = Analysis(['accesser.py'],
              pathex=['./'],
              binaries=[],
-             datas=[('config.json.default', '.'),
+             datas=[('config.toml', '.'),
                     ('template/pac', 'template'),
                     ('template/index.html', 'template'),
                     ('static/main.js', 'static'),

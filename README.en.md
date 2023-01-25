@@ -49,7 +49,7 @@ Accesser is a local HTTP proxy with a default proxy address of `http://localhost
 
 Take [v2ray](https://github.com/v2fly/v2ray-core) as an example, you can add an HTTP outbound pointing to `http://localhost:7655` and set the corresponding routing rules to send traffic from sites like Wikipedia, Pixiv, etc. to this outbound.
 
-In addition, you can set up a DNS outbound and then edit `config.json` to allow Accesser to use this DNS.
+In addition, you can set up a DNS outbound and then edit `config.toml` to allow Accesser to use this DNS.
 
 ## Advanced Usage 2: Add sites
 Copy `template/pac` to the same directory as `accesser.py` (if it is a one click program, you can download this file from GitHub and put it in the same directory as the exe), and edit the pac file to make the sites you want to support pass from the proxy.

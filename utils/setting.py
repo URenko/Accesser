@@ -1,6 +1,7 @@
 import sys
 from os import path
-import json
+import shutil
+import tomllib
 import argparse
 
 if hasattr(sys, '_MEIPASS'):
@@ -8,11 +9,10 @@ if hasattr(sys, '_MEIPASS'):
 else:
     basepath = '.'
 
-with open(path.join(basepath, 'config.json.default'), 'r') as f:
-    config = json.load(f)
-if path.exists('config.json'):
-    with open('config.json', 'r') as f:
-        config = {**config, **json.load(f)}
+if not path.exists('config.toml'):
+    shutil.copyfile(path.join(basepath, 'config.toml'), 'config.toml')
+with open('config.toml', 'rb') as f:
+    config = tomllib.load(f)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--cli', action='store_true', help='do not open webui automatically')
@@ -35,7 +35,3 @@ def set(new):
         restart_server = False
     config = {**config, **new}
     return restart_server
-
-def save():
-    with open('config.json', 'w') as f:
-        json.dump(config, f, indent=2)

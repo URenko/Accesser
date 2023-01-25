@@ -27,8 +27,8 @@ jobs:
       run: |
         $libdir = python -c 'import os.path, tld; print(repr(os.path.dirname(tld.__file__))[1:-1])'
         ((Get-Content -path ./accesser.spec -Raw) -replace '{{tld_path}}',$libdir) | Set-Content -Path ./accesser.spec
-        ((Get-Content -path ./config.json.default -Raw) -replace '"logfile": null','"logfile": "Accesser.log"') | Set-Content -Path ./config.json.default
-        ((Get-Content -path ./config.json.default -Raw) -replace '"loglevel": "DEBUG"','"loglevel": "INFO"') | Set-Content -Path ./config.json.default
+        ((Get-Content -path ./config.toml -Raw) -replace 'logfile = ""','logfile = "Accesser.log"') | Set-Content -Path ./config.toml
+        ((Get-Content -path ./config.toml -Raw) -replace 'loglevel = "DEBUG"','loglevel = "INFO"') | Set-Content -Path ./config.toml
         ((Get-Content -path ./accesser.spec -Raw) -replace 'console=True','console=False') | Set-Content -Path ./accesser.spec
         cat accesser.spec
     - name: Package Application (without console)
@@ -39,7 +39,7 @@ jobs:
     
     - name: edit accesser.spec
       run: |
-        git checkout accesser.spec config.json.default
+        git checkout accesser.spec config.toml
         $libdir = python -c 'import os.path, tld; print(repr(os.path.dirname(tld.__file__))[1:-1])'
         ((Get-Content -path ./accesser.spec -Raw) -replace '{{tld_path}}',$libdir) | Set-Content -Path ./accesser.spec
         ((Get-Content -path ./accesser.spec -Raw) -replace "name='accesser'","name='accesser_cli'") | Set-Content -Path ./accesser.spec

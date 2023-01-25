@@ -106,6 +106,5 @@ python/
 CERT/
 hosts
 *.exe
-config.json
 .1
 /pac

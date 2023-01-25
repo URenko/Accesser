@@ -104,7 +104,7 @@ async def handle(reader, writer):
 
         await update_cert(host)
         await writer.start_tls(context)
-        server_hostname = setting.config['alert_hostname'].get(host, '')
+        server_hostname = setting.config['alter_hostname'].get(host, '')
         logger.debug(f'[{i_port:5}] {server_hostname=}')
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
@@ -113,7 +113,7 @@ async def handle(reader, writer):
         logger.debug(f"[{i_port:5}] {cert.get('subjectAltName', ())=}")
         if setting.config['check_hostname'] is not False:
             try:
-                match_hostname(cert, setting.config['alert_hostname'].get(host, host))
+                match_hostname(cert, setting.config['alter_hostname'].get(host, host))
             except ssl.CertificateError as err:
                 logger.warning(f'[{i_port:5}] {err}')
                 return

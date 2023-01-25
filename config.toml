@@ -1,0 +1,142 @@
+# 这是Accesser的配置文件，保存到程序工作目录后重启程序生效。
+# This is the configuration file of Accesser, save it to the program working directory and restart the program to take effect.
+
+# 是否校验证书域名？false 不进行校验，true 进行宽松的校验（如a.example.com能匹配b.example.com），"strict" 进行标准的校验。
+# Whether to verify the certificate domains? Set to false for no verification, set to true for loose verification (e.g. a.example.com matches b.example.com), set to "strict" for standard verification.
+check_hostname = true
+
+webui = false
+webuiport = 7654
+
+# 是否自动设置系统的代理（目前只对Windows有效）。这可使用命令行参数 --notsetproxy 来覆盖。
+# Whether to set the system proxy automatically (currently only valid for Windows). This can be overridden with the command line argument --notsetproxy.
+setproxy = true
+
+# 是否自动导入并信任根证书（目前只对Windows有效）。这可使用命令行参数 --notimportca 来覆盖。
+# Whether to automatically import and trust the root certificate (currently only available for Windows). This can be overridden with the command line argument --notimportca.
+importca = true
+
+# 是否开启IPv6支持
+# Whether to enable IPv6 support
+ipv6 = false
+
+
+[log]
+
+# 日志级别: 可为"CRITICAL"、"ERROR"、"WARNING"、"INFO"、"DEBUG"、"NOTSET"，越后面的输出信息越多，参考Python的logging模块说明。
+# Logging level: can be "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG", "NOTSET", the later the more output information, refer to Python's logging module manual.
+loglevel = "DEBUG"
+
+# 日志文件路径，"" 表示输出至控制台（如果存在）而不是文件。
+# Log file path, "" indicates output to the console (if present) instead of a file.
+logfile = ""
+
+
+[server]
+
+# 服务器绑定的地址。设为 "0.0.0.0" 可以允许同一局域网的设备连接该程序，比如用手机连接电脑的WiFi，设置PAC后既可允许手机使用。可能会有防火墙的提示，要允许访问。
+# The address to which the server is bound. Set to "0.0.0.0" to allow devices on the same LAN to connect to the program, such as using your phone to connect to your computer's WiFi, after setting the PAC to allow both your phone to use it. There may be a firewall prompt to allow access.
+address = "127.0.0.1"
+
+# 服务器的端口号，如果与其他程序发生端口冲突时可以更改，其值应为1-65535，建议>1024。
+# The port number of the server, which can be changed in case of port conflicts with other programs, should have a value of 1-65535, with >1024 recommended.
+port = 7655
+
+
+[DNS]
+
+# DNS服务器地址。如果以 https:// 开头，则使用DNS-over-HTTPS (DoH)，否则是传统的UDP DNS。
+# DNS server address. If it starts with https://, then DNS-over-HTTPS (DoH) is used, otherwise it is a traditional UDP DNS.
+nameserver = [
+  "https://firefox.cloudflare-dns.com/dns-query",
+  "https://185.222.222.222/dns-query",
+  "https://45.11.45.11/dns-query",
+  "https://dns.quad9.net/dns-query",
+  "https://dns11.quad9.net/dns-query",
+  "https://dns10.quad9.net/dns-query"
+]
+
+# DNS服务器端口。仅当使用传统的UDP DNS时生效。
+# DNS server port. Effective only when using traditional UDP DNS.
+port = 53
+
+
+[http_redirect]
+
+# 如果一个HTTP（无TLS）请求的URL以下面某个键开头，则会被重定向到其值对应的URL（通过HTTPS请求）。
+# If the URL of an HTTP (no TLS) request starts with one of the following keys, it will be redirected to the URL corresponding to its value (via HTTPS request).
+
+"pixiv.net/" = "www.pixiv.net/"
+"www.google.com/recaptcha/" = "www.recaptcha.net/recaptcha/"
+"tumblr.com/" = "www.tumblr.com/"
+"instagram.com/" = "www.instagram.com/"
+
+
+[alter_hostname]
+
+# 与键对应的域名的TLS连接会使用其值对应的域名作为server_name字段，并且校验证书时也使用这一域名。
+# A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate.
+
+"www.quora.com" = "fs.quoracdn.net"
+"sketch.pixiv.net" = "pixivsketch.net"
+"cdn1-smallimg.phncdn.com" = "pabbp.com"
+"nyaa.si" = "ddos-guard.net"
+"site.nicovideo.jp" = "d4fsvsnk8os9s.cloudfront.net"
+"blog.nicovideo.jp" = "d11c2xcc0ucqv1.cloudfront.net"
+"info.nicovideo.jp" = "d2c1o7y4lmdvf6.cloudfront.net"
+"www.ftchinese.com" = "dsiij4vzr462k.cloudfront.net"
+
+
+[hosts]
+
+# 连接键所对应的域名时使用值所对应的IP。此设置优先于上面的DNS服务器设置。
+# When connecting the domain name corresponding to the key, use the IP corresponding to the value. This setting takes precedence over the DNS server setting above.
+
+".pixiv.net" = "210.140.131.219"
+"www.bbc.co.uk" = "212.58.233.252"
+"www.wenxuecity.com" = "35.190.31.60"
+"m.wenxuecity.com" = "35.190.31.60"
+"bbs.wenxuecity.com" = "35.190.31.60"
+"passport.wenxuecity.com" = "35.190.31.60"
+"cdn.wenxuecity.com" = "35.190.94.124"
+"count.wenxuecity.com" = "0.0.0.0"
+"adserver.wenxuecity.com" = "0.0.0.0"
+"www.dropbox.com" = "162.125.69.1"
+".appledaily.com" = "60.254.170.127"
+".e-hentai.org" = "e-hentai.org.cdn.cloudflare.net"
+"info.nicovideo.jp" = "d2c1o7y4lmdvf6.cloudfront.net"
+"blog.nicovideo.jp" = "d11c2xcc0ucqv1.cloudfront.net"
+"site.nicovideo.jp" = "d4fsvsnk8os9s.cloudfront.net"
+"cn.nytimes.com" = "13.33.171.121"
+"www.ftchinese.com" = "dsiij4vzr462k.cloudfront.net"
+".bandcamp.com" = "151.101.65.57"
+"www.nytimes.com" = "151.101.1.6"
+"purr.nytimes.com" = "151.101.1.6"
+"archive.nytimes.com" = "151.101.1.6"
+"mwcm.nytimes.com" = "151.101.1.16"
+"myaccount.nytimes.com" = "151.101.1.16"
+"samizdat-graphql.nytimes.com" = "151.101.1.16"
+".nyt.com" = "151.101.1.16"
+".reddit.com" = "151.101.1.2"
+".redd.it" = "151.101.1.3"
+".redditstatic.com" = "151.101.1.5"
+".thumbs.redditmedia.com" = "151.101.129.140"
+"emoji.redditmedia.com" = "151.101.129.140"
+"styles.redditmedia.com" = "151.101.129.140"
+"www.bbc.com" = "151.101.128.81"
+"disqus.com" = "151.101.64.134"
+"i.imgur.com" = "151.101.196.193"
+"i.stack.imgur.com" = "151.101.196.193"
+".theepochtimes.com" = "151.139.128.13"
+"donate.epochtimes.com" = "151.139.128.13"
+"i.epochtimes.com" = "151.139.128.13"
+".mediawiki.org" = "91.198.174.192"
+".wikipedia.org" = "91.198.174.192"
+".wikiquote.org" = "91.198.174.192"
+".wikinews.org" = "91.198.174.192"
+".wikiversity.org" = "91.198.174.192"
+".wiktionary.org" = "91.198.174.192"
+".wikibooks.org" = "91.198.174.192"
+".wikiyoyage.org" = "91.198.174.192"
+".wikisource.org" = "91.198.174.192"
+".wikidata.org" = "91.198.174.192"
