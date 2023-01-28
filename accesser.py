@@ -59,6 +59,14 @@ async def send_pac(writer: asyncio.StreamWriter):
     writer.write(pac)
     await writer.drain()
     writer.close()
+
+async def send_crt(writer: asyncio.StreamWriter, path: str):
+    with open(os.path.join(basepath, path.lstrip('/')), 'rb') as f:
+        crt = f.read()
+    writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-x509-ca-cert\r\nContent-Length: {len(crt)}\r\n\r\n'.encode('iso-8859-1'))
+    writer.write(crt)
+    await writer.drain()
+    writer.close()
     
 async def http_redirect(writer: asyncio.StreamWriter, path: str):
     path = path.removeprefix('http://')
@@ -96,6 +104,10 @@ async def handle(reader, writer):
             case 'GET':
                 if path.startswith('/pac/'):
                     return await send_pac(writer)
+                elif path.startswith('/CERT/root.'):
+                    return await send_crt(writer, path)
+                elif path == '/shutdown':
+                    sys.exit()
                 else:
                     return await http_redirect(writer, path)
             case _:
