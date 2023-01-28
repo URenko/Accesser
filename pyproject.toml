@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "accesser"
+version = "0.8.0rc1"
+authors = [
+  { name="URenko" },
+]
+description = "🌏一个解决SNI RST导致维基百科、Pixiv等站点无法访问的工具 | A tool for solving SNI RST"
+readme = "README.md"
+requires-python = ">=3.11"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "pyopenssl",
+    'tld',
+    'dnspython',
+]
+
+[project.optional-dependencies]
+doh = ["httpx[http2]"]
+
+[project.scripts]
+accesser = "accesser:run"
+
+[project.urls]
+"Homepage" = "https://github.com/URenko/Accesser"
+"Bug Tracker" = "https://github.com/URenko/Accesser/issues"
+
+[tool.setuptools.package-data]
+accesser = ["*.toml", "pac"]

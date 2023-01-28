@@ -1,14 +1,15 @@
 # -*- mode: python -*-
+import os, tld
 
 block_cipher = None
 
 
-a = Analysis(['accesser.py'],
+a = Analysis(['accesser/__main__.py'],
              pathex=['./'],
              binaries=[],
-             datas=[('config.toml', '.'),
-                    ('pac', '.'),
-                    ('{{tld_path}}/res/effective_tld_names.dat.txt', 'tld/res')],
+             datas=[('accesser/config.toml', 'accesser'),
+                    ('accesser/pac', 'accesser'),
+                    (os.path.dirname(tld.__file__)+'/res/effective_tld_names.dat.txt', 'tld/res')],
              hiddenimports=[],
              hookspath=[],
              runtime_hooks=[],

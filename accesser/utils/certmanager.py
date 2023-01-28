@@ -30,7 +30,7 @@ if setting.config['importca']:
 else:
     certpath ='CERT'
 if not os.path.exists(certpath):
-    os.mkdir(certpath)
+    os.makedirs(certpath, exist_ok=True)
 
 def create_root_ca():
     pkey = crypto.PKey()
