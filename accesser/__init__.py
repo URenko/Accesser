@@ -35,6 +35,7 @@ from .utils import setting
 from .utils.setting import basepath
 from .utils.log import logger
 from .utils.cert_verify import match_hostname
+from .utils import sysproxy
 
 
 async def update_cert(server_name):
@@ -137,12 +138,13 @@ async def proxy():
     server = await asyncio.start_server(handle, setting.config['server']['address'], setting.config['server']['port'])
 
     print(f"Serving on {', '.join(str(sock.getsockname()) for sock in server.sockets)}")
-    if setting.config['setproxy'] and sys.platform.startswith('win'):
-        from .utils import sysproxy
-        sysproxy.set_pac('http://localhost:'+str(setting.config['server']['port'])+'/pac/?t='+str(random.randrange(2**16)))
+    sysproxy.set_pac('http://localhost:'+str(setting.config['server']['port'])+'/pac/?t='+str(random.randrange(2**16)))
 
-    async with server:
-        await server.serve_forever()
+    try:
+        async with server:
+            await server.serve_forever()
+    finally:
+        sysproxy.set_pac(None)
 
 async def DNSquery(domain):
     global DNSresolver
