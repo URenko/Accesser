@@ -19,6 +19,7 @@
 __version__ = '0.8.0rc1'
 
 import os, sys
+import json
 import random
 import ssl
 import asyncio
@@ -161,15 +162,19 @@ async def DNSquery(domain):
     return ret[0].to_text()
 
 def update_checker():
-    try:
+    for pypi_url in ['https://pypi.org/pypi/accesser/json', 'https://mirrors.cloud.tencent.com/pypi/json/accesser']:
+        try:
+            with request.urlopen(pypi_url) as f:
+                v2 = parse_version(json.load(f)["info"]["version"])
+                break
+        except Exception:
+            logger.warning(traceback.format_exc())
+    else:
         with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
             v2 = parse_version(f.geturl().rsplit('/', maxsplit=1)[-1])
-            v1 = parse_version(__version__)
-            if v2 > v1:
-                logger.warning('There is a new version, check {} for update.'.format(f.geturl()))
-    except Exception:
-        logger.warning('Check for update failure, please check manually.')
-        logger.warning(traceback.format_exc())
+    v1 = parse_version(__version__)
+    if v2 > v1:
+        logger.warning("There is a new version, you can update with 'python3 -m pip install -U accesser' or download from GitHub")
 
 async def main():
     global context, cert_store, cert_lock, DNSresolver
