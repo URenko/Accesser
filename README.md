@@ -10,12 +10,12 @@
 
 ## 使用
 ### 如果不知道什么是Python
-从[这里](https://github.com/URenko/Accesser/releases/download/v0.8.0rc1/accesser.exe)下载Windows一键程序，运行既可，首次使用会要求安装证书，选是即可。
+从[这里](https://github.com/URenko/Accesser/releases/download/v0.8.0/accesser.exe)下载Windows一键程序，运行既可，首次使用会要求安装证书，选是即可。
 ### 如果已经安装了Python 3.11*或更高版本
 ```
-pip3 install git+https://github.com/URenko/Accesser.git
+pip3 install -U accesser[doh]
 ```
-如果要使用DNS-over-HTTPS，需要使用`pip install httpx[http2]`安装`httpx`。
+如果你不需要DNS-over-HTTPS，则可以不用带`[doh]`。
 
 然后通过如下命令启动：
 ```

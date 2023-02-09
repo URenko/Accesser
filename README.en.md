@@ -13,12 +13,12 @@ Because the main users of this project are in mainland China, you may encounter 
 
 ## Usage
 ### If you don't know what Python is
-Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.8.0rc1/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
+Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.8.0/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
 ### If Python 3.11* or later is already installed
 ```
-pip3 install git+https://github.com/URenko/Accesser.git
+pip3 install -U accesser[doh]
 ```
-To use DNS-over-HTTPS, you need install `httpx` with `pip install httpx[http2]`.
+If you don't need DNS-over-HTTPS, you can install without `[doh]`.
 
 Then launch it with the following command:
 ```
