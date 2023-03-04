@@ -49,6 +49,7 @@ var domains = {
 };
 
 var shexps = {
+  "*://api.openai.com/*": 1,
   "*://steamcommunity-a.akamaihd.net/*": 1,
   "*://steamuserimages-a.akamaihd.net/*": 1,
   "*://*.amazon.co.jp/*": 1,
