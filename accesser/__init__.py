@@ -59,6 +59,7 @@ async def send_pac(writer: asyncio.StreamWriter):
     writer.write(pac)
     await writer.drain()
     writer.close()
+    await writer.wait_closed()
 
 async def send_crt(writer: asyncio.StreamWriter, path: str):
     with open(os.path.join(basepath, path.lstrip('/')), 'rb') as f:
@@ -67,6 +68,7 @@ async def send_crt(writer: asyncio.StreamWriter, path: str):
     writer.write(crt)
     await writer.drain()
     writer.close()
+    await writer.wait_closed()
     
 async def http_redirect(writer: asyncio.StreamWriter, path: str):
     path = path.removeprefix('http://')
@@ -78,6 +80,7 @@ async def http_redirect(writer: asyncio.StreamWriter, path: str):
     writer.write(f'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{path}\r\n\r\n'.encode('iso-8859-1'))
     await writer.drain()
     writer.close()
+    await writer.wait_closed()
 
 async def forward_stream(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
     while True:
@@ -134,6 +137,10 @@ async def handle(reader, writer):
             forward_stream(reader, remote_writer),
             forward_stream(remote_reader, writer)
         )
+    writer.close()
+    remote_writer.close()
+    await remote_writer.wait_closed()
+    await writer.wait_closed()
 
 async def proxy():
     server = await asyncio.start_server(handle, setting.config['server']['address'], setting.config['server']['port'])
