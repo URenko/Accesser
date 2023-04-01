@@ -10,7 +10,7 @@ authors = [
 ]
 description = "🌏一个解决SNI RST导致维基百科、Pixiv等站点无法访问的工具 | A tool for solving SNI RST"
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
@@ -20,6 +20,7 @@ dependencies = [
     "pyopenssl",
     'tld',
     'dnspython < 2.4',
+    'tomli >= 1.1.0 ; python_version < "3.11"'
 ]
 
 [project.optional-dependencies]

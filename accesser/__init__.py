@@ -118,7 +118,10 @@ async def handle(reader, writer):
         writer.write(b'HTTP/1.1 200 Connection Established\r\n\r\n')
 
         await update_cert(host)
-        await writer.start_tls(context)
+        if sys.version_info[1] >= 11:
+            await writer.start_tls(context)
+        else:
+            writer._transport = await writer._loop.start_tls(writer.transport, writer._protocol, context, server_side=True)
         server_hostname = setting.config['alter_hostname'].get(host, '')
         logger.debug(f'[{i_port:5}] {server_hostname=}')
         remote_context = ssl.create_default_context()
@@ -187,22 +190,22 @@ async def main():
     global context, cert_store, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2023  URenko")
     setting.parse_args()
+        
+    DNSresolver = dns.asyncresolver.Resolver(configure=False)
+    DNSresolver.cache = dns.resolver.LRUCache()
+    DNSresolver.nameservers = setting.config['DNS']['nameserver']
+    DNSresolver.port = int(setting.config['DNS']['port'])
     
-    async with asyncio.TaskGroup() as tg:
-        tg.create_task(asyncio.to_thread(update_checker))
-        
-        DNSresolver = dns.asyncresolver.Resolver(configure=False)
-        DNSresolver.cache = dns.resolver.LRUCache()
-        DNSresolver.nameservers = setting.config['DNS']['nameserver']
-        DNSresolver.port = int(setting.config['DNS']['port'])
-        
-        importca.import_ca()
+    importca.import_ca()
 
-        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-        cert_store = set()
-        cert_lock = asyncio.Lock()
-        
-        tg.create_task(proxy())
+    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    cert_store = set()
+    cert_lock = asyncio.Lock()
+    
+    await asyncio.gather(
+        asyncio.to_thread(update_checker),
+        proxy()
+    )
 
 def run():
     asyncio.run(main())

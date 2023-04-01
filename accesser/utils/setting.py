@@ -1,6 +1,9 @@
 from pathlib import Path
 import shutil
-import tomllib
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib
 import argparse
 
 basepath = Path(__file__).parent.parent
