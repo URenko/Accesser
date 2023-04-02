@@ -54,7 +54,7 @@ async def update_cert(server_name):
 
 async def send_pac(writer: asyncio.StreamWriter):
     with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'pac'), 'rb') as f:
-        pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1'))
+        pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1')).replace(b'{{host}}', setting.config['server'].get('pac_host', '127.0.0.1').encode('iso-8859-1'))
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nContent-Length: {len(pac)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(pac)
     await writer.drain()

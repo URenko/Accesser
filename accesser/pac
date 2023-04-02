@@ -61,7 +61,7 @@ var shexps = {
   "*://*.cna.com.tw/*": 1
 };
 
-var proxy = "PROXY 127.0.0.1:{{port}};";
+var proxy = "PROXY {{host}}:{{port}};";
 
 var direct = 'DIRECT;';
 

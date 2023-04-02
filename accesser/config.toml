@@ -39,6 +39,10 @@ address = "127.0.0.1"
 # The port number of the server, which can be changed in case of port conflicts with other programs, should have a value of 1-65535, with >1024 recommended.
 port = 7654
 
+# PAC文件中的代理主机。如供局域网使用，应设为安装了Accesser的设备在局域网中的IP。
+# The proxy host in the PAC file. If for LAN usage, it should be set to the IP of the device on the LAN where Accesser is installed.
+pac_host = "127.0.0.1"
+
 
 [DNS]
 
