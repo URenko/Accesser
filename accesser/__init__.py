@@ -20,6 +20,7 @@ __version__ = '0.8.2'
 
 import os, sys
 import json
+import fnmatch
 import random
 import ssl
 import asyncio
@@ -122,7 +123,8 @@ async def handle(reader, writer):
             await writer.start_tls(context)
         else:
             writer._transport = await writer._loop.start_tls(writer.transport, writer._protocol, context, server_side=True)
-        server_hostname = setting.config['alter_hostname'].get(host, '')
+        server_hostname_key = next(filter(lambda h:fnmatch.fnmatchcase(host, h), setting.config['alter_hostname']), None)
+        server_hostname = '' if server_hostname_key is None else setting.config['alter_hostname'][server_hostname_key]
         logger.debug(f'[{i_port:5}] {server_hostname=}')
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
@@ -131,7 +133,7 @@ async def handle(reader, writer):
         logger.debug(f"[{i_port:5}] {cert.get('subjectAltName', ())=}")
         if setting.config['check_hostname'] is not False:
             try:
-                match_hostname(cert, setting.config['alter_hostname'].get(host, host))
+                match_hostname(cert, host if server_hostname_key is None else setting.config['alter_hostname'][server_hostname_key])
             except ssl.CertificateError as err:
                 logger.warning(f'[{i_port:5}] {err}')
                 return

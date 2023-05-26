@@ -75,8 +75,8 @@ port = 53
 
 [alter_hostname]
 
-# 与键对应的域名的TLS连接会使用其值对应的域名作为server_name字段，并且校验证书时也使用这一域名。
-# A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate.
+# 与键对应的域名的TLS连接会使用其值对应的域名作为server_name字段，并且校验证书时也使用这一域名。键支持Unix shell风格的通配符。
+# A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate. The key supports Unix shell-style wildcards.
 
 "www.quora.com" = "fs.quoracdn.net"
 "sketch.pixiv.net" = "pixivsketch.net"
