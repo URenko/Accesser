@@ -87,6 +87,7 @@ port = 53
 "info.nicovideo.jp" = "d2c1o7y4lmdvf6.cloudfront.net"
 "www.ftchinese.com" = "dsiij4vzr462k.cloudfront.net"
 "pipelines.actions.githubusercontent.com" = "origin.mediaservices.windows.net"
+"steamcommunity.com" = "www.valvesoftware.com"
 
 
 [hosts]
