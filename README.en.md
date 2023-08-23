@@ -32,7 +32,7 @@ In addition, for Windows, by default (without specifying `--notimportca`) the ce
 *You can use, for example, [pyenv](https://github.com/pyenv/pyenv) to install the required version of Python (Python 3.11 is recommended).
 
 ## Configuration
-Edit `config.toml` in the working directory. See the comments therein. After saving, reopen the program.
+After starting Accesser once, `config.toml` will be generated in the **working directory**. See the comments therein. After saving, reopen the program.
 
 ## Advanced Usage 1: Use with other proxy software such as v2ray
 Accesser is a local HTTP proxy with a default proxy address of `http://localhost:7654`, which can be used in combination with other proxy software as long as the network traffic can be exported as HTTP proxy.

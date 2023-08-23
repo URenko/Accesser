@@ -29,7 +29,7 @@ accesser
 *可以使用例如[pyenv](https://github.com/pyenv/pyenv)来安装所需的Python版本（推荐Python 3.11）。
 
 ## 设置
-编辑工作目录下的`config.toml`，具体含义见其中注释，保存后重新打开程序。
+启动一次Accesser后，会在 **工作目录** 下生成`config.toml`，具体含义见其中注释，保存后重新打开程序。
 
 ## 进阶1: 与v2ray等其他代理软件一起使用
 Accesser是一个本地HTTP代理，默认代理地址为`http://localhost:7654`，只要网络流量能从其他代理软件以HTTP代理导出就能联合使用。
