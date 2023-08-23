@@ -14,7 +14,7 @@ Because the main users of this project are in mainland China, you may encounter 
 
 ## Usage
 ### If you don't know what Python is
-Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.8.3/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
+Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.8.4/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
 ### If Python 3.10* or later is already installed
 ```
 pip3 install -U accesser[doh]
