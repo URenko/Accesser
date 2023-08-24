@@ -90,7 +90,6 @@ port = 53
 "steamcommunity.com" = "www.valvesoftware.com"
 "redd.it" = "www.redditinc.com"
 "*.redd.it" = "www.redditinc.com"
-"redditstatic.com" = "www.redditinc.com"
 "*.redditstatic.com" = "www.redditinc.com"
 "redditmedia.com" = "www.redditinc.com"
 "*.redditmedia.com" = "www.redditinc.com"
