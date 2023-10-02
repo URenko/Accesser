@@ -45,7 +45,8 @@ var domains = {
   "uptodown.com": 1,
   "vimeo.com": 1,
   "wenxuecity.com": 1,
-  "wikipedia.org": 1
+  "wikipedia.org": 1,
+  "pixivsketch.net": 1
 };
 
 var shexps = {

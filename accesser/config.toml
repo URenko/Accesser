@@ -100,7 +100,9 @@ port = 53
 # 连接键所对应的域名时使用值所对应的IP。此设置优先于上面的DNS服务器设置。
 # When connecting the domain name corresponding to the key, use the IP corresponding to the value. This setting takes precedence over the DNS server setting above.
 
-".pixiv.net" = "210.140.131.219"
+
+"www.pixiv.net" = "210.140.131.219"
+"imp.pixiv.net" = "210.140.131.219"
 "www.bbc.co.uk" = "212.58.233.252"
 "www.wenxuecity.com" = "35.190.31.60"
 "m.wenxuecity.com" = "35.190.31.60"
