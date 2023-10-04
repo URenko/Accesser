@@ -29,7 +29,7 @@ For Windows, by default (without specifying `--notsetproxy`) it will set the sys
 
 In addition, for Windows, by default (without specifying `--notimportca`) the certificate will be imported to the system automatically, if not you can import it manually, please see [here](https://github.com/URenko/Accesser/wiki/FAQ#q-windows%E8%AE%BF%E9%97%AE%E7%9B%B8%E5%85%B3%E7%BD%91%E7%AB%99%E5%87%BA%E7%8E%B0%E8%AF%81%E4%B9%A6%E9%94%99%E8%AF%AF%E6%82%A8%E7%9A%84%E8%BF%9E%E6%8E%A5%E4%B8%8D%E6%98%AF%E7%A7%81%E5%AF%86%E8%BF%9E%E6%8E%A5neterr_cert_invalid%E4%B9%8B%E7%B1%BB%E7%9A%84%E6%80%8E%E4%B9%88%E5%8A%9E%E8%AF%81%E4%B9%A6%E5%AF%BC%E5%85%A5%E9%94%99%E8%AF%AF%E6%80%8E%E4%B9%88%E5%8A%9E%E5%A6%82%E4%BD%95%E5%8D%B8%E8%BD%BD%E8%AF%81%E4%B9%A6).
 
-*You can use, for example, [pyenv](https://github.com/pyenv/pyenv) to install the required version of Python (Python 3.11 is recommended).
+*You can use, for example, [pyenv](https://github.com/pyenv/pyenv) to install the required version of Python (Python 3.11+ is recommended).
 
 ## Configuration
 After starting Accesser once, `config.toml` will be generated in the **working directory**. See the comments therein. After saving, reopen the program.
