@@ -101,8 +101,10 @@ port = 53
 # When connecting the domain name corresponding to the key, use the IP corresponding to the value. This setting takes precedence over the DNS server setting above.
 
 
-"www.pixiv.net" = "210.140.131.219"
-"imp.pixiv.net" = "210.140.131.219"
+"sketch.pixiv.net" = "210.140.174.37"
+"img-sketch.pixiv.net" = "210.140.131.145"
+"source.pixiv.net" = "210.140.131.153"
+".pixiv.net" = "www.pixivision.net"
 "www.bbc.co.uk" = "212.58.233.252"
 "www.wenxuecity.com" = "35.190.31.60"
 "m.wenxuecity.com" = "35.190.31.60"
