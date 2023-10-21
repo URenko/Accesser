@@ -28,22 +28,3 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         path: ./dist/
-  
-  package:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Setup python
-      uses: actions/setup-python@v4
-      with:
-          python-version: '3.12'
-          architecture: x64
-    - uses: actions/checkout@v3
-    - name: Install dependencies
-      run: |
-        pip install --upgrade build
-    - name: Package Application
-      run: |
-        python3 -m build
-    - uses: actions/upload-artifact@v3
-      with:
-        path: ./dist/
