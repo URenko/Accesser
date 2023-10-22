@@ -30,6 +30,7 @@ var domains = {
   "phncdn.com": 1,
   "pinterest.com": 1,
   "pixiv.net": 1,
+  "pixivsketch.net": 1,
   "pornhub.com": 1,
   "quora.com": 1,
   "redd.it": 1,
@@ -46,7 +47,7 @@ var domains = {
   "vimeo.com": 1,
   "wenxuecity.com": 1,
   "wikipedia.org": 1,
-  "pixivsketch.net": 1
+  "scratch.mit.edu": 1
 };
 
 var shexps = {
