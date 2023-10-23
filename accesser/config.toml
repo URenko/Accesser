@@ -176,3 +176,6 @@ port = 53
 "tumblr.com" = "74.114.154.22"
 "www.tumblr.com" = "74.114.154.22"
 "assets.tumblr.com" = "74.114.154.22"
+"scratch.mit.edu" = "151.101.2.133"
+"downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
+".scratch.mit.edu" = "151.101.2.133"
