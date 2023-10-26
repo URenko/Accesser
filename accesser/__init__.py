@@ -27,7 +27,7 @@ import asyncio
 import traceback
 from contextlib import closing
 from urllib import request
-from pkg_resources import parse_version
+from packaging.version import Version
 from tld import get_tld
 import dns, dns.asyncresolver
 
@@ -177,14 +177,14 @@ def update_checker():
     for pypi_url in ['https://pypi.org/pypi/accesser/json', 'https://mirrors.cloud.tencent.com/pypi/json/accesser']:
         try:
             with request.urlopen(pypi_url) as f:
-                v2 = parse_version(json.load(f)["info"]["version"])
+                v2 = Version(json.load(f)["info"]["version"])
                 break
         except Exception:
             logger.warning(traceback.format_exc())
     else:
         with request.urlopen('https://github.com/URenko/Accesser/releases/latest') as f:
-            v2 = parse_version(f.geturl().rsplit('/', maxsplit=1)[-1])
-    v1 = parse_version(__version__)
+            v2 = Version(f.geturl().rsplit('/', maxsplit=1)[-1])
+    v1 = Version(__version__)
     if v2 > v1:
         logger.warning("There is a new version, you can update with 'python3 -m pip install -U accesser' or download from GitHub")
 

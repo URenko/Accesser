@@ -19,8 +19,14 @@
 import os
 import random
 import sys
-import ssl
-from OpenSSL import crypto
+import datetime
+from pathlib import Path
+
+from cryptography import x509
+from cryptography.x509.oid import NameOID
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import rsa
 
 from . import setting
 from .setting import basepath
@@ -33,78 +39,81 @@ if not os.path.exists(certpath):
     os.makedirs(certpath, exist_ok=True)
 
 def create_root_ca():
-    pkey = crypto.PKey()
-    pkey.generate_key(crypto.TYPE_RSA, 4096)
+    key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=4096,
+    )
 
-    cert = crypto.X509()
-    cert.set_version(2)
-    cert.set_serial_number(int(random.random() * sys.maxsize))
-    cert.gmtime_adj_notBefore(0)
-    cert.gmtime_adj_notAfter(60 * 60 * 24 * 365 * 10)
-
-    subject = cert.get_subject()
-    subject.CN = "Accesser"
-    subject.O = "Accesser"
-
-    issuer = cert.get_issuer()
-    issuer.CN = "Accesser"
-    issuer.O = "Accesser"
-
-    cert.set_pubkey(pkey)
-    cert.add_extensions([
-        crypto.X509Extension(b"basicConstraints", True,
-                             b"CA:TRUE"),
-        crypto.X509Extension(b"subjectKeyIdentifier", False, b"hash",
-                             subject=cert)
+    subject = issuer = x509.Name([
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Accesser"),
+        x509.NameAttribute(NameOID.COMMON_NAME, "Accesser"),
     ])
-    cert.add_extensions([
-        crypto.X509Extension(b"authorityKeyIdentifier", False, b"keyid:always",
-            issuer=cert)
-    ])
-    cert.sign(pkey, "sha256")
+    cert = x509.CertificateBuilder().subject_name(
+        subject
+    ).issuer_name(
+        issuer
+    ).public_key(
+        key.public_key()
+    ).serial_number(
+        x509.random_serial_number()
+    ).not_valid_before(
+        datetime.datetime.now(datetime.timezone.utc)
+    ).not_valid_after(
+        datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=10*365)
+    ).sign(key, hashes.SHA256())
 
-    with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
-        certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
-        certfile.close()
+    (Path(certpath) / "root.crt").write_bytes(cert.public_bytes(serialization.Encoding.PEM))
 
-    with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
-        pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
-        pkeyfile.close()
+    (Path(certpath) / "root.key").write_bytes(key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption(),
+    ))
 
-    pfx = crypto.PKCS12()
-    pfx.set_privatekey(pkey)
-    pfx.set_certificate(cert)
-    with open(os.path.join(certpath ,"root.pfx"), 'wb') as pfxfile:
-        pfxfile.write(pfx.export())
+    (Path(certpath) / "root.pfx").write_bytes(serialization.pkcs12.serialize_key_and_certificates(
+        b"Accesser", key, cert, None, serialization.NoEncryption()
+    ))
 
-pkey = crypto.PKey()
-pkey.generate_key(crypto.TYPE_RSA, 2048)
+
+pkey = rsa.generate_private_key(
+    public_exponent=65537,
+    key_size=4096,
+)
 
 def create_certificate(server_name):
-    rootpem = open(os.path.join(certpath ,"root.crt"), "rb").read()
-    rootkey = open(os.path.join(certpath ,"root.key"), "rb").read()
-    ca_cert = crypto.load_certificate(crypto.FILETYPE_PEM, rootpem)
-    ca_key = crypto.load_privatekey(crypto.FILETYPE_PEM, rootkey)
+    rootpem = (Path(certpath) / "root.crt").read_bytes()
+    rootkey = (Path(certpath) / "root.key").read_bytes()
+    ca_cert = x509.load_pem_x509_certificate(rootpem)
+    ca_key = serialization.load_pem_private_key(rootkey, password=None)
 
-    cert = crypto.X509()
-    cert.set_serial_number(int(random.random() * sys.maxsize))
-    cert.gmtime_adj_notBefore(-600)
-    cert.gmtime_adj_notAfter(60 * 60 * 24 * 365)
-    cert.set_version(2)
+    cert = x509.CertificateBuilder().subject_name(x509.Name([
+        x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Accesser"),
+        x509.NameAttribute(NameOID.COMMON_NAME, "Accesser_Proxy"),
+    ])
+    ).issuer_name(
+        ca_cert.subject
+    ).public_key(
+        pkey.public_key()
+    ).serial_number(
+        x509.random_serial_number()
+    ).not_valid_before(
+        datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(seconds=600)
+    ).not_valid_after(
+        datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)
+    ).add_extension(
+        x509.SubjectAlternativeName([
+            x509.DNSName(server_name),
+            x509.DNSName('*.'+server_name),
+        ]),
+        critical=False,
+    ).sign(ca_key, hashes.SHA256())
 
-    subject = cert.get_subject()
-    subject.CN = "Accesser_Proxy"
-    subject.O = "Accesser"
 
-    cert.add_extensions([crypto.X509Extension(b"subjectAltName", False, ('DNS:'+server_name+',DNS:*.'+server_name).encode())])
-
-    cert.set_issuer(ca_cert.get_subject())
-
-    cert.set_pubkey(pkey)
-    cert.sign(ca_key, "sha256")
-
-
-    with open(os.path.join(certpath ,'{}.crt'.format(server_name)), "wb") as certfile:
-        certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, cert))
-        certfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, pkey))
-        certfile.close()
+    (Path(certpath) / f"{server_name}.crt").write_bytes(
+        cert.public_bytes(serialization.Encoding.PEM) +
+        pkey.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )

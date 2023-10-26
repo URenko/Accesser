@@ -16,10 +16,11 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from OpenSSL import crypto
 import os, sys
 import subprocess
 import locale
+
+from cryptography.hazmat.primitives import serialization
 
 from . import setting
 from . import certmanager as cm
@@ -58,13 +59,15 @@ def import_windows_ca():
             logger.warning('Try to manually import the certificate')
     else:
         with open(os.path.join(certpath ,"root.pfx"), 'rb') as pfxfile:
-            p12 = crypto.load_pkcs12(pfxfile.read())
+            private_key, certificate, _ = serialization.pkcs12.load_key_and_certificates(pfxfile.read(), password=None)
         with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
-            certfile.write(crypto.dump_certificate(crypto.FILETYPE_PEM, p12.get_certificate()))
-            certfile.close()
+            certfile.write(certificate.public_bytes(serialization.Encoding.PEM))
         with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
-            pkeyfile.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, p12.get_privatekey()))
-            pkeyfile.close()
+            pkeyfile.write(private_key.private_bytes(
+                encoding=serialization.Encoding.PEM,
+                format=serialization.PrivateFormat.PKCS8,
+                encryption_algorithm=serialization.NoEncryption(),
+            ))
 
 def import_mac_ca():
     ca_hash = CertUtil.ca_thumbprint.replace(':', '')
