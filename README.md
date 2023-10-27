@@ -14,9 +14,9 @@
 从[这里](https://github.com/URenko/Accesser/releases/download/v0.8.5/accesser.exe)下载Windows一键程序，运行既可，首次使用会要求安装证书，选是即可。
 ### 如果已经安装了Python 3.10*或更高版本
 ```
-pip3 install -U accesser[doh]
+pip3 install -U accesser[doh,doq]
 ```
-如果你不需要DNS-over-HTTPS，则可以不用带`[doh]`。
+如果你不需要 DNS-over-HTTPS 和 DNS-over-QUIC，则可以不用带`[doh,doq]`。
 
 然后通过如下命令启动：
 ```

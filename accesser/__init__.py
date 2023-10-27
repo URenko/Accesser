@@ -27,9 +27,10 @@ import asyncio
 import traceback
 from contextlib import closing
 from urllib import request
+from urllib.parse import urlsplit
 from packaging.version import Version
 from tld import get_tld
-import dns, dns.asyncresolver
+import dns, dns.asyncresolver, dns.nameserver
 
 from .utils import certmanager as cm
 from .utils import importca
@@ -159,11 +160,13 @@ async def proxy():
     finally:
         sysproxy.set_pac(None)
 
-async def DNSquery(domain):
+async def DNSquery(domain, hosts_only=False):
     global DNSresolver
     try:
         return next(v for k,v in setting.config['hosts'].items() if k==domain or (k.startswith('.') and domain.endswith(k)))
-    except StopIteration: pass
+    except StopIteration:
+        if hosts_only:
+            return
     if setting.config['ipv6']:
         try:
             ret = await DNSresolver.resolve(domain, 'AAAA')
@@ -195,8 +198,18 @@ async def main():
         
     DNSresolver = dns.asyncresolver.Resolver(configure=False)
     DNSresolver.cache = dns.resolver.LRUCache()
-    DNSresolver.nameservers = setting.config['DNS']['nameserver']
-    DNSresolver.port = int(setting.config['DNS']['port'])
+    for nameserver in setting.config['DNS']['nameserver']:
+        if (_url := urlsplit(nameserver)).netloc == '':
+            _url = urlsplit('//' + nameserver)
+        address = await DNSquery(_url.hostname, hosts_only=True)
+        if _url.scheme == '':
+            DNSresolver.nameservers.append(dns.nameserver.Do53Nameserver(_url.hostname if address is None else address, 53 if _url.port is None else _url.port))
+        elif _url.scheme == 'https':
+            DNSresolver.nameservers.append(dns.nameserver.DoHNameserver(nameserver, bootstrap_address=address))
+        elif _url.scheme == 'tls':
+            DNSresolver.nameservers.append(dns.nameserver.DoTNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, hostname=_url.hostname))
+        elif _url.scheme == 'quic':
+            DNSresolver.nameservers.append(dns.nameserver.DoQNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, server_hostname=_url.hostname))
     
     importca.import_ca()
 

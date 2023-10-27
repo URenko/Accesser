@@ -46,20 +46,17 @@ pac_host = "127.0.0.1"
 
 [DNS]
 
-# DNS服务器地址。如果以 https:// 开头，则使用DNS-over-HTTPS (DoH)，否则是传统的UDP DNS。
-# DNS server address. If it starts with https://, then DNS-over-HTTPS (DoH) is used, otherwise it is a traditional UDP DNS.
+# DNS服务器地址。可于下方 hosts 字段指定DNS服务器 host 对应的 IP 地址。
+# DNS server address. You can specify bootstrap IP address in the [hosts] field below.
 nameserver = [
-  "https://firefox.cloudflare-dns.com/dns-query",
-  "https://185.222.222.222/dns-query",
+  "https://185.222.222.222/dns-query",# https://host|IP[:port]/path # DNS-over-HTTPS (DoH)
   "https://45.11.45.11/dns-query",
-  "https://dns.quad9.net/dns-query",
-  "https://dns11.quad9.net/dns-query",
-  "https://dns10.quad9.net/dns-query"
+  "https://149.112.112.112/dns-query",
+  "https://149.112.112.10/dns-query",
+  "tls://dot.sb",                     # tls://host|IP[:port]  # DNS-overTLS (DoT)
+  # "quic://dns.adguard-dns.com",     # quic://host|IP[:port] # DNS-over-QUIC (DoQ)
+  # "localhost"                       # host|IP[:port]        # 传统 UDP DNS | traditional UDP DNS
 ]
-
-# DNS服务器端口。仅当使用传统的UDP DNS时生效。
-# DNS server port. Effective only when using traditional UDP DNS.
-port = 53
 
 
 [http_redirect]
@@ -97,9 +94,12 @@ port = 53
 
 [hosts]
 
-# 连接键所对应的域名时使用值所对应的IP。此设置优先于上面的DNS服务器设置。
-# When connecting the domain name corresponding to the key, use the IP corresponding to the value. This setting takes precedence over the DNS server setting above.
+# 自定义 域名-IP 映射，即用于与网站建立连接，也用于与DNS服务器建立连接。
+# Customize domain-IP mapping, which is used to establish a connection with the website and the DNS server.
 
+# example for DNS server bootstrap address
+"dot.sb" = "185.222.222.222"
+# "dns.adguard-dns.com" = "94.140.14.14"
 
 "sketch.pixiv.net" = "210.140.174.37"
 "img-sketch.pixiv.net" = "210.140.131.145"
