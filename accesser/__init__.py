@@ -29,7 +29,7 @@ from contextlib import closing
 from urllib import request
 from urllib.parse import urlsplit
 from packaging.version import Version
-from tld import get_tld
+from tld import get_tld, is_tld
 import dns, dns.asyncresolver, dns.nameserver
 
 from .utils import certmanager as cm
@@ -43,11 +43,12 @@ from .utils import sysproxy
 
 async def update_cert(server_name):
     global context, cert_store, cert_lock
-    res = get_tld(server_name, as_object=True, fix_protocol=True)
-    if res.subdomain:
-        server_name = res.subdomain.split('.', 1)[-1] + '.' + res.domain + '.' + res.tld
-    else:
-        server_name = res.domain + '.' + res.tld
+    if not is_tld(server_name):
+        res = get_tld(server_name, as_object=True, fix_protocol=True)
+        if res.subdomain:
+            server_name = res.subdomain.split('.', 1)[-1] + '.' + res.domain + '.' + res.tld
+        else:
+            server_name = res.domain + '.' + res.tld
     async with cert_lock:
         if not server_name in cert_store:
             cm.create_certificate(server_name)
