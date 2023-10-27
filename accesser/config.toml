@@ -53,7 +53,9 @@ nameserver = [
   "https://45.11.45.11/dns-query",
   "https://149.112.112.112/dns-query",
   "https://149.112.112.10/dns-query",
-  "tls://dot.sb",                     # tls://host|IP[:port]  # DNS-overTLS (DoT)
+  "tls://149.112.112.112",            # tls://host|IP[:port]  # DNS-overTLS (DoT)
+  "tls://149.112.112.10",
+  "tls://dot.sb",
   # "quic://dns.adguard-dns.com",     # quic://host|IP[:port] # DNS-over-QUIC (DoQ)
   # "localhost"                       # host|IP[:port]        # 传统 UDP DNS | traditional UDP DNS
 ]

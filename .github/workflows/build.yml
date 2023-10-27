@@ -45,7 +45,7 @@ jobs:
         pip install -r requirements.txt
     - name: Package Application
       run: |
-        sed -i 's/^ \+"https/# "https/' accesser/config.toml
+        sed -i 's/^ \+\"https/# \"https/' accesser/config.toml
         pyinstaller accesser.spec
       env:
         PYTHONOPTIMIZE: 1
