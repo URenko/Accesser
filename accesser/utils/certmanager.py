@@ -60,6 +60,8 @@ def create_root_ca():
         datetime.datetime.now(datetime.timezone.utc)
     ).not_valid_after(
         datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=10*365)
+    ).add_extension(
+        x509.BasicConstraints(ca=True, path_length=None), critical=True,
     ).sign(key, hashes.SHA256())
 
     (Path(certpath) / "root.crt").write_bytes(cert.public_bytes(serialization.Encoding.PEM))
