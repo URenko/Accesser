@@ -38,6 +38,7 @@ After starting Accesser once, `config.toml` will be generated in the **working d
 Accesser is a local HTTP proxy with a default proxy address of `http://localhost:7654`, which can be used in combination with other proxy software as long as the network traffic can be exported as HTTP proxy.
 
 Take [v2ray](https://github.com/v2fly/v2ray-core) as an example, you can add an HTTP outbound pointing to `http://localhost:7654` and set the corresponding routing rules to send traffic from sites like Wikipedia, Pixiv, etc. to this outbound.
+And then run Accesser with the argument `--notsetproxy` to prevent Accesser from setting the system proxy.
 
 In addition, you can set up a DNS outbound and then edit `config.toml` to allow Accesser to use this DNS.
 

@@ -11,7 +11,7 @@
 
 ## 使用
 ### 如果不知道什么是Python
-从[这里](https://github.com/URenko/Accesser/releases/download/v0.9.0/accesser.exe)下载Windows一键程序，运行既可，首次使用会要求安装证书，选是即可。
+从[这里](https://github.com/URenko/Accesser/releases/download/v0.9.0/accesser.exe)下载Windows一键程序，运行既可（建议关闭其他代理软件），首次使用会要求安装证书，选是即可。
 ### 如果已经安装了Python 3.10*或更高版本
 ```
 pip3 install -U accesser[doh,doq]
@@ -35,6 +35,7 @@ accesser
 Accesser是一个本地HTTP代理，默认代理地址为`http://localhost:7654`，只要网络流量能从其他代理软件以HTTP代理导出就能联合使用。
 
 以[v2ray](https://github.com/v2fly/v2ray-core)为例，可以添加一个HTTP的outbound指向`http://localhost:7654`，并设置相应的路由规则，将维基百科、Pixiv等站点的流量送到这个outbound。
+并在启动 Accesser 时带上 `--notsetproxy` 参数以避免 Accesser 设置系统代理。
 
 此外，你还可以设置一个DNS outbound，然后编辑`config.toml`让Accesser使用这一DNS。
 
