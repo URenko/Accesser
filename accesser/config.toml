@@ -112,6 +112,8 @@ nameserver = [
 "nyt.com" = "ecx.images-amazon.com"
 "*.nyt.com" = "ecx.images-amazon.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
+"mastodon.social" = "n.sni-347-default.ssl.fastly.net"
+"*.mastodon.social" = "n.sni-347-default.ssl.fastly.net"
 
 
 [hosts]
@@ -178,3 +180,5 @@ nameserver = [
 "scratch.mit.edu" = "151.101.2.133"
 "downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
 ".scratch.mit.edu" = "151.101.2.133"
+"singlelogin.re" = "195.66.210.33"
+".singlelogin.re" = "195.66.210.33"
