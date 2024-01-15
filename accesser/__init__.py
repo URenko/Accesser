@@ -98,7 +98,7 @@ async def handle(reader, writer):
     with closing(writer):
         raw_request = await reader.readuntil(b'\r\n\r\n')
         requestline = raw_request.decode('iso-8859-1').splitlines()[0]
-        i_addr, i_port = writer.get_extra_info('peername')
+        i_addr, i_port, *_ = writer.get_extra_info('peername')
         logger.debug(f"{i_addr}:{i_port} say: {requestline}")
         words = requestline.split()
         command, path = words[:2]
