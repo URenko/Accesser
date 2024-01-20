@@ -3,6 +3,7 @@ name: Auto build for windows
 on:
   push:
     branches: [ '*' ]
+    tags: [ 'v*.*.*' ]
   pull_request:
     branches: [ '*' ]
 

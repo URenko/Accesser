@@ -11,10 +11,10 @@
 
 ## 使用
 ### 如果不知道什么是Python
-从[这里](https://github.com/URenko/Accesser/releases/download/v0.9.0/accesser.exe)下载Windows一键程序，运行既可（建议关闭其他代理软件），首次使用会要求安装证书，选是即可。
+从[这里](https://github.com/URenko/Accesser/releases/download/v0.9.1/accesser.exe)下载Windows一键程序，运行既可（建议关闭其他代理软件），首次使用会要求安装证书，选是即可。
 ### 如果已经安装了Python 3.10*或更高版本
 ```
-pip3 install -U accesser[doh,doq]
+pip3 install -U "accesser[doh,doq]"
 ```
 如果你不需要 DNS-over-HTTPS 和 DNS-over-QUIC，则可以不用带`[doh,doq]`。
 
