@@ -182,3 +182,5 @@ nameserver = [
 ".scratch.mit.edu" = "151.101.2.133"
 "singlelogin.re" = "195.66.210.33"
 ".singlelogin.re" = "195.66.210.33"
+"archive.org" = "207.241.224.27"
+"web.archive.org" = "207.241.237.3"
