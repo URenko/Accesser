@@ -48,7 +48,8 @@ var domains = {
   "wikipedia.org": 1,
   "scratch.mit.edu": 1,
   "mastodon.social": 1,
-  "singlelogin.re": 1
+  "singlelogin.re": 1,
+  "archive.org": 1
 };
 
 var shexps = {
