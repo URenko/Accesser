@@ -114,6 +114,7 @@ nameserver = [
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
 "mastodon.social" = "n.sni-347-default.ssl.fastly.net"
 "*.mastodon.social" = "n.sni-347-default.ssl.fastly.net"
+"onedrive.live.com" = "0.azureedge.net"
 
 
 [hosts]
