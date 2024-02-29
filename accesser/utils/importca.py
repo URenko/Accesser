@@ -21,6 +21,7 @@ import subprocess
 import locale
 
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.serialization import pkcs12
 
 from . import setting
 from . import certmanager as cm
@@ -59,7 +60,7 @@ def import_windows_ca():
             logger.warning('Try to manually import the certificate')
     else:
         with open(os.path.join(certpath ,"root.pfx"), 'rb') as pfxfile:
-            private_key, certificate, _ = serialization.pkcs12.load_key_and_certificates(pfxfile.read(), password=None)
+            private_key, certificate, _ = pkcs12.load_key_and_certificates(pfxfile.read(), password=None)
         with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
             certfile.write(certificate.public_bytes(serialization.Encoding.PEM))
         with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
