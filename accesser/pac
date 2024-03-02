@@ -1,11 +1,9 @@
 var domains = {
   "apkmirror.com": 1,
   "appledaily.com": 1,
-  "archiveofourown.org": 1,
   "artstation.com": 1,
   "bbc.com": 1,
   "disqus.com": 1,
-  "dmc.nico": 1,
   "dropbox.com": 1,
   "dropboxapi.com": 1,
   "dropbox-dns.com": 1,
@@ -46,14 +44,11 @@ var domains = {
   "vimeo.com": 1,
   "wenxuecity.com": 1,
   "wikipedia.org": 1,
-  "scratch.mit.edu": 1,
-  "mastodon.social": 1,
   "singlelogin.re": 1,
   "archive.org": 1
 };
 
 var shexps = {
-  "*://api.openai.com/*": 1,
   "*://steamcommunity-a.akamaihd.net/*": 1,
   "*://steamuserimages-a.akamaihd.net/*": 1,
   "*://*.amazon.co.jp/*": 1,
@@ -68,8 +63,10 @@ var shexps = {
   "*://*.discord.gg/*": 1,
   "*://media.discordapp.net/*": 1,
   "*://*.duckduckgo.com/*": 1,
-  "*://*.v2ex.com/*":1,
-  "*://*.twitch.tv/*":1
+  "*://*.v2ex.com/*": 1,
+  "*://*.twitch.tv/*": 1,
+  "*://downloads.scratch.mit.edu/*": 1,
+  "*://*.dmc.nico/*": 1
 };
 
 var proxy = "PROXY {{host}}:{{port}};";
