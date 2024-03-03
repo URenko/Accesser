@@ -103,17 +103,12 @@ nameserver = [
 "vod-secure.twitch.tv" = "ds0h3roq6wcgc.cloudfront.net"
 "extension-files.twitch.tv" = "d36mepituis1gg.cloudfront.net"
 "panels.twitch.tv" = "d1ut6fykkt3imt.cloudfront.net"
-"scratch.mit.edu" = "d.sni-645-default.ssl.fastly.net"
 "downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
-"*.scratch.mit.edu" = "d.sni-645-default.ssl.fastly.net"
-"euronews.com" = "euronews.news"
 "*.euronews.com" = "j.sni-644-default.ssl.fastly.net"
 "*.nytimes.com" = "ecx.images-amazon.com"
 "nyt.com" = "ecx.images-amazon.com"
 "*.nyt.com" = "ecx.images-amazon.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
-"mastodon.social" = "n.sni-347-default.ssl.fastly.net"
-"*.mastodon.social" = "n.sni-347-default.ssl.fastly.net"
 "onedrive.live.com" = "0.azureedge.net"
 
 
