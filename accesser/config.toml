@@ -112,6 +112,17 @@ nameserver = [
 "onedrive.live.com" = "0.azureedge.net"
 
 
+[cert_verify]
+
+# 为域名分别设置证书校验策略，其值可以是一个包含用于校验的域名的列表（有一个匹配就通过），也可以是 false 表示不校验
+# 这比 [alter_hostname] 和全局的 check_hostname 的优先级高，但不会在 Client Hello 中作为 server_name 发送。
+# Set the certificate validation policy for domains individually. The values can be a array contain strings which represent the domain name used to verify the certificate (pass if there is a match), or false which means disabling the verification.
+# It has as a higher priority than [alter_hostname] and the global check_hostname, but will not be sent as server_name in Client Hello.
+
+"singlelogin.se" = ["1lib.fr", "singlelogin.se"]
+"singlelogin.re" = ["1lib.fr", "singlelogin.re"]
+
+
 [hosts]
 
 # 自定义 域名-IP 映射，即用于与网站建立连接，也用于与DNS服务器建立连接。

@@ -132,14 +132,23 @@ async def handle(reader, writer):
         remote_context.check_hostname = False
         remote_reader, remote_writer = await asyncio.open_connection(remote_ip, port, ssl=remote_context, server_hostname=server_hostname)
         cert = remote_writer.get_extra_info('peercert')
-        logger.debug(f"[{i_port:5}] {cert.get('subjectAltName', ())=}")
-        if setting.config['check_hostname'] is not False:
+        cert_message = f"subjectAltName: {cert.get('subjectAltName', ())}, subject: {cert.get('subject', ())}"
+        logger.debug(f"[{i_port:5}] {cert_message}.")
+        cert_verify_key = next(filter(lambda h:fnmatch.fnmatchcase(host, h), setting.config.get('cert_verify', ())), None)
+        if cert_verify_key is not None:
+            cert_verify_list = setting.config['cert_verify'][cert_verify_key]
+            cert_policy = False if cert_verify_list is False else True
+        elif server_hostname_key is not None:
+            cert_verify_list = [setting.config['alter_hostname'][server_hostname_key]]
+            cert_policy = setting.config['check_hostname']
+        else:
+            cert_verify_list = [host]
+            cert_policy = setting.config['check_hostname']
+        if not cert_policy is False:
             try:
-                match_hostname(cert, host if server_hostname_key is None else setting.config['alter_hostname'][server_hostname_key])
-            except ssl.CertificateError as err:
-                logger.warning(f'[{i_port:5}] {err}')
-                return
-        
+                next(filter(lambda h:match_hostname(cert, h, cert_policy), cert_verify_list))
+            except StopIteration:
+                logger.warning(f"[{i_port:5}] {cert_verify_list} don't march either of {cert_message}.")
         await asyncio.gather(
             forward_stream(reader, remote_writer),
             forward_stream(remote_reader, writer)
