@@ -104,10 +104,6 @@ nameserver = [
 "extension-files.twitch.tv" = "d36mepituis1gg.cloudfront.net"
 "panels.twitch.tv" = "d1ut6fykkt3imt.cloudfront.net"
 "downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
-"*.euronews.com" = "j.sni-644-default.ssl.fastly.net"
-"*.nytimes.com" = "ecx.images-amazon.com"
-"nyt.com" = "ecx.images-amazon.com"
-"*.nyt.com" = "ecx.images-amazon.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
 "onedrive.live.com" = "0.azureedge.net"
 
@@ -121,6 +117,11 @@ nameserver = [
 
 "singlelogin.se" = ["1lib.fr", "singlelogin.se", "singlelogin.re"]
 "singlelogin.re" = ["1lib.fr", "singlelogin.se", "singlelogin.re"]
+"scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
+"*.scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
+"euronews.com" = ["j.sni-644-default.ssl.fastly.net"]
+"*.euronews.com" = ["n.sni-347-default.ssl.fastly.net"]
+"mega.io" = ["static.mega.co.nz"]
 
 
 [hosts]
@@ -184,7 +185,10 @@ nameserver = [
 ".wikisource.org" = "text-lb.esams.wikimedia.org"
 ".wikidata.org" = "text-lb.esams.wikimedia.org"
 "exhentai.org" = "178.175.128.252"
-"scratch.mit.edu" = "151.101.2.133"
-"downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
-".scratch.mit.edu" = "151.101.2.133"
+"scratch.mit.edu" = "scratchfoundation.map.fastly.net"
+".scratch.mit.edu" = "scratchfoundation.map.fastly.net"
 "archive.org" = "207.241.224.27"
+"nytimes.com" = "146.75.117.164"
+".nytimes.com" = "146.75.117.164"
+"nyt.com" = "146.75.117.164"
+".nyt.com" = "146.75.117.164"
