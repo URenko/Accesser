@@ -119,8 +119,8 @@ nameserver = [
 # Set the certificate validation policy for domains individually. The values can be a array contain strings which represent the domain name used to verify the certificate (pass if there is a match), or false which means disabling the verification.
 # It has as a higher priority than [alter_hostname] and the global check_hostname, but will not be sent as server_name in Client Hello.
 
-"singlelogin.se" = ["1lib.fr", "singlelogin.se"]
-"singlelogin.re" = ["1lib.fr", "singlelogin.re"]
+"singlelogin.se" = ["1lib.fr", "singlelogin.se", "singlelogin.re"]
+"singlelogin.re" = ["1lib.fr", "singlelogin.se", "singlelogin.re"]
 
 
 [hosts]
@@ -187,6 +187,4 @@ nameserver = [
 "scratch.mit.edu" = "151.101.2.133"
 "downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
 ".scratch.mit.edu" = "151.101.2.133"
-"singlelogin.re" = "195.66.210.33"
-".singlelogin.re" = "195.66.210.33"
 "archive.org" = "207.241.224.27"
