@@ -31,7 +31,6 @@ var domains = {
   "redd.it": 1,
   "reddit.com": 1,
   "redditmedia.com": 1,
-  "redditstatic.com":1,
   "startpage.com": 1,
   "steamcommunity.com": 1,
   "thetvdb.com": 1,
@@ -51,7 +50,8 @@ var domains = {
   "duckduckgo.com": 1,
   "v2ex.com": 1,
   "twitch.tv": 1,
-  "scratch.mit.edu": 1
+  "scratch.mit.edu": 1,
+  "bandcamp.com": 1
 };
 
 var shexps = {
@@ -65,7 +65,8 @@ var shexps = {
   "*://*.dmc.nico/*": 1,
   "*://*.pixivsketch.net/*": 1,
   "*://*.githubassets.com/*": 1,
-  "*://*.githubusercontent.com/*": 1
+  "*://*.githubusercontent.com/*": 1,
+  "*://*.redditstatic.com/*": 1
 };
 
 var proxy = "PROXY {{host}}:{{port}};";
