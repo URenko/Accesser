@@ -51,7 +51,8 @@ var domains = {
   "v2ex.com": 1,
   "twitch.tv": 1,
   "scratch.mit.edu": 1,
-  "bandcamp.com": 1
+  "bandcamp.com": 1,
+  "mastodon.social": 1
 };
 
 var shexps = {

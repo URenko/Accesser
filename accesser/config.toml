@@ -130,6 +130,8 @@ nameserver = [
 "*.redditmedia.com" = ["fastly.com"]
 "redditinc.com" = ["fastly.com"]
 "*.redditinc.com" = ["fastly.com"]
+"mastodon.social" = ["fastly.com"]
+"*.mastodon.social" = ["fastly.com"]
 
 
 [hosts]
@@ -195,3 +197,5 @@ nameserver = [
 "scratch.mit.edu" = "scratchfoundation.map.fastly.net"
 ".scratch.mit.edu" = "scratchfoundation.map.fastly.net"
 "archive.org" = "207.241.224.27"
+"mastodon.social" = "fastly.com"
+"*.mastodon.social" = "fastly.com"
