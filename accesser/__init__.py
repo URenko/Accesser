@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-__version__ = '0.9.1'
+__version__ = '0.9.2'
 
 import os, sys
 import json
@@ -204,7 +204,7 @@ def update_checker():
 
 async def main():
     global context, cert_store, cert_lock, DNSresolver
-    print(f"Accesser v{__version__}  Copyright (C) 2018-2023  URenko")
+    print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
         
     DNSresolver = dns.asyncresolver.Resolver(configure=False)

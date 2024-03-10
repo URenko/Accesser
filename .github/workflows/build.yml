@@ -12,11 +12,11 @@ jobs:
     runs-on: windows-2022
     steps:
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
           python-version: '3.12'
           architecture: x64
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         pip install pyinstaller dnspython[doh,doq] rich
@@ -26,7 +26,7 @@ jobs:
         pyinstaller accesser.spec
       env:
         PYTHONOPTIMIZE: 1
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: windows
         path: ./dist/
@@ -35,11 +35,11 @@ jobs:
     runs-on: windows-2022
     steps:
     - name: Setup python
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
           python-version: '3.12'
           architecture: x64
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
         pip install pyinstaller
@@ -50,7 +50,7 @@ jobs:
         pyinstaller accesser.spec
       env:
         PYTHONOPTIMIZE: 1
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: windows-lite
         path: ./dist/
