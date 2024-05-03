@@ -98,9 +98,11 @@ nameserver = [
 "vod-secure.twitch.tv" = "ds0h3roq6wcgc.cloudfront.net"
 "extension-files.twitch.tv" = "d36mepituis1gg.cloudfront.net"
 "panels.twitch.tv" = "d1ut6fykkt3imt.cloudfront.net"
+"extensions-discovery-images.twitch.tv" = "d3m1uefep57n8q.cloudfront.net"
 "downloads.scratch.mit.edu" = "d2as4384mnnkdz.cloudfront.net"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
 "onedrive.live.com" = "0.azureedge.net"
+"euronews.com" = "euronews.news"
 
 
 [cert_verify]
@@ -116,7 +118,6 @@ nameserver = [
 "*.singlelogin.re" = ["1lib.fr", "singlelogin.se", "singlelogin.re"]
 "scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
 "*.scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
-"euronews.com" = ["fastly.com"]
 "*.euronews.com" = ["fastly.com"]
 "mega.io" = ["static.mega.co.nz"]
 "bandcamp.com" = ["fastly.com"]
@@ -178,6 +179,7 @@ nameserver = [
 ".redditstatic.com" = "fastly.com"
 "redditmedia.com" = "fastly.com"
 ".redditmedia.com" = "fastly.com"
+".euronews.com" = "fastly.com"
 "www.bbc.com" = "151.101.128.81"
 "disqus.com" = "151.101.64.134"
 "i.imgur.com" = "151.101.196.193"
