@@ -144,12 +144,9 @@ async def handle(reader, writer):
         else:
             cert_verify_list = [host]
             cert_policy = setting.config['check_hostname']
-        if not cert_policy is False:
-            try:
-                next(filter(lambda h:match_hostname(cert, h, cert_policy), cert_verify_list))
-            except StopIteration:
-                logger.warning(f"[{i_port:5}] {cert_verify_list} don't march either of {cert_message}.")
-                return
+        if  cert_policy is not False and not any(match_hostname(cert, h, cert_policy) for h in cert_verify_list):
+            logger.warning(f"[{i_port:5}] {cert_verify_list} don't march either of {cert_message}.")
+            return
         await asyncio.gather(
             forward_stream(reader, remote_writer),
             forward_stream(remote_reader, writer)
