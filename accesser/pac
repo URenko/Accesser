@@ -40,6 +40,7 @@ var domains = {
   "vimeo.com": 1,
   "wenxuecity.com": 1,
   "wikipedia.org": 1,
+  "wikimedia.org": 1,
   "mediawiki.org": 1,
   "wikiquote.org": 1,
   "wikinews.org": 1,
