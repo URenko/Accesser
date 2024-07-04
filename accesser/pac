@@ -51,7 +51,6 @@ var domains = {
   "wikisource.org": 1,
   "wikidata.org": 1,
   "singlelogin.re": 1,
-  "singlelogin.se": 1,
   "archive.org": 1,
   "amazon.co.jp": 1,
   "discord.com": 1,
