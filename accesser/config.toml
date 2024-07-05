@@ -79,7 +79,6 @@ nameserver = [
 
 "www.quora.com" = "fs.quoracdn.net"
 "sketch.pixiv.net" = "pixivsketch.net"
-"cdn1-smallimg.phncdn.com" = "pabbp.com"
 "nyaa.si" = "ddos-guard.net"
 "site.nicovideo.jp" = "d4fsvsnk8os9s.cloudfront.net"
 "blog.nicovideo.jp" = "d11c2xcc0ucqv1.cloudfront.net"
@@ -215,5 +214,5 @@ nameserver = [
 "archive.org" = "207.241.224.27"
 "mastodon.social" = "fastly.com"
 "*.mastodon.social" = "fastly.com"
-"singlelogin.se" = "195.66.210.33"
-".singlelogin.se" = "195.66.210.33"
+"singlelogin.re" = "176.123.7.105"
+".singlelogin.re" = "176.123.7.105"
