@@ -207,6 +207,7 @@ nameserver = [
 ".wikidata.org" = "text-lb.esams.wikimedia.org"
 "wikimedia.org" = "text-lb.esams.wikimedia.org"
 "upload.wikimedia.org" = "upload-lb.esams.wikimedia.org"
+"maps.wikimedia.org" = "upload-lb.esams.wikimedia.org"
 ".wikimedia.org" = "text-lb.esams.wikimedia.org"
 "exhentai.org" = "178.175.128.252"
 "scratch.mit.edu" = "scratchfoundation.map.fastly.net"
