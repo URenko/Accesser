@@ -72,7 +72,6 @@ var shexps = {
   "*://search.yahoo.co.jp/*": 1,
   "*://*.cna.com.tw/*": 1,
   "*://media.discordapp.net/*": 1,
-  "*://*.dmc.nico/*": 1,
   "*://i.pximg.net/*": 1,
   "*://*.pixivsketch.net/*": 1,
   "*://*.githubassets.com/*": 1,
