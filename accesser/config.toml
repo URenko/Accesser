@@ -83,8 +83,6 @@ nameserver = [
 "sketch.pixiv.net" = "pixivsketch.net"
 "nyaa.si" = "ddos-guard.net"
 "steamcommunity.com" = "www.valvesoftware.com"
-"pubsub-edge.twitch.tv" = "external-2.us-west-2.prod.twitchpubsubedge.twitch.a2z.com"
-"irc-ws.chat.twitch.tv" = "websocket-7.us-west-2.prod.twitchircedge.twitch.a2z.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
 
 
@@ -119,7 +117,11 @@ nameserver = [
 "*.redditinc.com" = ["fastly.com"]
 "mastodon.social" = ["fastly.com"]
 "*.mastodon.social" = ["fastly.com"]
+"www.twitch.tv" = ["twitch.tv"]
 "gql.twitch.tv" = ["fastly.com"]
+"pubsub-edge.twitch.tv" = ["external-2.us-west-2.prod.twitchpubsubedge.twitch.a2z.com"]
+"irc-ws.chat.twitch.tv" = ["websocket-7.us-west-2.prod.twitchircedge.twitch.a2z.com"]
+"*.twitch.tv" = ["cloudfront.net"]
 
 
 [hosts]
