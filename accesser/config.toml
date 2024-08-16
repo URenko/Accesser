@@ -122,6 +122,9 @@ nameserver = [
 "pubsub-edge.twitch.tv" = ["external-2.us-west-2.prod.twitchpubsubedge.twitch.a2z.com"]
 "irc-ws.chat.twitch.tv" = ["websocket-7.us-west-2.prod.twitchircedge.twitch.a2z.com"]
 "*.twitch.tv" = ["cloudfront.net"]
+"nicovideo.jp" = ["cloudfront.net"]
+"qa.nicovideo.jp" = ["qa.nicovideo.jp"]
+"*.nicovideo.jp" = ["cloudfront.net"]
 
 
 [hosts]
