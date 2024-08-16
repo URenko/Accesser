@@ -118,6 +118,7 @@ nameserver = [
 "mastodon.social" = ["fastly.com"]
 "*.mastodon.social" = ["fastly.com"]
 "www.twitch.tv" = ["twitch.tv"]
+"m.twitch.tv" = ["twitch.tv"]
 "gql.twitch.tv" = ["fastly.com"]
 "pubsub-edge.twitch.tv" = ["external-2.us-west-2.prod.twitchpubsubedge.twitch.a2z.com"]
 "irc-ws.chat.twitch.tv" = ["websocket-7.us-west-2.prod.twitchircedge.twitch.a2z.com"]
