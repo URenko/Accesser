@@ -19,7 +19,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install dependencies
       run: |
-        pip install pyinstaller dnspython[doh,doq] rich
+        pip install pyinstaller "dnspython[doh,doq]<2.6" rich
         pip install -r requirements.txt
     - name: Package Application
       run: |
