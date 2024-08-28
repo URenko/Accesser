@@ -80,7 +80,6 @@ nameserver = [
 # A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate. The key supports Unix shell-style wildcards.
 
 "www.quora.com" = "fs.quoracdn.net"
-"sketch.pixiv.net" = "pixivsketch.net"
 "nyaa.si" = "ddos-guard.net"
 "steamcommunity.com" = "www.valvesoftware.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
@@ -121,6 +120,7 @@ nameserver = [
 "*.nicovideo.jp" = ["cloudfront.net", "nicovideo.jp"]
 "onedrive.live.com" = ["azureedge.net"]
 "*.github.com" = ["github.com", "githubassets.com", "githubusercontent.com"]
+"*.pixiv.net" = ["pixiv.net", "firebaseapp.com", "cloudfront.net", "tumblr.com"]
 
 
 [hosts]
@@ -132,10 +132,17 @@ nameserver = [
 "dot.sb" = "185.222.222.222"
 # "dns.adguard-dns.com" = "94.140.14.14"
 
-"sketch.pixiv.net" = "210.140.174.37"
-"img-sketch.pixiv.net" = "210.140.131.145"
+"pixiv.net" = "pixivision.net"
+"www.pixiv.net" = "pixivision.net"
+"sketch.pixiv.net" = "pixivision.net"
+"accounts.pixiv.net" = "pixivision.net"
+"imp.pixiv.net" = "pixivision.net"
+"oauth.secure.pixiv.net" = "pixivision.net"
+"factory.pixiv.net" = "pixivision.net"
+"embed.pixiv.net" = "pixivision.net"
+"engineering.pixiv.net" = "pixivision.net"
+"comic.pixiv.net" = "210.140.131.153"
 "source.pixiv.net" = "210.140.131.153"
-".pixiv.net" = "pixivision.net"
 "i.pximg.net" = "pximg.net"
 "www.bbc.co.uk" = "212.58.233.252"
 "count.wenxuecity.com" = "0.0.0.0"
