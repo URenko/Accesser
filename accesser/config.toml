@@ -80,7 +80,6 @@ nameserver = [
 # A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate. The key supports Unix shell-style wildcards.
 
 "www.quora.com" = "fs.quoracdn.net"
-"sketch.pixiv.net" = "pixivsketch.net"
 "nyaa.si" = "ddos-guard.net"
 "steamcommunity.com" = "www.valvesoftware.com"
 "gn-web-assets.api.bbc.com" = "static-web-assets.gnl-common.bbcverticals.com"
@@ -97,8 +96,8 @@ nameserver = [
 "*.1lib.sk" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
 "singlelogin.re" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
 "*.singlelogin.re" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
-"scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
-"*.scratch.mit.edu" = ["scratchfoundation.map.fastly.net"]
+"scratch.mit.edu" = ["d.sni-645-default.ssl.fastly.net"]
+"*.scratch.mit.edu" = ["d.sni-645-default.ssl.fastly.net"]
 "*.euronews.com" = ["fastly.com"]
 "mega.io" = ["static.mega.co.nz"]
 "bandcamp.com" = ["fastly.com"]
@@ -121,6 +120,7 @@ nameserver = [
 "*.nicovideo.jp" = ["cloudfront.net", "nicovideo.jp"]
 "onedrive.live.com" = ["azureedge.net"]
 "*.github.com" = ["github.com", "githubassets.com", "githubusercontent.com"]
+"*.pixiv.net" = ["pixiv.net", "firebaseapp.com", "cloudfront.net", "tumblr.com"]
 
 
 [hosts]
@@ -132,10 +132,17 @@ nameserver = [
 "dot.sb" = "185.222.222.222"
 # "dns.adguard-dns.com" = "94.140.14.14"
 
-"sketch.pixiv.net" = "210.140.174.37"
-"img-sketch.pixiv.net" = "210.140.131.145"
+"pixiv.net" = "pixiv.me"
+"www.pixiv.net" = "pixiv.me"
+"sketch.pixiv.net" = "pixiv.me"
+"accounts.pixiv.net" = "pixiv.me"
+"imp.pixiv.net" = "pixiv.me"
+"oauth.secure.pixiv.net" = "pixiv.me"
+"factory.pixiv.net" = "pixiv.me"
+"embed.pixiv.net" = "pixiv.me"
+"engineering.pixiv.net" = "pixiv.me"
+"comic.pixiv.net" = "210.140.131.153"
 "source.pixiv.net" = "210.140.131.153"
-".pixiv.net" = "pixivision.net"
 "i.pximg.net" = "pximg.net"
 "www.bbc.co.uk" = "212.58.233.252"
 "count.wenxuecity.com" = "0.0.0.0"
@@ -146,6 +153,9 @@ nameserver = [
 ".e-hentai.org" = "e-hentai.org.cdn.cloudflare.net"
 "nicovideo.jp" = "futuregadget-lab.com"
 "qa.nicovideo.jp" = "124.146.170.109"
+"stella.nicovideo.jp" = "35.76.249.201"
+# "stella.nicovideo.jp" = "18.177.234.25"
+# "stella.nicovideo.jp" = "18.176.65.249"
 ".nicovideo.jp" = "futuregadget-lab.com"
 "bandcamp.com" = "fastly.com"
 ".bandcamp.com" = "fastly.com"
