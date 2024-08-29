@@ -32,8 +32,6 @@ var domains = {
   "startpage.com": 1,
   "steamcommunity.com": 1,
   "thetvdb.com": 1,
-  "tumblr.com": 1,
-  "tumblr.co": 1,
   "uptodown.com": 1,
   "vimeo.com": 1,
   "wenxuecity.com": 1,
