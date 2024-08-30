@@ -1,5 +1,5 @@
-# 这是Accesser的配置文件，保存到程序工作目录后重启程序生效。
-# This is the configuration file of Accesser, save it to the program working directory and restart the program to take effect.
+# 这是Accesser的配置文件，保存到程序 ⚠工作目录⚠ 后重启程序生效。
+# This is the configuration file of Accesser, save it to the program ⚠ working directory ⚠ and restart the program to take effect.
 
 # 是否校验证书域名？false 不进行校验，true 进行宽松的校验（如a.example.com能匹配b.example.com），"strict" 进行标准的校验。
 # Whether to verify the certificate domains? Set to false for no verification, set to true for loose verification (e.g. a.example.com matches b.example.com), set to "strict" for standard verification.
