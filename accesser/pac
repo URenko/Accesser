@@ -25,6 +25,7 @@ var domains = {
   "phncdn.com": 1,
   "pinterest.com": 1,
   "pixiv.net": 1,
+  "fanbox.cc": 1,
   "quora.com": 1,
   "redd.it": 1,
   "reddit.com": 1,
