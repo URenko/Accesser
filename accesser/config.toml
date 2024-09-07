@@ -91,10 +91,10 @@ nameserver = [
 # Set the certificate validation policy for domains individually. The values can be a array contain strings which represent the domain name used to verify the certificate (pass if there is a match), or false which means disabling the verification.
 # It has as a higher priority than [alter_hostname] and the global check_hostname, but will not be sent as server_name in Client Hello.
 
-"1lib.sk" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
-"*.1lib.sk" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
-"singlelogin.re" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
-"*.singlelogin.re" = ["1lib.fr", "1lib.sk", "singlelogin.re"]
+"1lib.sk" = ["1lib.pm", "1lib.sk", "singlelogin.re"]
+"*.1lib.sk" = ["1lib.pm", "1lib.sk", "singlelogin.re"]
+"singlelogin.re" = ["1lib.pm", "1lib.sk", "singlelogin.re"]
+"*.singlelogin.re" = ["1lib.pm", "1lib.sk", "singlelogin.re"]
 "scratch.mit.edu" = ["d.sni-645-default.ssl.fastly.net"]
 "*.scratch.mit.edu" = ["d.sni-645-default.ssl.fastly.net"]
 "*.euronews.com" = ["fastly.com"]
