@@ -59,11 +59,10 @@ var domains = {
   "scratch.mit.edu": 1,
   "bandcamp.com": 1,
   "mastodon.social": 1,
-  "hub.docker.com": 1
+  "onedrive.live.com": 1
 };
 
 var shexps = {
-  "*://onedrive.live.com/*": 1,
   "*://*.bbc.co.uk/*": 1,
   "*://*.bbci.co.uk/*": 1,
   "*://*.japantimes.co.jp/*": 1,
