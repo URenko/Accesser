@@ -25,6 +25,7 @@ var domains = {
   "phncdn.com": 1,
   "pinterest.com": 1,
   "pixiv.net": 1,
+  "fanbox.cc": 1,
   "quora.com": 1,
   "redd.it": 1,
   "reddit.com": 1,
@@ -59,11 +60,10 @@ var domains = {
   "scratch.mit.edu": 1,
   "bandcamp.com": 1,
   "mastodon.social": 1,
-  "hub.docker.com": 1
+  "onedrive.live.com": 1
 };
 
 var shexps = {
-  "*://onedrive.live.com/*": 1,
   "*://*.bbc.co.uk/*": 1,
   "*://*.bbci.co.uk/*": 1,
   "*://*.japantimes.co.jp/*": 1,
