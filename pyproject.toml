@@ -20,7 +20,7 @@ dependencies = [
     'packaging',
     'cryptography',
     'tld',
-    'dnspython >= 2.5',
+    'dnspython >= 2.7',
     'tomli >= 1.1.0 ; python_version < "3.11"'
 ]
 
