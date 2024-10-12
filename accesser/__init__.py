@@ -222,6 +222,7 @@ async def main():
     importca.import_ca()
 
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+    context.set_alpn_protocols(['h2', 'http/1.1'])
     cert_store = set()
     cert_lock = asyncio.Lock()
     
