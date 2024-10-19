@@ -77,10 +77,28 @@ def create_root_ca():
     ))
 
 
-pkey = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=4096,
-)
+def create_private_key():
+    pkey = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=4096,
+    )
+    # save private key
+    (Path(certpath) / "private.key").write_bytes(
+        pkey.private_bytes(
+            encoding=serialization.Encoding.PEM,
+            format=serialization.PrivateFormat.PKCS8,
+            encryption_algorithm=serialization.NoEncryption(),
+        )
+    )
+    return pkey
+
+def generate_private_key():
+    if not os.path.exists(os.path.join(certpath, "private.key")):
+        return create_private_key()
+    else:
+        return serialization.load_pem_private_key((Path(certpath) / "private.key").read_bytes())
+    
+pkey = generate_private_key()
 
 def create_certificate(server_name):
     rootpem = (Path(certpath) / "root.crt").read_bytes()
