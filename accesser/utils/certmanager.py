@@ -96,7 +96,7 @@ def generate_private_key():
     if not os.path.exists(os.path.join(certpath, "private.key")):
         return create_private_key()
     else:
-        return serialization.load_pem_private_key((Path(certpath) / "private.key").read_bytes())
+        return serialization.load_pem_private_key((Path(certpath) / "private.key").read_bytes(), password=None)
     
 pkey = generate_private_key()
 
