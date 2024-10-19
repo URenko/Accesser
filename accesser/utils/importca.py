@@ -29,7 +29,10 @@ from .setting import basepath
 from .log import logger
 logger = logger.getChild('importca')
 
-certpath = os.path.join(basepath, 'CERT')
+if setting.config['importca']:
+    certpath = os.path.join(basepath, 'CERT')
+else:
+    certpath = 'CERT'
 
 def logandrun(cmd):
     if hasattr(subprocess, 'STARTUPINFO'):
