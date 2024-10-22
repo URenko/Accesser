@@ -77,16 +77,11 @@ def create_root_ca():
     ))
 
 
-pkey = rsa.generate_private_key(
-    public_exponent=65537,
-    key_size=4096,
-)
-
 def create_certificate(server_name):
     rootpem = (Path(certpath) / "root.crt").read_bytes()
     rootkey = (Path(certpath) / "root.key").read_bytes()
     ca_cert = x509.load_pem_x509_certificate(rootpem)
-    ca_key = serialization.load_pem_private_key(rootkey, password=None)
+    pkey = serialization.load_pem_private_key(rootkey, password=None)
 
     cert = x509.CertificateBuilder().subject_name(x509.Name([
         x509.NameAttribute(NameOID.ORGANIZATION_NAME, "Accesser"),
@@ -108,7 +103,7 @@ def create_certificate(server_name):
             x509.DNSName('*.'+server_name),
         ]),
         critical=False,
-    ).sign(ca_key, hashes.SHA256())
+    ).sign(pkey, hashes.SHA256())
 
 
     (Path(certpath) / f"{server_name}.crt").write_bytes(
