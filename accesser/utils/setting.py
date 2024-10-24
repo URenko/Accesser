@@ -8,10 +8,15 @@ import argparse
 
 basepath = Path(__file__).parent.parent
 
+if not Path('rules.toml').exists():
+    shutil.copyfile(basepath / 'rules.toml', 'rules.toml')
+with open('rules.toml', 'rb') as f:
+    config = tomllib.load(f)
+
 if not Path('config.toml').exists():
     shutil.copyfile(basepath / 'config.toml', 'config.toml')
 with open('config.toml', 'rb') as f:
-    config = tomllib.load(f)
+    config |= tomllib.load(f)
 
 def parse_args():
     parser = argparse.ArgumentParser()

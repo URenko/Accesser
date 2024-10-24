@@ -7,6 +7,7 @@ block_cipher = None
 
 datas=[
        ('accesser/config.toml', 'accesser'),
+       ('accesser/rules.toml', 'accesser'),
        ('accesser/pac', 'accesser'),
        (os.path.dirname(tld.__file__)+'/res/effective_tld_names.dat.txt', 'tld/res'),
 ]

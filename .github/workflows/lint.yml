@@ -16,3 +16,5 @@ jobs:
         python-version: ">=3.11"
     - run: |
         python3 -c 'import tomllib; tomllib.load(open("accesser/config.toml", "rb"))'
+    - run: |
+        python3 -c 'import tomllib; tomllib.load(open("accesser/rules.toml", "rb"))'
