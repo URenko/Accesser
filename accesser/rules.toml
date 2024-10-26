@@ -1,3 +1,8 @@
+# 这是Accesser的规则（除路由规则）文件，保存到程序 ⚠工作目录⚠ 后重启程序生效。
+# This is the rule (except routing rules) file of Accesser, save it to the program ⚠ working directory ⚠ and restart the program to take effect.
+# 在未曾被修改过的情况下，它会自动随Accesser更新。
+# If it has not been modified, it will be automatically updated with Accesser.
+
 [DNS]
 
 # DNS服务器地址。可于下方 hosts 字段指定DNS服务器 host 对应的 IP 地址。
