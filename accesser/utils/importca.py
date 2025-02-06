@@ -106,8 +106,8 @@ def import_ca():
         if setting.config['importca']:
             if sys.platform.startswith('win'):
                 import_windows_ca()
+                return
             else:
-                cm.create_root_ca()
-                logger.warning('other platform support is under development, please import root.crt manually.')
-        else:
-            cm.create_root_ca()
+                logger.warning('Automatic import of root certificate root.crt is not yet supported on this platform.')
+        cm.create_root_ca()
+        logger.warning(f'You can GET root certificate from http://localhost:{setting.config['server']['port']}/CERT/root.crt and import it manually.')
