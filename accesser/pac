@@ -13,6 +13,7 @@ var domains = {
   "euronews.com": 1,
   "exhentai.org": 1,
   "github.com": 1,
+  "greasyfork.org": 1,
   "imgur.com": 1,
   "instagram.com": 1,
   "kobo.com": 1,
