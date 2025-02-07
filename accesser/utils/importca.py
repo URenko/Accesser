@@ -110,4 +110,4 @@ def import_ca():
             else:
                 logger.warning('Automatic import of root certificate root.crt is not yet supported on this platform.')
         cm.create_root_ca()
-        logger.warning(f'You can GET root certificate from http://localhost:{setting.config['server']['port']}/CERT/root.crt and import it manually.')
+        logger.warning(f'You can GET root certificate from http://localhost:{setting.config["server"]["port"]}/CERT/root.crt and import it manually.')
