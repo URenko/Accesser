@@ -183,3 +183,4 @@ nameserver = [
 # ".singlelogin.re" = "176.123.7.228"
 # "singlelogin.re" = "176.123.7.252"
 # ".singlelogin.re" = "176.123.7.252"
+"greasyfork.org" = "update.greasyfork.org"
