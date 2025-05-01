@@ -203,15 +203,8 @@ async def main():
     global context, cert_store, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
-
-    if setting.rules_update_case in ('old', 'missing'):
-        logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
-    elif setting.rules_update_case == 'modified':
-        logger.warning("You've already modified rules.toml, so it won't be updated automatically!")
-    else:
-        logger.debug("rules.toml status: %s", setting.rules_update_case)
     
-    if any(_keys in setting._config for _keys in setting._rules):
+    if any(_keys in setting._config for _keys in setting._config):
         logger.warning("Some sections of config.toml overlap with rules.toml, config.toml has higher priority, but this may make rule updates ineffective.")
         
     DNSresolver = dns.asyncresolver.Resolver(configure=False)

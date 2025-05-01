@@ -109,3 +109,7 @@ hosts
 .1
 config.toml
 rules.toml
+rules
+
+# vscode
+.vscode
