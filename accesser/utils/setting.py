@@ -1,5 +1,5 @@
 from pathlib import Path
-import shutil
+import shutil, os, shutil, filecmp
 
 try:
     import tomllib
@@ -23,6 +23,20 @@ def deep_merge(config_a: dict, config_b: dict):
     return res
 
 
+if Path("rules.toml").exists():
+    if Path("rules.toml").stat().st_mtime_ns > 0:
+        rules_update_case = "modified"
+    else:
+        if filecmp.cmp("rules.toml", basepath / "rules.toml"):
+            rules_update_case = "holding"
+        else:
+            rules_update_case = "old"
+else:
+    rules_update_case = "missing"
+if rules_update_case in ("old", "missing"):
+    shutil.copyfile(basepath / "rules.toml", "rules.toml")
+    os.utime("rules.toml", ns=(0, 0))
+
 _config = {}
 
 if not Path("rules").exists() or not Path("rules").is_dir():
@@ -32,7 +46,7 @@ for custom_config in Path("rules").glob("*.toml"):
     with custom_config.open(mode="rb") as f:
         _config = deep_merge(_config, tomllib.load(f))
 
-with basepath.joinpath("rules.toml").open(mode="rb") as f:
+with Path("rules.toml").open(mode="rb") as f:
     _config = deep_merge(_config, tomllib.load(f))
 
 if not Path("config.toml").exists():
