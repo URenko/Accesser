@@ -37,25 +37,26 @@ if rules_update_case in ("old", "missing"):
     shutil.copyfile(basepath / "rules.toml", "rules.toml")
     os.utime("rules.toml", ns=(0, 0))
 
-_config = {}
+_rules = {}
 
 if not Path("rules").exists() or not Path("rules").is_dir():
     Path("rules").mkdir()
 
-for custom_config in Path("rules").glob("*.toml"):
-    with custom_config.open(mode="rb") as f:
-        _config = deep_merge(_config, tomllib.load(f))
+for custom_rules in Path("rules").glob("*.toml"):
+    with custom_rules.open(mode="rb") as f:
+        _rules = deep_merge(_rules, tomllib.load(f))
 
 with Path("rules.toml").open(mode="rb") as f:
-    _config = deep_merge(_config, tomllib.load(f))
+    _rules = deep_merge(_rules, tomllib.load(f))
 
 if not Path("config.toml").exists():
     shutil.copyfile(basepath / "config.toml", "config.toml")
 
 with open("config.toml", "rb") as f:
-    config = tomllib.load(f)
+    _config = tomllib.load(f)
 
-config = deep_merge(config, _config)
+config = _rules.copy()
+config = deep_merge(_config, _rules)
 
 
 def parse_args():

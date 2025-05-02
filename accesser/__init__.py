@@ -211,7 +211,7 @@ async def main():
     else:
         logger.debug("rules.toml status: %s", setting.rules_update_case)
 
-    if any(_keys in setting._config for _keys in setting._config):
+    if any(_keys in setting._config for _keys in setting._rules):
         logger.warning("Some sections of config.toml overlap with rules.toml, config.toml has higher priority, but this may make rule updates ineffective.")
         
     DNSresolver = dns.asyncresolver.Resolver(configure=False)
