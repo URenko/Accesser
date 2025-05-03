@@ -42,7 +42,7 @@ _rules = {}
 if not Path("rules").exists() or not Path("rules").is_dir():
     Path("rules").mkdir()
 
-for custom_rules in Path("rules").glob("*.toml"):
+for custom_rules in sorted(Path("rules").glob("*.toml"), key=lambda f: f.name):
     with custom_rules.open(mode="rb") as f:
         _rules = deep_merge(_rules, tomllib.load(f))
 
