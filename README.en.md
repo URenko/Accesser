@@ -14,7 +14,7 @@ Because the main users of this project are in mainland China, you may encounter 
 
 ## Usage
 ### If you don't know what Python is
-Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.10.3/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
+Download Windows executable program from [here](https://github.com/URenko/Accesser/releases/download/v0.11.0/accesser.exe) and run it. The first time you use it, you will be asked to install a certificate, just select yes.
 ### If Python 3.10* or later is already installed
 ```
 pip3 install -U "accesser[doh,doq]"
@@ -32,7 +32,16 @@ In addition, for Windows, by default (without specifying `--notimportca`) the ce
 *You can use, for example, [pyenv](https://github.com/pyenv/pyenv) to install the required version of Python (Python 3.11+ is recommended).
 
 ## Configuration
-After starting Accesser once, `config.toml` and `rules.toml` will be generated in the **working directory**. See the comments therein. After saving, reopen the program.
+After launching Accesser once, the following files and directories will be created in the **working directory**:
+
+* `config.toml`: Basic settings
+* `rules.toml`: Advanced rules. It will be automatically updated if unmodified. (delete it to restore auto-updates)
+* `rules/` directory: Place your custom advanced rules here
+
+See the inline comments for details; after saving your edits, restart the application. You can also refer to the [`custom.toml.sample`](accesser/custom.toml.sample) for examples of how to configure advanced rules.
+
+You may additionally place PAC files in the **working directory** to define specific routing rules (the default PAC is available here: [https://github.com/URenko/Accesser/blob/master/accesser/pac](https://github.com/URenko/Accesser/blob/master/accesser/pac)).
+
 
 ## Advanced Usage 1: Use with other proxy software such as v2ray
 Accesser is a local HTTP proxy with a default proxy address of `http://localhost:7654`, which can be used in combination with other proxy software as long as the network traffic can be exported as HTTP proxy.

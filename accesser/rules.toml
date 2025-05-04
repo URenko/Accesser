@@ -1,9 +1,9 @@
-# 请不要直接修改此文件。你可以通过将配置文件复制到工作目录下的 rules 文件夹中以达到向 Accesser 添加规则的目的。
-# Please do not edit the file directly. You can copy the rules configuration file to the rules directory under working directory to add rules to Accesser.
 # 这是Accesser的规则（除路由规则）文件。
 # This is the rule (except routing rules) file of Accesser.
-# 在未曾被修改过的情况下，它会自动随Accesser更新。
-# If it has not been modified, it will be automatically updated with Accesser.
+# 该文件在不曾被修改过的情况下会自动更新。因而不建议一般用户直接修改。
+# This file will be automatically updated if it hasn’t been modified. Therefore, ordinary users are not advised to modify it directly.
+# 你也可以通过将配置文件复制到工作目录下的 rules 文件夹中以达到向 Accesser 添加规则的目的。
+# You can also copy the rules configuration file to the rules directory under working directory to add rules to Accesser.
 
 [DNS]
 

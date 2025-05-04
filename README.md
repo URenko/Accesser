@@ -11,7 +11,7 @@
 
 ## 使用
 ### 如果不知道什么是Python
-从[这里](https://github.com/URenko/Accesser/releases/download/v0.10.3/accesser.exe)下载Windows一键程序，运行既可（建议关闭其他代理软件），首次使用会要求安装证书，选是即可。
+从[这里](https://github.com/URenko/Accesser/releases/download/v0.11.0/accesser.exe)下载Windows一键程序，运行既可（建议关闭其他代理软件），首次使用会要求安装证书，选是即可。
 ### 如果已经安装了Python 3.10*或更高版本
 ```
 pip3 install -U "accesser[doh,doq]"
@@ -29,7 +29,16 @@ accesser
 *可以使用例如[pyenv](https://github.com/pyenv/pyenv)来安装所需的Python版本（推荐Python 3.11+）。
 
 ## 设置
-启动一次Accesser后，会在 **工作目录** 下生成`config.toml`，具体含义见其中注释，保存后重新打开程序。同时也会生成目录 `rules`，用于存放规则文件。规则的配置方式请参见 [`custom.toml.sample`](accesser/custom.toml.sample)
+启动一次Accesser后，会在 **工作目录** 下生成如下文件和目录：
+
+- `config.toml`：一些基础设置
+- `rules.toml`: 进阶规则，在不曾被修改过的情况下会自动更新（删除它可恢复自动更新）
+- `rules`目录: 可存放自定义进阶规则
+
+具体含义见其中注释，保存后重新打开程序。
+进阶规则的配置方式也可参见 [`custom.toml.sample`](accesser/custom.toml.sample)。
+
+**工作目录** 下也可放置 pac 文件制定具体的路由规则（默认 pac 见 https://github.com/URenko/Accesser/blob/master/accesser/pac ）。
 
 ## 进阶1: 与v2ray等其他代理软件一起使用
 Accesser是一个本地HTTP代理，默认代理地址为`http://localhost:7654`，只要网络流量能从其他代理软件以HTTP代理导出就能联合使用。

@@ -1,7 +1,7 @@
 # 这是Accesser的规则（除路由规则）文件。
 # This is the rule (except routing rules) file of Accesser.
-# 将 toml 格式的规则文件放置在工作目录下的 rules 目录可向 Accesser 添加规则。规则优先级为 `config.toml` > `rules/*.toml` > 安装目录下的 `rules.toml`
-# You can add rules to the Accesser by placing a toml-formatted rules file in the rules directory under the working directory. Rules with priority of 'config.toml' > 'rules/*.toml' > 'rules.toml' in the installation directory
+# 将 toml 格式的规则文件放置在工作目录下的 rules 目录可向 Accesser 添加规则。规则优先级为 `config.toml` > `rules/*.toml` > 工作目录下的 `rules.toml`
+# You can add rules to the Accesser by placing a toml-formatted rules file in the rules directory under the working directory. Rules with priority of 'config.toml' > 'rules/*.toml' > 'rules.toml' in the working directory
 
 [DNS]
 
