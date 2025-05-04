@@ -1,0 +1,48 @@
+# 这是Accesser的规则（除路由规则）文件。
+# This is the rule (except routing rules) file of Accesser.
+# 将 toml 格式的规则文件放置在工作目录下的 rules 目录可向 Accesser 添加规则。规则优先级为 `config.toml` > `rules/*.toml` > 安装目录下的 `rules.toml`
+# You can add rules to the Accesser by placing a toml-formatted rules file in the rules directory under the working directory. Rules with priority of 'config.toml' > 'rules/*.toml' > 'rules.toml' in the installation directory
+
+[DNS]
+
+# DNS服务器地址。可于下方 hosts 字段指定DNS服务器 host 对应的 IP 地址。
+# DNS server address. You can specify bootstrap IP address in the [hosts] field below.
+nameserver = [
+  #"https://77.88.8.8/dns-query",          # https://host|IP[:port]/path # DNS-over-HTTPS (DoH)
+  #"tls://149.112.112.112",            # tls://host|IP[:port]  # DNS-overTLS (DoT)
+  # "quic://dns.adguard-dns.com",     # quic://host|IP[:port] # DNS-over-QUIC (DoQ)
+  # "localhost"                       # host|IP[:port]        # 传统 UDP DNS | traditional UDP DNS
+]
+
+
+[http_redirect]
+
+# 如果一个HTTP（无TLS）请求的URL以下面某个键开头，则会被重定向到其值对应的URL（通过HTTPS请求）。
+# If the URL of an HTTP (no TLS) request starts with one of the following keys, it will be redirected to the URL corresponding to its value (via HTTPS request).
+
+# "example.com/" = "www.example.com/"
+
+[alter_hostname]
+
+# 与键对应的域名的TLS连接会使用其值对应的域名作为server_name字段，并且校验证书时也使用这一域名。键支持Unix shell风格的通配符。
+# A TLS connection to the domain corresponding to the key will use the domain name corresponding to its value as the server_name field, and this domain name is also used when verifying the certificate. The key supports Unix shell-style wildcards.
+
+# "example.com" = "notblocked.com"
+
+[cert_verify]
+
+# 为域名分别设置证书校验策略，其值可以是一个包含用于校验的域名的列表（有一个匹配就通过），也可以是 false 表示不校验
+# 这比 [alter_hostname] 和全局的 check_hostname 的优先级高，但不会在 Client Hello 中作为 server_name 发送。
+# Set the certificate validation policy for domains individually. The values can be a array contain strings which represent the domain name used to verify the certificate (pass if there is a match), or false which means disabling the verification.
+# It has as a higher priority than [alter_hostname] and the global check_hostname, but will not be sent as server_name in Client Hello.
+
+# "example.com" = ["example.org", "example.net", "example.xyz"]
+
+[hosts]
+
+# 自定义 域名-IP 映射，即用于与网站建立连接，也用于与DNS服务器建立连接。
+# Customize domain-IP mapping, which is used to establish a connection with the website and the DNS server.
+
+# example for DNS server bootstrap address
+# "dot.sb" = "185.222.222.222"
+# "dns.adguard-dns.com" = "94.140.14.14"
