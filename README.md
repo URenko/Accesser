@@ -77,3 +77,7 @@ Accesser是一个本地HTTP代理，默认代理地址为`http://localhost:7654`
 Accesser 的大版本号是留予新的技术，然而出乎我的预料，现有的域前置技术在六年后仍未失效。
 而另一方面，看起来天朝人民有足够的能力以维持平衡，因此 1.x 可能永远不会到来。
 </details>
+
+---
+
+[![Powered by DartNode]( https://dartnode.com/branding/DN-Open-Source-sm.png)]( https://dartnode.com "Powered by DartNode - Free VPS for Open Source")
