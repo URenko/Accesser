@@ -25,7 +25,6 @@ import random
 import ssl
 import asyncio
 import traceback
-from contextlib import closing
 from urllib import request
 from urllib.parse import urlsplit
 from packaging.version import Version
@@ -46,9 +45,9 @@ async def update_cert(server_name):
     if not is_tld(server_name):
         res = get_tld(server_name, as_object=True, fix_protocol=True)
         if res.subdomain:
-            server_name = res.subdomain.split('.', 1)[-1] + '.' + res.domain + '.' + res.tld
+            server_name = f'{res.subdomain.split('.', 1)[-1]}.{res.domain}.{res.tld}'
         else:
-            server_name = res.domain + '.' + res.tld
+            server_name = f'{res.domain}.{res.tld}'
     async with cert_lock:
         if not server_name in cert_store:
             cm.create_certificate(server_name)
@@ -79,7 +78,7 @@ async def http_redirect(writer: asyncio.StreamWriter, path: str):
         if path.startswith(key):
             path = setting.config['http_redirect'][key] + path[len(key):]
             break
-    logger.debug('Redirect to '+path)
+    logger.debug(f'Redirect to {path}')
     writer.write(f'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{path}\r\n\r\n'.encode('iso-8859-1'))
     await writer.drain()
     writer.close()
@@ -95,7 +94,8 @@ async def forward_stream(reader: asyncio.StreamReader, writer: asyncio.StreamWri
 
 async def handle(reader, writer):
     global context
-    with closing(writer):
+    try:
+        remote_writer = None
         raw_request = await reader.readuntil(b'\r\n\r\n')
         requestline = raw_request.decode('iso-8859-1').splitlines()[0]
         i_addr, i_port, *_ = writer.get_extra_info('peername')
@@ -147,20 +147,29 @@ async def handle(reader, writer):
         if  cert_policy is not False and not any(match_hostname(cert, h, cert_policy) for h in cert_verify_list):
             logger.warning(f"[{i_port:5}] {cert_verify_list} don't match either of {cert_message}.")
             return
-        await asyncio.gather(
-            forward_stream(reader, remote_writer),
-            forward_stream(remote_reader, writer)
-        )
-    writer.close()
-    remote_writer.close()
-    await remote_writer.wait_closed()
-    await writer.wait_closed()
+        tasks = {
+            asyncio.create_task(forward_stream(reader, remote_writer)),
+            asyncio.create_task(forward_stream(remote_reader, writer))
+        }
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+        for task in pending:
+            task.cancel()
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
+    finally:
+        writer.close()
+        if remote_writer:
+            remote_writer.close()
+            await remote_writer.wait_closed()
+        await writer.wait_closed()
 
 async def proxy():
     server = await asyncio.start_server(handle, setting.config['server']['address'], setting.config['server']['port'])
 
     print(f"Serving on {', '.join(str(sock.getsockname()) for sock in server.sockets)}")
-    sysproxy.set_pac('http://localhost:'+str(setting.config['server']['port'])+'/pac/?t='+str(random.randrange(2**16)))
+    sysproxy.set_pac(f"http://localhost:{setting.config['server']['port']}/pac/?t={random.randrange(2**16)}")
 
     try:
         async with server:
@@ -171,7 +180,7 @@ async def proxy():
 async def DNSquery(domain, hosts_only=False):
     global DNSresolver
     try:
-        return next(v for k,v in setting.config['hosts'].items() if k==domain or (k.startswith('.') and domain.endswith(k)))
+        return next(v for k, v in setting.config['hosts'].items() if k == domain or (k.startswith('.') and domain.endswith(k)))
     except StopIteration:
         if hosts_only:
             return
@@ -185,7 +194,7 @@ async def DNSquery(domain, hosts_only=False):
     return ret[0].to_text()
 
 def update_checker():
-    for pypi_url in ['https://pypi.org/pypi/accesser/json', 'https://mirrors.cloud.tencent.com/pypi/json/accesser']:
+    for pypi_url in ('https://pypi.org/pypi/accesser/json', 'https://mirrors.cloud.tencent.com/pypi/json/accesser'):
         try:
             with request.urlopen(pypi_url) as f:
                 v2 = Version(json.load(f)["info"]["version"])
@@ -197,19 +206,19 @@ def update_checker():
             v2 = Version(f.geturl().rsplit('/', maxsplit=1)[-1])
     v1 = Version(__version__)
     if v2 > v1:
-        logger.warning("There is a new version, you can update with 'python3 -m pip install -U accesser' or download from GitHub")
+        logger.warning("There is a new version. You can update with `python3 -m pip install -U accesser` or download from GitHub.")
 
 async def main():
     global context, cert_store, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
     
-    if setting.rules_update_case in ('old', 'missing'):
-        logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
+    if setting.rules_update_case in {'old', 'missing'}:
+        logger.warning(f"Updated rules.toml because it is {setting.rules_update_case}.")
     elif setting.rules_update_case == 'modified':
-        logger.warning("You've already modified rules.toml, so it won't be updated automatically!")
+        logger.warning("You've already modified rules.toml so it won't be updated automatically!")
     else:
-        logger.debug("rules.toml status: %s", setting.rules_update_case)
+        logger.debug(f"rules.toml status: {setting.rules_update_case}")
 
     if any(_keys in setting._config for _keys in setting._rules):
         logger.warning("Some sections of config.toml overlap with rules.toml, config.toml has higher priority, but this may make rule updates ineffective.")
@@ -220,14 +229,15 @@ async def main():
         if (_url := urlsplit(nameserver)).netloc == '':
             _url = urlsplit('//' + nameserver)
         address = await DNSquery(_url.hostname, hosts_only=True)
-        if _url.scheme == '':
-            DNSresolver.nameservers.append(dns.nameserver.Do53Nameserver(_url.hostname if address is None else address, 53 if _url.port is None else _url.port))
-        elif _url.scheme == 'https':
-            DNSresolver.nameservers.append(dns.nameserver.DoHNameserver(nameserver, bootstrap_address=address))
-        elif _url.scheme == 'tls':
-            DNSresolver.nameservers.append(dns.nameserver.DoTNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, hostname=_url.hostname))
-        elif _url.scheme == 'quic':
-            DNSresolver.nameservers.append(dns.nameserver.DoQNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, server_hostname=_url.hostname))
+        match _url.scheme:
+            case '':
+                DNSresolver.nameservers.append(dns.nameserver.Do53Nameserver(_url.hostname if address is None else address, 53 if _url.port is None else _url.port))
+            case 'https':
+                DNSresolver.nameservers.append(dns.nameserver.DoHNameserver(nameserver, bootstrap_address=address))
+            case 'tls':
+                DNSresolver.nameservers.append(dns.nameserver.DoTNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, hostname=_url.hostname))
+            case 'quic':
+                DNSresolver.nameservers.append(dns.nameserver.DoQNameserver(_url.hostname if address is None else address, 853 if _url.port is None else _url.port, server_hostname=_url.hostname))
     
     importca.import_ca()
 
