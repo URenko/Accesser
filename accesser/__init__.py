@@ -45,7 +45,7 @@ async def update_cert(server_name):
     if not is_tld(server_name):
         res = get_tld(server_name, as_object=True, fix_protocol=True)
         if res.subdomain:
-            server_name = f'{res.subdomain.split('.', 1)[-1]}.{res.domain}.{res.tld}'
+            server_name = f"{res.subdomain.split('.', 1)[-1]}.{res.domain}.{res.tld}"
         else:
             server_name = f'{res.domain}.{res.tld}'
     async with cert_lock:
