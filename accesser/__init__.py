@@ -78,7 +78,7 @@ async def http_redirect(writer: asyncio.StreamWriter, path: str):
         if path.startswith(key):
             path = setting.config['http_redirect'][key] + path[len(key):]
             break
-    logger.debug(f'Redirect to {path}')
+    logger.debug('Redirect to %s', path)
     writer.write(f'HTTP/1.1 301 Moved Permanently\r\nLocation: https://{path}\r\n\r\n'.encode('iso-8859-1'))
     await writer.drain()
     writer.close()
@@ -99,14 +99,14 @@ async def handle(reader, writer):
         raw_request = await reader.readuntil(b'\r\n\r\n')
         requestline = raw_request.decode('iso-8859-1').splitlines()[0]
         i_addr, i_port, *_ = writer.get_extra_info('peername')
-        logger.debug(f"{i_addr}:{i_port} say: {requestline}")
+        logger.debug("%s:%d say: %s", i_addr, i_port, requestline)
         words = requestline.split()
         command, path = words[:2]
         match command:
             case 'CONNECT':
                 host, port = path.split(':')
                 remote_ip = await DNSquery(host)
-                logger.debug(f'[{i_port:5}] DNS: {host} -> {remote_ip}')
+                logger.debug('[%5d] DNS: %s -> %s', i_port, host, remote_ip)
             case 'GET':
                 if path.startswith('/pac/'):
                     return await send_pac(writer)
@@ -127,13 +127,13 @@ async def handle(reader, writer):
             writer._transport = await writer._loop.start_tls(writer.transport, writer._protocol, context, server_side=True)
         server_hostname_key = next(filter(lambda h:fnmatch.fnmatchcase(host, h), setting.config['alter_hostname']), None)
         server_hostname = '' if server_hostname_key is None else setting.config['alter_hostname'][server_hostname_key]
-        logger.debug(f'[{i_port:5}] {server_hostname=}')
+        logger.debug("[%5d] server_hostname: %s", i_port, server_hostname)
         remote_context = ssl.create_default_context()
         remote_context.check_hostname = False
         remote_reader, remote_writer = await asyncio.open_connection(remote_ip, port, ssl=remote_context, server_hostname=server_hostname)
         cert = remote_writer.get_extra_info('peercert')
         cert_message = f"subjectAltName: {cert.get('subjectAltName', ())}, subject: {cert.get('subject', ())}"
-        logger.debug(f"[{i_port:5}] {cert_message}.")
+        logger.debug("[%5d] %s", i_port, cert_message)
         cert_verify_key = next(filter(lambda h:fnmatch.fnmatchcase(host, h), setting.config.get('cert_verify', ())), None)
         if cert_verify_key is not None:
             cert_verify_list = setting.config['cert_verify'][cert_verify_key]
@@ -144,8 +144,8 @@ async def handle(reader, writer):
         else:
             cert_verify_list = [host]
             cert_policy = setting.config['check_hostname']
-        if  cert_policy is not False and not any(match_hostname(cert, h, cert_policy) for h in cert_verify_list):
-            logger.warning(f"[{i_port:5}] {cert_verify_list} don't match either of {cert_message}.")
+        if cert_policy is not False and not any(match_hostname(cert, h, cert_policy) for h in cert_verify_list):
+            logger.warning("[%5d] %s don't match either of %s.", i_port, cert_verify_list, cert_message)
             return
         tasks = {
             asyncio.create_task(forward_stream(reader, remote_writer)),
@@ -154,10 +154,7 @@ async def handle(reader, writer):
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
-            try:
-                await task
-            except asyncio.CancelledError:
-                pass
+        await asyncio.gather(*pending)
     finally:
         writer.close()
         if remote_writer:
@@ -214,11 +211,11 @@ async def main():
     setting.parse_args()
     
     if setting.rules_update_case in {'old', 'missing'}:
-        logger.warning(f"Updated rules.toml because it is {setting.rules_update_case}.")
+        logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
     elif setting.rules_update_case == 'modified':
         logger.warning("You've already modified rules.toml so it won't be updated automatically!")
     else:
-        logger.debug(f"rules.toml status: {setting.rules_update_case}")
+        logger.debug("rules.toml status: %s", setting.rules_update_case)
 
     if any(_keys in setting._config for _keys in setting._rules):
         logger.warning("Some sections of config.toml overlap with rules.toml, config.toml has higher priority, but this may make rule updates ineffective.")
