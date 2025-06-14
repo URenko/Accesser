@@ -147,10 +147,10 @@ async def handle(reader, writer):
         if cert_policy is not False and not any(match_hostname(cert, h, cert_policy) for h in cert_verify_list):
             logger.warning("[%5d] %s don't match either of %s.", i_port, cert_verify_list, cert_message)
             return
-        tasks = {
+        tasks = (
             asyncio.create_task(forward_stream(reader, remote_writer)),
             asyncio.create_task(forward_stream(remote_reader, writer))
-        }
+        )
         done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         for task in pending:
             task.cancel()
@@ -210,7 +210,7 @@ async def main():
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
     
-    if setting.rules_update_case in {'old', 'missing'}:
+    if setting.rules_update_case in ('old', 'missing'):
         logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
     elif setting.rules_update_case == 'modified':
         logger.warning("You've already modified rules.toml so it won't be updated automatically!")
