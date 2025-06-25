@@ -64,7 +64,7 @@ async def send_pac(writer: asyncio.StreamWriter):
     await writer.wait_closed()
 
 async def send_crt(writer: asyncio.StreamWriter, path: str):
-    with open(os.path.join(cm.certpath, path.split('/')[-1]), 'rb') as f:
+    with open(os.path.join(cm.certpath, path.rsplit(sep = '/',maxsplit = 1)[-1]), 'rb') as f:
         crt = f.read()
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-x509-ca-cert\r\nContent-Length: {len(crt)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(crt)
