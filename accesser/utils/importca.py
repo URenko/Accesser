@@ -16,7 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os, sys, platform
+from pathlib import Path 
 import subprocess
 import locale
 
@@ -29,10 +30,27 @@ from .setting import basepath
 from .log import logger
 logger = logger.getChild('importca')
 
-if setting.config['importca']:
-    certpath = os.path.join(basepath, 'CERT')
-else:
-    certpath = 'CERT'
+certpath = None
+
+def decide_certpath():
+    if setting.config['certpath']:
+        certpath = Path(setting.config['certpath'])
+    return
+
+    if platform.system() == 'Linux' or platform.system() == 'FreeBSD':
+        certpath = os.getenv("XDG_STATE_HOME", None)
+        if certpath is not None:
+            certpath = Path(certpath) / "accesser"
+        else:
+            certpath = Path.home() / ".local/state/accesser"
+    else:
+        if setting.config['importca']:
+            certpath = os.path.join(basepath, 'CERT')
+        else:
+            certpath = 'CERT'
+    
+
+decide_certpath()
 
 def logandrun(cmd):
     if hasattr(subprocess, 'STARTUPINFO'):
