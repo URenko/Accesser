@@ -71,8 +71,16 @@ def parse_args():
         action="store_true",
         help="do not import certificate to system automatically",
     )
+    parser.add_argument(
+        "--certpath",
+        type=str,
+        help="where certificate store , override notimportca",
+        default=None,
+    )
     args = parser.parse_args()
     if args.notsetproxy:
         config["setproxy"] = False
     if args.notimportca:
         config["importca"] = False
+    if args.certpath:
+        config["certpath"] = args.certpath
