@@ -85,7 +85,7 @@ def decide_state_path_unix_like():
 
 def decide_certpath():
     # 人为指定最优先
-    if config["state_dir"]:
+    if "state_dir" in config and config["state_dir"] is not None:
         return Path(config["state_dir"]) / "CERT"
     match platform.system():
         case "Linux" | "FreeBSD":
@@ -128,4 +128,6 @@ def parse_args():
     if args.state_dir is not None:
         config["state_dir"] = args.state_dir
     certpath = decide_certpath()
+    if not certpath.exists() or certpath.is_file():
+        certpath.mkdir(parents=True)
     return

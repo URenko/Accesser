@@ -51,7 +51,7 @@ async def update_cert(server_name):
     async with cert_lock:
         if not server_name in cert_store:
             cm.create_certificate(server_name)
-        context.load_cert_chain(os.path.join(cm.certpath, "{}.crt".format(server_name)))
+        context.load_cert_chain(setting.certpath.joinpath("{}.crt".format(server_name)))
         cert_store.add(server_name)
 
 async def send_pac(writer: asyncio.StreamWriter):
@@ -64,7 +64,7 @@ async def send_pac(writer: asyncio.StreamWriter):
     await writer.wait_closed()
 
 async def send_crt(writer: asyncio.StreamWriter, path: str):
-    with open(os.path.join(cm.certpath, path.rsplit(sep = '/',maxsplit = 1)[-1]), 'rb') as f:
+    with open(setting.certpath, (path.rsplit(sep = '/',maxsplit = 1)[-1]), 'rb') as f:
         crt = f.read()
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-x509-ca-cert\r\nContent-Length: {len(crt)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(crt)

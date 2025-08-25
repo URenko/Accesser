@@ -34,9 +34,10 @@ from cryptography.x509.extensions import (
 from cryptography.x509.oid import ExtendedKeyUsageOID
 
 from .log import logger
+
 logger = logger.getChild("certmanager")
 from . import setting
-from .setting import certpath
+
 
 def create_root_ca():
     key = rsa.generate_private_key(
@@ -86,11 +87,11 @@ def create_root_ca():
         .sign(key, hashes.SHA256())
     )
 
-    (certpath / "root.crt").write_bytes(
+    setting.certpath.joinpath("root.crt").write_bytes(
         cert.public_bytes(serialization.Encoding.PEM)
     )
 
-    (certpath / "root.key").write_bytes(
+    setting.certpath.joinpath("root.key").write_bytes(
         key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
@@ -98,7 +99,7 @@ def create_root_ca():
         )
     )
 
-    (certpath / "root.pfx").write_bytes(
+    setting.certpath.joinpath("root.pfx").write_bytes(
         serialization.pkcs12.serialize_key_and_certificates(
             b"Accesser", key, cert, None, serialization.NoEncryption()
         )
@@ -106,8 +107,8 @@ def create_root_ca():
 
 
 def create_certificate(server_name):
-    rootpem = (certpath / "root.crt").read_bytes()
-    rootkey = (certpath / "root.key").read_bytes()
+    rootpem = (setting.certpath / "root.crt").read_bytes()
+    rootkey = (setting.certpath / "root.key").read_bytes()
     ca_cert = x509.load_pem_x509_certificate(rootpem)
     pkey = serialization.load_pem_private_key(rootkey, password=None)
 
@@ -174,7 +175,7 @@ def create_certificate(server_name):
         .sign(pkey, hashes.SHA256())
     )
 
-    (certpath / f"{server_name}.crt").write_bytes(
+    (setting.certpath / f"{server_name}.crt").write_bytes(
         cert.public_bytes(serialization.Encoding.PEM)
         + pkey.private_bytes(
             encoding=serialization.Encoding.PEM,
