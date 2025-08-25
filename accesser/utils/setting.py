@@ -70,9 +70,6 @@ def decide_state_path_legacy():
 
 def decide_state_path_unix_like():
     if os.geteuid() == 0:
-        logging.warning(
-            "Running Accesser as the root user carries certain risks. Do not use it in production."
-        )
         return Path("/var/lib") / "accesser"
 
     state_path = os.getenv("XDG_STATE_HOME", None)
