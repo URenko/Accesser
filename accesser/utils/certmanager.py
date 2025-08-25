@@ -107,8 +107,8 @@ def create_root_ca():
 
 
 def create_certificate(server_name):
-    rootpem = (setting.certpath / "root.crt").read_bytes()
-    rootkey = (setting.certpath / "root.key").read_bytes()
+    rootpem = setting.certpath.joinpath("root.crt").read_bytes()
+    rootkey = setting.certpath.joinpath("root.key").read_bytes()
     ca_cert = x509.load_pem_x509_certificate(rootpem)
     pkey = serialization.load_pem_private_key(rootkey, password=None)
 
@@ -175,7 +175,7 @@ def create_certificate(server_name):
         .sign(pkey, hashes.SHA256())
     )
 
-    (setting.certpath / f"{server_name}.crt").write_bytes(
+    setting.certpath.joinpath(f"{server_name}.crt").write_bytes(
         cert.public_bytes(serialization.Encoding.PEM)
         + pkey.private_bytes(
             encoding=serialization.Encoding.PEM,
