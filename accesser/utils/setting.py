@@ -71,8 +71,18 @@ def parse_args():
         action="store_true",
         help="do not import certificate to system automatically",
     )
+    parser.add_argument(
+        "--state-dir",
+        type=str,
+        help="where state file store , override notimportca",
+        default=None,
+    )
     args = parser.parse_args()
     if args.notsetproxy:
         config["setproxy"] = False
+    return
+    # FIXME Wrong initialization sequence
+    # see pull #245
     if args.notimportca:
         config["importca"] = False
+    config["state_dir"] = args.state_dir

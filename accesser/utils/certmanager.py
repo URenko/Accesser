@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os
+import os, platform
 import datetime
 from pathlib import Path
 
@@ -33,14 +33,53 @@ from cryptography.x509.extensions import (
 )
 from cryptography.x509.oid import ExtendedKeyUsageOID
 
+from .log import logger
+logger = logger.getChild("certmanager")
 from . import setting
 from .setting import basepath
 
-if setting.config["importca"]:
-    certpath = os.path.join(basepath, "CERT")
-else:
-    certpath = "CERT"
-if not os.path.exists(certpath):
+
+def decide_state_path_legacy():
+    if setting.config["importca"]:
+        return Path(basepath)
+    else:
+        return Path()
+
+
+def decide_state_path_unix_like():
+    if os.geteuid() == 0:
+        logger.warn("Running Accesser as the root user carries certain risks; see pull #245")
+        return Path("/var/lib") / "accesser"
+
+    state_path = os.getenv("XDG_STATE_HOME", None)
+    if state_path is not None:
+        state_path = Path(state_path) / "accesser"
+    else:
+        state_path = Path.home() / ".local/state" / "accesser"
+    return state_path
+
+
+def decide_certpath():
+    certpath = None
+    # 人为指定最优先
+    #if setting.config["state_dir"]:
+        #return Path(setting.config["state_dir"]) / "cert"
+    match platform.system():
+        case 'Linux' | 'FreeBSD':
+            deprecated_path = decide_state_path_legacy() / "CERT"
+            # 暂仅在 *nix 上视为已废弃
+            if deprecated_path.exists():
+                logger.warn("deprecated path, see pull #245")
+                return deprecated_path
+            certpath = decide_state_path_unix_like() / "cert"
+        case _:
+            # windows,mac,android ...
+            certpath = decide_state_path_legacy() / "CERT"
+    return certpath
+
+
+certpath = decide_certpath()
+if not certpath.exists():
     os.makedirs(certpath, exist_ok=True)
 
 
@@ -92,11 +131,11 @@ def create_root_ca():
         .sign(key, hashes.SHA256())
     )
 
-    (Path(certpath) / "root.crt").write_bytes(
+    (certpath / "root.crt").write_bytes(
         cert.public_bytes(serialization.Encoding.PEM)
     )
 
-    (Path(certpath) / "root.key").write_bytes(
+    (certpath / "root.key").write_bytes(
         key.private_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PrivateFormat.PKCS8,
@@ -104,7 +143,7 @@ def create_root_ca():
         )
     )
 
-    (Path(certpath) / "root.pfx").write_bytes(
+    (certpath / "root.pfx").write_bytes(
         serialization.pkcs12.serialize_key_and_certificates(
             b"Accesser", key, cert, None, serialization.NoEncryption()
         )
@@ -112,8 +151,8 @@ def create_root_ca():
 
 
 def create_certificate(server_name):
-    rootpem = (Path(certpath) / "root.crt").read_bytes()
-    rootkey = (Path(certpath) / "root.key").read_bytes()
+    rootpem = (certpath / "root.crt").read_bytes()
+    rootkey = (certpath / "root.key").read_bytes()
     ca_cert = x509.load_pem_x509_certificate(rootpem)
     pkey = serialization.load_pem_private_key(rootkey, password=None)
 
@@ -180,7 +219,7 @@ def create_certificate(server_name):
         .sign(pkey, hashes.SHA256())
     )
 
-    (Path(certpath) / f"{server_name}.crt").write_bytes(
+    (certpath / f"{server_name}.crt").write_bytes(
         cert.public_bytes(serialization.Encoding.PEM)
         + pkey.private_bytes(
             encoding=serialization.Encoding.PEM,
