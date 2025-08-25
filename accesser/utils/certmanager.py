@@ -16,9 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, platform
 import datetime
-from pathlib import Path
 
 from cryptography import x509
 from cryptography.x509.oid import NameOID
