@@ -30,6 +30,7 @@ from urllib.parse import urlsplit
 from packaging.version import Version
 from tld import get_tld, is_tld
 import dns, dns.asyncresolver, dns.nameserver
+import platform
 
 from .utils import certmanager as cm
 from .utils import importca
@@ -209,10 +210,11 @@ async def main():
     global context, cert_store, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
-    if os.geteuid() == 0:
-        logger.warning(
-            "Running Accesser as the root user carries certain risks. Do not use it in production."
-        )
+    if platform.system() == "Linux" or platform.system() == "FreeBSD":
+        if os.geteuid() == 0:
+            logger.warning(
+                "Running Accesser as the root user carries certain risks. Do not use it in production."
+            )
     if setting.rules_update_case in ('old', 'missing'):
         logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
     elif setting.rules_update_case == 'modified':
