@@ -6,8 +6,11 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib
 import argparse
+import platform
+import logging
 
 basepath = Path(__file__).parent.parent
+certpath = None
 
 
 def deep_merge(config_a: dict, config_b: dict):
@@ -59,7 +62,47 @@ config = _rules.copy()
 config = deep_merge(_config, _rules)
 
 
+def decide_state_path_legacy():
+    if config["importca"]:
+        return Path(basepath)
+    return Path()
+
+
+def decide_state_path_unix_like():
+    if os.geteuid() == 0:
+        logging.warning(
+            "Running Accesser as the root user carries certain risks. Do not use it in production."
+        )
+        return Path("/var/lib") / "accesser"
+
+    state_path = os.getenv("XDG_STATE_HOME", None)
+    if state_path is not None:
+        state_path = Path(state_path) / "accesser"
+    else:
+        state_path = Path.home() / ".local/state" / "accesser"
+    return state_path
+
+
+def decide_certpath():
+    # 人为指定最优先
+    if config["state_dir"]:
+        return Path(config["state_dir"]) / "CERT"
+    match platform.system():
+        case "Linux" | "FreeBSD":
+            deprecated_path = decide_state_path_legacy() / "CERT"
+            # 暂仅在 *nix 上视为已废弃
+            if deprecated_path.exists():
+                logging.warning("deprecated path, see pull #245")
+                return deprecated_path
+            return decide_state_path_unix_like() / "CERT"
+        case _:
+            # windows,mac,android ...
+            return decide_state_path_legacy() / "CERT"
+    return
+
+
 def parse_args():
+    global certpath
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--notsetproxy",
@@ -80,9 +123,9 @@ def parse_args():
     args = parser.parse_args()
     if args.notsetproxy:
         config["setproxy"] = False
-    return
-    # FIXME Wrong initialization sequence
-    # see pull #245
     if args.notimportca:
         config["importca"] = False
-    config["state_dir"] = args.state_dir
+    if args.state_dir is not None:
+        config["state_dir"] = args.state_dir
+    certpath = decide_certpath()
+    return

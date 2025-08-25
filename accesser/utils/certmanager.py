@@ -36,52 +36,7 @@ from cryptography.x509.oid import ExtendedKeyUsageOID
 from .log import logger
 logger = logger.getChild("certmanager")
 from . import setting
-from .setting import basepath
-
-
-def decide_state_path_legacy():
-    if setting.config["importca"]:
-        return Path(basepath)
-    else:
-        return Path()
-
-
-def decide_state_path_unix_like():
-    if os.geteuid() == 0:
-        logger.warn("Running Accesser as the root user carries certain risks; see pull #245")
-        return Path("/var/lib") / "accesser"
-
-    state_path = os.getenv("XDG_STATE_HOME", None)
-    if state_path is not None:
-        state_path = Path(state_path) / "accesser"
-    else:
-        state_path = Path.home() / ".local/state" / "accesser"
-    return state_path
-
-
-def decide_certpath():
-    certpath = None
-    # 人为指定最优先
-    #if setting.config["state_dir"]:
-        #return Path(setting.config["state_dir"]) / "cert"
-    match platform.system():
-        case 'Linux' | 'FreeBSD':
-            deprecated_path = decide_state_path_legacy() / "CERT"
-            # 暂仅在 *nix 上视为已废弃
-            if deprecated_path.exists():
-                logger.warn("deprecated path, see pull #245")
-                return deprecated_path
-            certpath = decide_state_path_unix_like() / "cert"
-        case _:
-            # windows,mac,android ...
-            certpath = decide_state_path_legacy() / "CERT"
-    return certpath
-
-
-certpath = decide_certpath()
-if not certpath.exists():
-    os.makedirs(certpath, exist_ok=True)
-
+from .setting import certpath
 
 def create_root_ca():
     key = rsa.generate_private_key(

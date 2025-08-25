@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys
-from pathlib import Path 
 import subprocess
 import locale
 
@@ -27,9 +26,9 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from . import setting
 from . import certmanager as cm
 from .log import logger
+from .setting import certpath
 logger = logger.getChild('importca')
 
-certpath = cm.certpath
 
 def logandrun(cmd):
     if hasattr(subprocess, 'STARTUPINFO'):
