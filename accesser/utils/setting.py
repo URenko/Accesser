@@ -87,9 +87,9 @@ def decide_certpath():
     match platform.system():
         case "Linux" | "FreeBSD":
             deprecated_path = decide_state_path_legacy() / "CERT"
-            # 暂仅在 *nix 上视为已废弃
             if deprecated_path.exists():
-                logging.warning("deprecated path, see pull #245")
+                logging.warning("cert path %s is deprecated.", str(deprecated_path))
+                logging.warning("Please check https://github.com/URenko/Accesser/pull/245 for migration.")
                 return deprecated_path
             return decide_state_path_unix_like() / "CERT"
         case _:

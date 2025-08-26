@@ -57,16 +57,15 @@ def import_windows_ca():
             # sys.exit(5)
             logger.warning('Try to manually import the certificate')
     else:
-        with setting.certpath.joinpath("root.pfx").open("wb") as pfxfile:
-            private_key, certificate, _ = pkcs12.load_key_and_certificates(pfxfile.read(), password=None)
-        with setting.certpath.joinpath("root.crt").open("wb") as certfile:
-            certfile.write(certificate.public_bytes(serialization.Encoding.PEM))
-        with setting.certpath.joinpath("root.key").open("wb") as pkeyfile:
-            pkeyfile.write(private_key.private_bytes(
+        private_key, certificate, _ = pkcs12.load_key_and_certificates(setting.certpath.joinpath("root.pfx").read_bytes(), password=None)
+        setting.certpath.joinpath("root.crt").write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
+        setting.certpath.joinpath("root.key").write_bytes(
+            private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption(),
-            ))
+            )
+        )
 
 def import_mac_ca():
     ca_hash = CertUtil.ca_thumbprint.replace(':', '')

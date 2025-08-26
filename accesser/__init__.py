@@ -31,6 +31,7 @@ from packaging.version import Version
 from tld import get_tld, is_tld
 import dns, dns.asyncresolver, dns.nameserver
 import platform
+from pathlib import Path
 
 from .utils import certmanager as cm
 from .utils import importca
@@ -56,8 +57,8 @@ async def update_cert(server_name):
         cert_store.add(server_name)
 
 async def send_pac(writer: asyncio.StreamWriter):
-    with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'pac'), 'rb') as f:
-        pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1')).replace(b'{{host}}', setting.config['server'].get('pac_host', '127.0.0.1').encode('iso-8859-1'))
+    pac_file = Path('pac') if Path('pac').exists() else Path(basepath).joinpath('pac')
+    pac = pac_file.read_bytes().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1')).replace(b'{{host}}', setting.config['server'].get('pac_host', '127.0.0.1').encode('iso-8859-1'))
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nContent-Length: {len(pac)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(pac)
     await writer.drain()
@@ -65,8 +66,7 @@ async def send_pac(writer: asyncio.StreamWriter):
     await writer.wait_closed()
 
 async def send_crt(writer: asyncio.StreamWriter, path: str):
-    with open(setting.certpath, (path.rsplit(sep = '/',maxsplit = 1)[-1]), 'rb') as f:
-        crt = f.read()
+    crt = setting.certpath.joinpath(path.rsplit(sep = '/',maxsplit = 1)[-1]).read_bytes()
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-x509-ca-cert\r\nContent-Length: {len(crt)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(crt)
     await writer.drain()
