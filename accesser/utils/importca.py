@@ -17,7 +17,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import os, sys
-from pathlib import Path 
 import subprocess
 import locale
 
@@ -29,7 +28,6 @@ from . import certmanager as cm
 from .log import logger
 logger = logger.getChild('importca')
 
-certpath = cm.certpath
 
 def logandrun(cmd):
     if hasattr(subprocess, 'STARTUPINFO'):
@@ -42,33 +40,32 @@ def logandrun(cmd):
 
 def import_windows_ca():
     try:
-        logandrun('certutil -f -user -p "" -exportPFX My Accesser '+os.path.join(certpath, 'root.pfx'))
+        logandrun('certutil -f -user -p "" -exportPFX My Accesser '+str(setting.certpath.joinpath('root.pfx')))
     except subprocess.CalledProcessError:
         logger.debug("Export Failed")
-    if not os.path.exists(os.path.join(certpath ,"root.pfx")):
+    if not setting.certpath.joinpath("root.pfx").exists():
         cm.create_root_ca()
         try:
             logger.info("Importing new certificate")
-            logandrun('CertUtil -f -user -p "" -importPFX My '+os.path.join(certpath, 'root.pfx'))
+            logandrun('CertUtil -f -user -p "" -importPFX My '+str(setting.certpath.joinpath("root.pfx")))
         except subprocess.CalledProcessError:
             logger.error("Import Failed")
             logandrun('CertUtil -user -delstore My Accesser')
-            # os.remove(os.path.join(certpath ,"root.pfx"))
-            # os.remove(os.path.join(certpath ,"root.crt"))
-            # os.remove(os.path.join(certpath ,"root.key"))
+            # os.remove(os.path.join(setting.certpath ,"root.pfx"))
+            # os.remove(os.path.join(setting.certpath ,"root.crt"))
+            # os.remove(os.path.join(setting.certpath ,"root.key"))
             # sys.exit(5)
             logger.warning('Try to manually import the certificate')
     else:
-        with open(os.path.join(certpath ,"root.pfx"), 'rb') as pfxfile:
-            private_key, certificate, _ = pkcs12.load_key_and_certificates(pfxfile.read(), password=None)
-        with open(os.path.join(certpath ,"root.crt"), "wb") as certfile:
-            certfile.write(certificate.public_bytes(serialization.Encoding.PEM))
-        with open(os.path.join(certpath ,"root.key"), "wb") as pkeyfile:
-            pkeyfile.write(private_key.private_bytes(
+        private_key, certificate, _ = pkcs12.load_key_and_certificates(setting.certpath.joinpath("root.pfx").read_bytes(), password=None)
+        setting.certpath.joinpath("root.crt").write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
+        setting.certpath.joinpath("root.key").write_bytes(
+            private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.PKCS8,
                 encryption_algorithm=serialization.NoEncryption(),
-            ))
+            )
+        )
 
 def import_mac_ca():
     ca_hash = CertUtil.ca_thumbprint.replace(':', '')
@@ -99,7 +96,7 @@ def import_mac_ca():
     os.system(cmd)
 
 def import_ca():
-    if not(os.path.exists(os.path.join(certpath ,"root.crt")) and os.path.exists(os.path.join(certpath ,"root.key"))):
+    if not(setting.certpath.joinpath("root.crt").exists() and setting.certpath.joinpath("root.key").exists()):
         if setting.config['importca']:
             if sys.platform.startswith('win'):
                 import_windows_ca()

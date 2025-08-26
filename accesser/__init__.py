@@ -30,6 +30,8 @@ from urllib.parse import urlsplit
 from packaging.version import Version
 from tld import get_tld, is_tld
 import dns, dns.asyncresolver, dns.nameserver
+import platform
+from pathlib import Path
 
 from .utils import certmanager as cm
 from .utils import importca
@@ -51,12 +53,12 @@ async def update_cert(server_name):
     async with cert_lock:
         if not server_name in cert_store:
             cm.create_certificate(server_name)
-        context.load_cert_chain(os.path.join(cm.certpath, "{}.crt".format(server_name)))
+        context.load_cert_chain(setting.certpath.joinpath("{}.crt".format(server_name)))
         cert_store.add(server_name)
 
 async def send_pac(writer: asyncio.StreamWriter):
-    with open('pac' if os.path.exists('pac') else os.path.join(basepath, 'pac'), 'rb') as f:
-        pac = f.read().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1')).replace(b'{{host}}', setting.config['server'].get('pac_host', '127.0.0.1').encode('iso-8859-1'))
+    pac_file = Path('pac') if Path('pac').exists() else Path(basepath).joinpath('pac')
+    pac = pac_file.read_bytes().replace(b'{{port}}', str(setting.config['server']['port']).encode('iso-8859-1')).replace(b'{{host}}', setting.config['server'].get('pac_host', '127.0.0.1').encode('iso-8859-1'))
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-ns-proxy-autoconfig\r\nContent-Length: {len(pac)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(pac)
     await writer.drain()
@@ -64,8 +66,7 @@ async def send_pac(writer: asyncio.StreamWriter):
     await writer.wait_closed()
 
 async def send_crt(writer: asyncio.StreamWriter, path: str):
-    with open(os.path.join(cm.certpath, path.rsplit(sep = '/',maxsplit = 1)[-1]), 'rb') as f:
-        crt = f.read()
+    crt = setting.certpath.joinpath(path.rsplit(sep = '/',maxsplit = 1)[-1]).read_bytes()
     writer.write(f'HTTP/1.1 200 OK\r\nContent-Type: application/x-x509-ca-cert\r\nContent-Length: {len(crt)}\r\n\r\n'.encode('iso-8859-1'))
     writer.write(crt)
     await writer.drain()
@@ -209,7 +210,11 @@ async def main():
     global context, cert_store, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
-    
+    if platform.system() == "Linux" or platform.system() == "FreeBSD":
+        if os.geteuid() == 0:
+            logger.warning(
+                "Running Accesser as the root user carries certain risks. Do not use it in production."
+            )
     if setting.rules_update_case in ('old', 'missing'):
         logger.warning("Updated rules.toml because it is %s.", setting.rules_update_case)
     elif setting.rules_update_case == 'modified':

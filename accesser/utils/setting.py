@@ -6,8 +6,11 @@ try:
 except ModuleNotFoundError:
     import tomli as tomllib
 import argparse
+import platform
+import logging
 
 basepath = Path(__file__).parent.parent
+certpath = None
 
 
 def deep_merge(config_a: dict, config_b: dict):
@@ -59,7 +62,44 @@ config = _rules.copy()
 config = deep_merge(_config, _rules)
 
 
+def decide_state_path_legacy():
+    if config["importca"]:
+        return Path(basepath)
+    return Path()
+
+
+def decide_state_path_unix_like():
+    if os.geteuid() == 0:
+        return Path("/var/lib") / "accesser"
+
+    state_path = os.getenv("XDG_STATE_HOME", None)
+    if state_path is not None:
+        state_path = Path(state_path) / "accesser"
+    else:
+        state_path = Path.home() / ".local/state" / "accesser"
+    return state_path
+
+
+def decide_certpath():
+    # 人为指定最优先
+    if "state_dir" in config and config["state_dir"] is not None:
+        return Path(config["state_dir"]) / "CERT"
+    match platform.system():
+        case "Linux" | "FreeBSD":
+            deprecated_path = decide_state_path_legacy() / "CERT"
+            if deprecated_path.exists():
+                logging.warning("cert path %s is deprecated.", str(deprecated_path))
+                logging.warning("Please check https://github.com/URenko/Accesser/pull/245 for migration.")
+                return deprecated_path
+            return decide_state_path_unix_like() / "CERT"
+        case _:
+            # windows,mac,android ...
+            return decide_state_path_legacy() / "CERT"
+    return
+
+
 def parse_args():
+    global certpath
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--notsetproxy",
@@ -80,9 +120,11 @@ def parse_args():
     args = parser.parse_args()
     if args.notsetproxy:
         config["setproxy"] = False
-    return
-    # FIXME Wrong initialization sequence
-    # see pull #245
     if args.notimportca:
         config["importca"] = False
-    config["state_dir"] = args.state_dir
+    if args.state_dir is not None:
+        config["state_dir"] = args.state_dir
+    certpath = decide_certpath()
+    if not certpath.exists() or certpath.is_file():
+        certpath.mkdir(parents=True)
+    return
