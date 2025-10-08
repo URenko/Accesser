@@ -155,7 +155,7 @@ def create_certificate(server_name):
             critical=True,
         )
         .add_extension(
-            AuthorityKeyIdentifier.from_issuer_public_key(pkey.public_key()),
+            AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()),
             critical=False,
         )
         .add_extension(
