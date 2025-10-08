@@ -22,7 +22,7 @@ from cryptography import x509
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives.asymmetric import rsa, ec
 from cryptography.x509.extensions import (
     AuthorityKeyIdentifier,
     KeyUsage,
@@ -103,12 +103,13 @@ def create_root_ca():
         )
     )
 
+pkey = ec.generate_private_key(ec.SECP256R1())
 
 def create_certificate(server_name):
     rootpem = setting.certpath.joinpath("root.crt").read_bytes()
     rootkey = setting.certpath.joinpath("root.key").read_bytes()
     ca_cert = x509.load_pem_x509_certificate(rootpem)
-    pkey = serialization.load_pem_private_key(rootkey, password=None)
+    ca_key = serialization.load_pem_private_key(rootkey, password=None)
 
     cert = (
         x509.CertificateBuilder()
@@ -170,7 +171,7 @@ def create_certificate(server_name):
             ),
             critical=True,
         )
-        .sign(pkey, hashes.SHA256())
+        .sign(ca_key, hashes.SHA256())
     )
 
     setting.certpath.joinpath(f"{server_name}.crt").write_bytes(
