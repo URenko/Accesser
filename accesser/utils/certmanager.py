@@ -182,3 +182,5 @@ def create_certificate(server_name):
             encryption_algorithm=serialization.NoEncryption(),
         )
     )
+
+    return cert

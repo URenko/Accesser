@@ -19,6 +19,7 @@
 __version__ = '0.11.0'
 
 import os, sys
+import datetime
 import json
 import fnmatch
 import random
@@ -41,9 +42,10 @@ from .utils.log import logger
 from .utils.cert_verify import match_hostname
 from .utils import sysproxy
 
+domain_ssl_map : dict[str, tuple[ssl.SSLContext, datetime.datetime]]  # TODO: LRU cache, i.e. maximum length for dict
 
 async def update_cert(server_name):
-    global context, cert_store, cert_lock
+    global domain_ssl_map, cert_lock
     if not is_tld(server_name):
         res = get_tld(server_name, as_object=True, fix_protocol=True)
         if res.subdomain:
@@ -51,10 +53,15 @@ async def update_cert(server_name):
         else:
             server_name = f'{res.domain}.{res.tld}'
     async with cert_lock:
-        if not server_name in cert_store:
-            cm.create_certificate(server_name)
-        context.load_cert_chain(setting.certpath.joinpath("{}.crt".format(server_name)))
-        cert_store.add(server_name)
+        if not ((server_name in domain_ssl_map) and ((datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=1)) < domain_ssl_map[server_name][1])):
+            cert = cm.create_certificate(server_name)
+            context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            context.load_cert_chain(setting.certpath.joinpath("{}.crt".format(server_name)))
+            domain_ssl_map[server_name] = (context, cert.not_valid_after.replace(tzinfo=datetime.timezone.utc))
+            logger.debug("The certificate for %s is refreshed (expiry: %s).", server_name, cert.not_valid_after)
+        else:
+            context = domain_ssl_map[server_name][0]
+        return context
 
 async def send_pac(writer: asyncio.StreamWriter):
     pac_file = Path('pac') if Path('pac').exists() else Path(basepath).joinpath('pac')
@@ -94,7 +101,6 @@ async def forward_stream(reader: asyncio.StreamReader, writer: asyncio.StreamWri
         await writer.drain()
 
 async def handle(reader, writer):
-    global context
     try:
         remote_writer = None
         raw_request = await reader.readuntil(b'\r\n\r\n')
@@ -121,7 +127,7 @@ async def handle(reader, writer):
                 return await http_redirect(writer, path)
         writer.write(b'HTTP/1.1 200 Connection Established\r\n\r\n')
 
-        await update_cert(host)
+        context = await update_cert(host)
         if sys.version_info[1] >= 11:
             await writer.start_tls(context)
         else:
@@ -207,7 +213,7 @@ def update_checker():
         logger.warning("There is a new version. You can update with `python3 -m pip install -U accesser` or download from GitHub.")
 
 async def main():
-    global context, cert_store, cert_lock, DNSresolver
+    global domain_ssl_map, cert_lock, DNSresolver
     print(f"Accesser v{__version__}  Copyright (C) 2018-2024  URenko")
     setting.parse_args()
     if platform.system() == "Linux" or platform.system() == "FreeBSD":
@@ -243,8 +249,7 @@ async def main():
     
     importca.import_ca()
 
-    context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-    cert_store = set()
+    domain_ssl_map = {}
     cert_lock = asyncio.Lock()
     
     await asyncio.gather(
