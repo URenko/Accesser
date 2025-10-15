@@ -129,7 +129,7 @@ def create_certificate(server_name):
             - datetime.timedelta(seconds=600)
         )
         .not_valid_after(
-            datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)
+            datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=30)
         )
         .add_extension(
             x509.SubjectAlternativeName(
