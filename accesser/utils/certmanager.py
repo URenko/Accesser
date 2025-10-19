@@ -58,7 +58,7 @@ def create_root_ca():
         .not_valid_before(datetime.datetime.now(datetime.timezone.utc))
         .not_valid_after(
             datetime.datetime.now(datetime.timezone.utc)
-            + datetime.timedelta(days=10 * 365)
+            + datetime.timedelta(days=25 * 365)
         )
         .add_extension(
             x509.BasicConstraints(ca=True, path_length=None),
