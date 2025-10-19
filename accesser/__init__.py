@@ -57,8 +57,8 @@ async def update_cert(server_name):
             cert = cm.create_certificate(server_name)
             context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             context.load_cert_chain(setting.certpath.joinpath("{}.crt".format(server_name)))
-            domain_ssl_map[server_name] = (context, cert.not_valid_after.replace(tzinfo=datetime.timezone.utc))
-            logger.debug("The certificate for %s is refreshed (expiry: %s).", server_name, cert.not_valid_after)
+            domain_ssl_map[server_name] = (context, cert.not_valid_after_utc)
+            logger.debug("The certificate for %s is refreshed (expiry: %s).", server_name, cert.not_valid_after_utc)
         else:
             context = domain_ssl_map[server_name][0]
         return context
