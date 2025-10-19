@@ -40,14 +40,14 @@ def logandrun(cmd):
 
 def import_windows_ca():
     try:
-        logandrun('certutil -f -user -p "" -exportPFX My Accesser '+str(setting.certpath.joinpath('root.pfx')))
+        logandrun(f'certutil -f -user -p "" -exportPFX My Accesser "{setting.certpath.joinpath('root.pfx')}"')
     except subprocess.CalledProcessError:
         logger.debug("Export Failed")
     if not setting.certpath.joinpath("root.pfx").exists():
         cm.create_root_ca()
         try:
             logger.info("Importing new certificate")
-            logandrun('CertUtil -f -user -p "" -importPFX My '+str(setting.certpath.joinpath("root.pfx")))
+            logandrun(f'CertUtil -f -user -p "" -importPFX My "{setting.certpath.joinpath("root.pfx")}"')
         except subprocess.CalledProcessError:
             logger.error("Import Failed")
             logandrun('CertUtil -user -delstore My Accesser')
