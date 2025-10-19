@@ -16,11 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import os, sys
+import os, sys, platform
+import datetime
 import subprocess
 import locale
+from pathlib import Path
 
-from cryptography.hazmat.primitives import serialization
+from cryptography import x509
+from cryptography.hazmat.primitives import serialization, hashes
 from cryptography.hazmat.primitives.serialization import pkcs12
 
 from . import setting
@@ -29,35 +32,39 @@ from .log import logger
 logger = logger.getChild('importca')
 
 
-def logandrun(cmd):
-    if hasattr(subprocess, 'STARTUPINFO'):
-        si = subprocess.STARTUPINFO()
-        si.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-    else:
-        si = None
-    return logger.debug(subprocess.check_output(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE \
-           , startupinfo=si, env=os.environ).decode(locale.getpreferredencoding()))
+def run_and_log(cmd, check=True):
+    result = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT, 
+        text=True,
+    )
 
-def import_windows_ca():
-    try:
-        logandrun(f'certutil -f -user -p "" -exportPFX My Accesser "{setting.certpath.joinpath('root.pfx')}"')
-    except subprocess.CalledProcessError:
-        logger.debug("Export Failed")
-    if not setting.certpath.joinpath("root.pfx").exists():
-        cm.create_root_ca()
+    logger.debug(result.stdout)
+
+    if check:
+        result.check_returncode()
+
+    return result
+
+
+def export_ca() -> bool:
+    if platform.system() == 'Windows':
         try:
-            logger.info("Importing new certificate")
-            logandrun(f'CertUtil -f -user -p "" -importPFX My "{setting.certpath.joinpath("root.pfx")}"')
+            pfx_path = setting.certpath.joinpath("root.pfx")
+            ps_cmd = f"""
+            $pwd = ConvertTo-SecureString -String "Accesser" -AsPlainText -Force
+            $cert = Get-ChildItem Cert:\\CurrentUser\\My | Where-Object {{ $_.Subject -like "CN=Accesser*" }} |
+                    Sort-Object NotBefore -Descending | Select-Object -First 1
+            if ($null -eq $cert) {{ exit 1 }}
+            Export-PfxCertificate -Cert $cert -FilePath "{pfx_path}" -Password $pwd -Force
+            """
+            run_and_log(["powershell", "-NoProfile", "-Command", ps_cmd], check=True)
+            logger.debug("Export succeed.")
         except subprocess.CalledProcessError:
-            logger.error("Import Failed")
-            logandrun('CertUtil -user -delstore My Accesser')
-            # os.remove(os.path.join(setting.certpath ,"root.pfx"))
-            # os.remove(os.path.join(setting.certpath ,"root.crt"))
-            # os.remove(os.path.join(setting.certpath ,"root.key"))
-            # sys.exit(5)
-            logger.warning('Try to manually import the certificate')
-    else:
-        private_key, certificate, _ = pkcs12.load_key_and_certificates(setting.certpath.joinpath("root.pfx").read_bytes(), password=None)
+            logger.debug("Export failed.")
+            return False
+        private_key, certificate, _ = pkcs12.load_key_and_certificates(pfx_path.read_bytes(), password=b'Accesser')
         setting.certpath.joinpath("root.crt").write_bytes(certificate.public_bytes(serialization.Encoding.PEM))
         setting.certpath.joinpath("root.key").write_bytes(
             private_key.private_bytes(
@@ -66,6 +73,26 @@ def import_windows_ca():
                 encryption_algorithm=serialization.NoEncryption(),
             )
         )
+        setting.certpath.joinpath("root.pfx").write_bytes(
+            serialization.pkcs12.serialize_key_and_certificates(
+                b"Accesser", private_key, certificate, None, serialization.NoEncryption()
+            )
+        )
+        return True
+    else: # TODO
+        return False
+
+
+def import_windows_ca():
+    cm.create_root_ca()
+    try:
+        logger.info("Importing new certificate")
+        run_and_log(f'CertUtil -f -user -p "" -importPFX My "{setting.certpath.joinpath("root.pfx")}"')
+    except subprocess.CalledProcessError:
+        logger.error("Import Failed")
+        run_and_log('CertUtil -user -delstore My Accesser')
+        logger.warning('Try to manually import the certificate')
+
 
 def import_mac_ca():
     ca_hash = CertUtil.ca_thumbprint.replace(':', '')
@@ -95,13 +122,56 @@ def import_mac_ca():
     logger.info("try auto import CA command:%s", cmd)
     os.system(cmd)
 
+
+def is_cert_valid(cert_path: Path, key_path: Path, ensure_trusted: bool) -> int:
+    cert = x509.load_pem_x509_certificate(cert_path.read_bytes())
+
+    if (datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(days=365)) > cert.not_valid_after_utc:
+        logger.warning('The root certificate has expired or will expire soon!')
+        return False
+
+    private_key = serialization.load_pem_private_key(key_path.read_bytes(), password=None)
+
+    public_key_cert = cert.public_key()
+    public_key_private = private_key.public_key()
+    if public_key_cert.public_numbers() != public_key_private.public_numbers():
+        logger.warning('The root certificate and private key do not match!')
+        return False
+
+    if ensure_trusted:
+        if sys.platform.startswith("win"):
+            cert_fingerprint = cert.fingerprint(hashes.SHA1()).hex().upper()
+
+            ps_cmd = f"""
+            $found = $false
+            Get-ChildItem Cert:\\CurrentUser\\Root, Cert:\\LocalMachine\\Root | ForEach-Object {{
+                if ($_.Thumbprint -eq '{cert_fingerprint}') {{ $found = $true }}
+            }}
+            exit ($found -eq $false)
+            """
+            result = subprocess.run(["powershell", "-NoProfile", "-Command", ps_cmd])
+            if result.returncode != 0:
+                logger.warning('The root certificate is not yet trusted by the operating system!')
+                return False
+
+    return True
+
+
 def import_ca():
-    if not(setting.certpath.joinpath("root.crt").exists() and setting.certpath.joinpath("root.key").exists()):
-        if setting.config['importca']:
-            if sys.platform.startswith('win'):
-                import_windows_ca()
-                return
-            else:
-                logger.warning('Automatic import of root certificate root.crt is not yet supported on this platform.')
-        cm.create_root_ca()
-        logger.warning(f'You can GET root certificate from http://localhost:{setting.config["server"]["port"]}/CERT/root.crt and import it manually.')
+    cert_path = setting.certpath.joinpath("root.crt")
+    key_path = setting.certpath.joinpath("root.key")
+
+    if not (cert_path.exists() and key_path.exists()) or not is_cert_valid(cert_path, key_path, ensure_trusted=setting.config['importca']):
+        if not (export_ca() and is_cert_valid(cert_path, key_path, ensure_trusted=setting.config['importca'])):
+            logger.warning('Generating a new root certificate...')
+            cm.create_root_ca()
+            if setting.config['importca']:
+                if platform.system() == 'Windows':
+                    import_windows_ca()
+                    return
+                else:
+                    logger.warning('Automatic import of root certificate root.crt is not yet supported on this platform.')
+    _log_msg = f'You can GET root certificate from http://localhost:{setting.config["server"]["port"]}/CERT/root.crt'
+    if not setting.config['importca']:
+        _log_msg += ' and import it manually.'
+    logger.warning(_log_msg)
