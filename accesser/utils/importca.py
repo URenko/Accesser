@@ -148,7 +148,7 @@ def is_cert_valid(cert_path: Path, key_path: Path, ensure_trusted: bool) -> int:
             }}
             exit ($found -eq $false)
             """
-            result = subprocess.run(["powershell", "-NoProfile", "-Command", ps_cmd])
+            result = run_and_log(["powershell", "-NoProfile", "-Command", ps_cmd], check=False)
             if result.returncode != 0:
                 logger.warning('The root certificate is not yet trusted by the operating system!')
                 return False
