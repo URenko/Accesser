@@ -53,6 +53,7 @@ def export_ca() -> bool:
         try:
             pfx_path = setting.certpath.joinpath("root.pfx")
             ps_cmd = f"""
+            $env:PSModulePath = [Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
             $pwd = ConvertTo-SecureString -String "Accesser" -AsPlainText -Force
             $cert = Get-ChildItem Cert:\\CurrentUser\\My | Where-Object {{ $_.Subject -like "CN=Accesser*" }} |
                     Sort-Object NotBefore -Descending | Select-Object -First 1
@@ -142,6 +143,7 @@ def is_cert_valid(cert_path: Path, key_path: Path, ensure_trusted: bool) -> int:
             cert_fingerprint = cert.fingerprint(hashes.SHA1()).hex().upper()
 
             ps_cmd = f"""
+            $env:PSModulePath = [Environment]::GetEnvironmentVariable('PSModulePath', 'Machine')
             $found = $false
             Get-ChildItem Cert:\\CurrentUser\\Root, Cert:\\LocalMachine\\Root | ForEach-Object {{
                 if ($_.Thumbprint -eq '{cert_fingerprint}') {{ $found = $true }}
