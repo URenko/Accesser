@@ -84,7 +84,6 @@ def export_ca() -> bool:
 
 
 def import_windows_ca():
-    cm.create_root_ca()
     try:
         logger.info("Importing new certificate")
         run_and_log(f'CertUtil -f -user -p "" -importPFX My "{setting.certpath.joinpath("root.pfx")}"')
